@@ -22,8 +22,16 @@
 
   var state = null;
 
+  var STATIC = !!window.STATE_URL;   // public daily copy (GitHub Pages) instead of the PC program
+
   function renderStatus(s) {
     var box = $("status"), phase = s.phase || "";
+    if (STATIC) {
+      box.dataset.state = "live";
+      $("status-text").textContent = "Updated every weekday evening · last update " +
+        (s.built_at ? d3.timeFormat("%b %-d, %-I:%M %p")(new Date(s.built_at)) : "—");
+      return;
+    }
     var live = phase === "live";
     box.dataset.state = s.error && !live ? "error" : live ? "live" : "busy";
     var parts = [];
@@ -373,14 +381,15 @@
   }
 
   function poll() {
-    fetch("/api/state", { cache: "no-store" })
+    fetch(window.STATE_URL || "/api/state", { cache: "no-store" })
       .then(function (r) { return r.json(); })
       .then(function (s) { state = s; render(); })
       .catch(function () {
         $("status").dataset.state = "error";
-        $("status-text").textContent = "Can't reach the forecast program. Is its window still open?";
+        $("status-text").textContent = STATIC ? "Couldn't load today's forecast. Try refreshing the page."
+          : "Can't reach the forecast program. Is its window still open?";
       })
-      .finally(function () { setTimeout(poll, state && state.forecast ? 60000 : 5000); });
+      .finally(function () { setTimeout(poll, STATIC ? 1800000 : state && state.forecast ? 60000 : 5000); });
   }
 
   $("news-filter").addEventListener("change", function () { if (state && state.forecast) renderNews(state.news || [], state.forecast); });

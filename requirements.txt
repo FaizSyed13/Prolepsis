@@ -1,6 +1,9 @@
-﻿pandas>=2.1
+pandas>=2.1
 numpy
 scipy
 scikit-learn
 yfinance
 matplotlib
+flask
+transformers
+torch
