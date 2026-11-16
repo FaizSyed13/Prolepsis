@@ -1,0 +1,44 @@
+{
+ "rows": [
+  {
+   "metric": "direction_accuracy",
+   "label": "Up/down accuracy",
+   "value": 55.8,
+   "period_start": "2022-12-28",
+   "period_end": "2026-11-06"
+  },
+  {
+   "metric": "naive_accuracy",
+   "label": "Always guessing the common outcome",
+   "value": 55.8,
+   "period_start": "2022-12-28",
+   "period_end": "2026-11-06"
+  },
+  {
+   "metric": "range_coverage",
+   "label": "80% range contained the outcome",
+   "value": 79.1,
+   "period_start": "2022-12-28",
+   "period_end": "2026-11-06"
+  },
+  {
+   "metric": "base_rate",
+   "label": "Share of 5-day windows that went up",
+   "value": 56.4,
+   "period_start": "2022-12-28",
+   "period_end": "2026-11-06"
+  }
+ ],
+ "meta": [
+  {
+   "label": "Test",
+   "value": "Walk-forward: models only saw data from before each prediction; calibration fitted on earlier predictions and graded on this later, unseen period"
+  },
+  {
+   "label": "probability.py",
+   "value": "\"\"\"Calibrated probabilities of going up / dropping, plus a calibrated likely price range.\n\n1. Walk-forward: get genuinely out-of-sample (OOS) predictions for every past day.\n2. Calibration: learn how the model's raw numbers map to what actually happened\n   (isotonic regression for P(up); conformal widening for the price range).\n3. Honest check: fit the calibration on the first 70% of OOS history and grade it on\n   the last 30%, which it has never seen.\n\"\"\"\nimport numpy as np\nimport pandas as pd\nfrom sklearn.isotonic import IsotonicRegression\n\nfrom .backtest import walk_forward\nfrom .models import QUANTILES, make_model\n\nCOVERAGE = QUANTILES[\"q_hi\"] - QUANTILES[\"q_lo\"]   # 0.80 target range coverage\nBINS = [0, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 1.0]\n\n\ndef oos_predictions(panel, feature_cols, model_name, cfg, use_cache=True, max_age_days=30):\n    \"\"\"Walk-forward history used for calibration. It takes minutes to rebuild, so a cached copy\n    up to `max_age_days` old is reused (calibration barely changes from one day to the next).\"\"\"\n    last = panel.index.get_level_values(\"date\").max()\n    path = cfg.data_dir / f\"oos_{model_name}_h{cfg.horizon}.pkl\"\n    if use_cache and path.exists():\n        cached = pd.read_pickle(path)\n        if (last - cached[\"last\"]).days <= max_age_days:\n            return cached[\"oos\"]\n\n    print(\"Training on history, walk-forward (first run takes a few minutes)...\")\n    oos = pd.DataFrame({\n        \"p_up\": walk_forward(panel, feature_cols, model_name, cfg, target=\"up\"),\n        \"q_lo\": walk_forward(panel, feature_cols, \"q_lo\", cfg, target=\"fwd_ret\"),\n        \"q_hi\": walk_forward(panel, feature_cols, \"q_hi\", cfg, target=\"fwd_ret\"),\n    }).join(panel[[\"up\", \"fwd_ret\"]]).dropna(subset=[\"up\"])\n    pd.to_pickle({\"last\": last, \"oos\": oos}, path)\n    return oos\n\n\ndef _fit_calibration(oos):\n    iso = IsotonicRegression(out_of_bounds=\"clip\", y_min=0.02, y_max=0.98)\n    iso.fit(oos[\"p_up\"], oos[\"up\"])\n    # Conformalized quantile regression: widen (or narrow) the range just enough that\n    # it would have contained the actual outcome COVERAGE of the time.\n    err = np.maximum(oos[\"q_lo\"] - oos[\"fwd_ret\"], oos[\"fwd_ret\"] - oos[\"q_hi\"])\n    adj = np.quantile(err, min(1.0, COVERAGE * (1 + 1 / len(err))))\n    return iso, adj\n\n\ndef calibration_report(oos, split=0.7):\n    dates = oos.index.get_level_values(\"date\").unique().sort_values()\n    cut = dates[int(len(dates) * split)]\n    d = oos.index.get_level_values(\"date\")\n    fit, test = oos[d < cut], oos[d >= cut]\n    iso, adj = _fit_calibration(fit)\n\n    y = test[\"up\"].to_numpy()\n    p = iso.predict(test[\"p_up\"])\n    base = fit[\"up\"].mean()                                   # \"always guess the usual rate\"\n    brier = lambda q: np.mean((q - y) ** 2)\n    lo, hi = test[\"q_lo\"] - adj, test[\"q_hi\"] + adj\n    inside = ((test[\"fwd_ret\"] >= lo) & (test[\"fwd_ret\"] <= hi)).mean()\n\n    table = (pd.DataFrame({\"pred\": p, \"actual\": y})\n             .assign(bin=lambda x: pd.cut(x[\"pred\"], BINS))\n             .groupby(\"bin\", observed=True)\n             .agg(model_said=(\"pred\", \"mean\"), actually_up=(\"actual\", \"mean\"), cases=(\"actual\", \"size\")))\n    return {\n        \"test_start\": cut, \"test_end\": dates[-1],\n        \"base_rate\": base,\n        \"accuracy\": ((p > 0.5) == (y == 1)).mean(),\n        \"naive_accuracy\": max(np.mean(y == 1), np.mean(y == 0)),\n        \"skill\": 1 - brier(p) / brier(np.full_like(p, base)),  # >0 = better than naive guess\n        \"range_coverage\": inside,\n        \"range_width\": (hi - lo).median(),\n        \"table\": table,\n    }\n\n\ndef forecast_latest(panel, feature_cols, model_name, cfg, oos):\n    iso, adj = _fit_calibration(oos)\n    last = panel.index.get_level_values(\"date\").max()\n    today = panel.xs(last, level=\"date\")\n    X = today[feature_cols]\n\n    train = panel[panel[\"up\"].notna()]\n    clf = make_model(model_name, cfg.seed).fit(train[feature_cols], train[\"up\"].astype(int))\n    p_up = iso.predict(clf.predict_proba(X)[:, 1])\n    q = {}\n    for name in QUANTILES:\n        q[name] = make_model(name, cfg.seed).fit(train[feature_cols], train[\"fwd_ret\"]).predict(X)\n    lo = np.minimum(q[\"q_lo\"], q[\"q_hi\"]) - adj\n    hi = np.maximum(q[\"q_lo\"], q[\"q_hi\"]) + adj\n\n    out = pd.DataFrame({\n        \"price\": today[\"close\"],\n        \"p_up\": p_up,\n        \"p_down\": 1 - p_up,\n        \"low\": today[\"close\"] * (1 + lo),\n        \"high\": today[\"close\"] * (1 + hi),\n    }, index=today.index).sort_values(\"p_up\", ascending=False)\n    return out, last\n",
+   "type": "code",
+   "lang": "python"
+  }
+ ]
+}

@@ -1,0 +1,8 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Downloaded / cached data (rebuilt automatically)
+data/*.pkl
+data/news.db

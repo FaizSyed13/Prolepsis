@@ -1,0 +1,6 @@
+ticker,lean,vol_mult,event,reason,written_at
+NVDA,0,1.6,"Earnings expected this week (date unconfirmed)","The scandal and the 25% drop are already priced in. Reports of Huang returning (bullish) and DOJ probes (bearish) pull in opposite directions, so no direction lean - but earnings plus the scandal make a much bigger move than usual likely.",2026-11-16T00:00:00Z
+HD,0,1.5,"Earnings Tue Nov 17","Stocks typically move about 1.5x more than normal in earnings weeks. Expectations are modest (flat sales guidance), so no clear direction.",2026-11-16T00:00:00Z
+V,1,1.0,"","Record results and a 16% dividend raise. Stocks with strong results tend to keep drifting up for weeks afterwards (post-earnings drift), and the 3% dip since leaves room. Small up lean.",2026-11-16T00:00:00Z
+AAPL,0,1.0,"","Earnings beat is offset by worries about rising memory-chip costs, and the stock already sits near its 52-week high. No lean.",2026-11-16T00:00:00Z
+JNJ,0,1.0,"","Rose 2% on Nov 9 but I found no cause, so there's nothing to reason from. No lean.",2026-11-16T00:00:00Z

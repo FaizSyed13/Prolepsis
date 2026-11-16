@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weekly Stock Forecast</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<main class="sf">
+  <header class="sf-head" id="overview">
+    <div class="sf-status" id="status" role="status"><span class="sf-dot"></span><span id="status-text">Starting up…</span></div>
+    <h1 class="sf-title">Weekly Stock Forecast</h1>
+    <p class="sf-lede">Where each stock's price is likely to be after the next 5 trading days, from prices as of <b id="asof">—</b>. Live news changed the forecast for <b id="nadj">—</b> of them.</p>
+    <p class="sf-lede" id="edge-line">—</p>
+  </header>
+
+  <div class="sf-loading" id="loading" hidden>
+    <p><b>Getting everything ready.</b> <span id="loading-phase"></span></p>
+    <p class="sf-sub">The first start downloads prices and the news-reading model, which can take a few minutes. After that it opens in about a minute.</p>
+  </div>
+
+  <section class="sf-tiles" id="track-record">
+    <div class="sf-tile">
+      <span class="sf-label">Up/down accuracy</span>
+      <span class="sf-big" id="t-acc">—</span>
+      <span class="sf-sub">Always guessing the more common outcome: <b id="t-naive">—</b></span>
+    </div>
+    <div class="sf-tile">
+      <span class="sf-label">Price range hit rate</span>
+      <span class="sf-big" id="t-cover">—</span>
+      <span class="sf-sub">How often the final price landed inside the 80% range. The target is 80%.</span>
+    </div>
+    <div class="sf-tile">
+      <span class="sf-label">Weeks that went up</span>
+      <span class="sf-big" id="t-base">—</span>
+      <span class="sf-sub">Share of 5-day windows in which these stocks rose. Most forecasts sit near this number.</span>
+    </div>
+  </section>
+  <p class="sf-sub">Track record measured on <span id="p-start">—</span> to <span id="p-end">—</span>, a stretch of history the model never trained on.</p>
+
+  <section class="sf-sec" id="ranges">
+    <h2 class="sf-h">Where each price could land</h2>
+    <p class="sf-sub">80% likely range after 5 trading days, as a change from today's price. Widest ranges first.</p>
+    <div class="sf-key" aria-hidden="true"><span><i class="sf-sw sf-sw--r"></i>After the news</span><span><i class="sf-sw sf-sw--m"></i>Price model alone</span></div>
+    <div class="sf-chart" id="range-chart"></div>
+  </section>
+
+  <section class="sf-sec" id="all-forecasts">
+    <h2 class="sf-h">All forecasts</h2>
+    <p class="sf-sub">Click any stock for its statistics and advice.</p>
+    <div class="sf-scroll">
+      <table class="sf-table">
+        <thead><tr><th>Stock</th><th class="sf-num">Price</th><th class="sf-num">Up</th><th class="sf-num">Down</th><th class="sf-num">Model up</th><th class="sf-num">Range low</th><th class="sf-num">Range high</th><th>News (3 days)</th><th>Changed by news</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sf-sec" id="reasoning">
+    <h2 class="sf-h">Why these stocks changed</h2>
+    <div class="sf-notes" id="notes"></div>
+  </section>
+
+  <section class="sf-sec" id="news">
+    <div class="sf-row">
+      <h2 class="sf-h">Latest headlines</h2>
+      <label class="sf-filter">Show <select id="news-filter" aria-label="Filter headlines by stock"><option value="">All stocks</option></select></label>
+    </div>
+    <p class="sf-sub">From Google News and Yahoo Finance, checked every 15 minutes. Each headline is rated by FinBERT, a finance news model running on this PC.</p>
+    <ul class="sf-news" id="news-list"></ul>
+  </section>
+
+  <details class="sf-foot" id="how-to-read">
+    <summary>How to read this page</summary>
+    <ul>
+      <li><b>Up / Down</b> is the chance the price is higher or lower after 5 trading days.</li>
+      <li><b>Model up</b> is the chance from the price model alone, before the news.</li>
+      <li><b>80% range</b> is where the price should end about 4 times out of 5. Big news can push it outside.</li>
+      <li><b>News (3 days)</b> is FinBERT's overall rating of the last 3 days of headlines, from −1 (all bad) to +1 (all good), with the number of headlines.</li>
+      <li><b>Lean up / lean down</b> moves the chance of going up by 3 points per step when the news is clearly good or bad.</li>
+      <li><b>Range x1.4</b> and similar widen the range when earnings are in the news or there's a flood of strongly worded headlines.</li>
+      <li>These news rules haven't been proven to help yet. Every forecast is saved and graded once its 5 trading days are over.</li>
+      <li>This is a research tool, not financial advice.</li>
+    </ul>
+  </details>
+</main>
+
+<dialog class="sf-dialog" id="advice" aria-labelledby="adv-title">
+  <div class="sf-adv">
+    <header class="sf-adv-head">
+      <div>
+        <h2 class="sf-adv-title" id="adv-title">—</h2>
+        <p class="sf-sub" id="adv-sub">—</p>
+      </div>
+      <button class="sf-close" id="adv-close" type="button" aria-label="Close">×</button>
+    </header>
+    <div class="sf-verdicts">
+      <section class="sf-verdict" id="adv-short">
+        <span class="sf-label">Short term · next week</span>
+        <div class="sf-vline"><span class="sf-vpill" data-v="Hold">—</span><span class="sf-sub sf-vmeta"></span></div>
+        <ul class="sf-reasons"></ul>
+      </section>
+      <section class="sf-verdict" id="adv-long">
+        <span class="sf-label">Long term · 1 year or more</span>
+        <div class="sf-vline"><span class="sf-vpill" data-v="Hold">—</span><span class="sf-sub sf-vmeta"></span></div>
+        <ul class="sf-reasons"></ul>
+      </section>
+    </div>
+    <section class="sf-sec" id="adv-price">
+      <h3 class="sf-h3">Price, last 6 months</h3>
+      <p class="sf-sub">Each candle is one trading day: the box runs from the opening to the closing price, the thin line from the day's low to its high. Green closed higher than it opened, red lower. The shaded band is the 80% likely range for the next 5 trading days.</p>
+      <div class="sf-candles" id="adv-candles"></div>
+    </section>
+    <section class="sf-sec">
+      <h3 class="sf-h3">Statistics</h3>
+      <dl class="sf-stats" id="adv-stats"></dl>
+    </section>
+    <section class="sf-sec">
+      <h3 class="sf-h3">Recent headlines</h3>
+      <ul class="sf-news sf-news--compact" id="adv-news"></ul>
+    </section>
+    <p class="sf-sub">Verdicts come from simple, openly stated rules and haven't been proven to make money. This is a research tool, not financial advice. Never invest money you can't afford to lose.</p>
+  </div>
+</dialog>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
