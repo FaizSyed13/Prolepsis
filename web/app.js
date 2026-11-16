@@ -355,6 +355,64 @@
     });
   }
 
+  // ---------- Live chart (free TradingView widget) ----------
+  var NASDAQ = ["AAPL", "MSFT", "AMZN", "GOOGL", "META", "NVDA", "PEP", "WMT", "COST"];
+  var FRAMES = [   // label, candle size, visible span (none = TradingView's default for that size)
+    ["1 min", "1"], ["5 min", "5"], ["30 min", "30"], ["1 hour", "60"], ["1 day", "D"],
+    ["1 month", "D", "1M"], ["6 months", "D", "6M"], ["1y", "D", "12M"], ["5y", "W", "60M"], ["Max", "M", "ALL"]
+  ];
+  var frame = 4, liveShown = false;
+  function isDark() {
+    var t = document.documentElement.dataset.theme;
+    return t ? t === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+  function renderLive() {
+    if (!openTicker || !liveShown) return;
+    var box = $("live-chart"), f = FRAMES[frame];
+    box.replaceChildren();
+    var cfg = {
+      symbol: (NASDAQ.indexOf(openTicker) > -1 ? "NASDAQ:" : "NYSE:") + openTicker,
+      interval: f[1], timezone: "America/New_York", theme: isDark() ? "dark" : "light", style: "1",
+      locale: "en", autosize: true, allow_symbol_change: false, hide_side_toolbar: true,
+      hide_top_toolbar: true, save_image: false, calendar: false, support_host: "https://www.tradingview.com"
+    };
+    if (f[2]) cfg.range = f[2];
+    var wrap = el("div", "tradingview-widget-container");
+    wrap.style.height = "100%";
+    var inner = el("div", "tradingview-widget-container__widget");
+    inner.style.height = "100%";
+    var sc = document.createElement("script");
+    sc.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+    sc.async = true;
+    sc.textContent = JSON.stringify(cfg);
+    wrap.append(inner, sc);
+    box.appendChild(wrap);
+  }
+  (function () {
+    var bar = $("live-ranges");
+    FRAMES.forEach(function (f, i) {
+      var b = el("button", "sf-range", f[0]);
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(i === frame));
+      b.addEventListener("click", function () {
+        frame = i;
+        bar.querySelectorAll("button").forEach(function (x, j) { x.setAttribute("aria-pressed", String(j === i)); });
+        renderLive();
+      });
+      bar.appendChild(b);
+    });
+  })();
+  function showTab(live) {
+    liveShown = live;
+    $("tab-forecast").setAttribute("aria-selected", String(!live));
+    $("tab-live").setAttribute("aria-selected", String(live));
+    $("pane-forecast").hidden = live;
+    $("pane-live").hidden = !live;
+    if (live) renderLive(); else $("live-chart").replaceChildren();
+  }
+  $("tab-forecast").addEventListener("click", function () { showTab(false); });
+  $("tab-live").addEventListener("click", function () { showTab(true); });
+
   function openAdvice(tk) {
     openTicker = tk;
     var d = $("advice");
@@ -364,7 +422,7 @@
   }
   $("adv-close").addEventListener("click", function () { $("advice").close(); });
   $("advice").addEventListener("click", function (e) { if (e.target === e.currentTarget) e.currentTarget.close(); });
-  $("advice").addEventListener("close", function () { openTicker = null; });
+  $("advice").addEventListener("close", function () { openTicker = null; showTab(false); });
 
   function render() {
     if (!state) return;

@@ -110,9 +110,20 @@
       </section>
     </div>
     <section class="sf-sec" id="adv-price">
-      <h3 class="sf-h3">Price, last 6 months</h3>
-      <p class="sf-sub">Each candle is one trading day: the box runs from the opening to the closing price, the thin line from the day's low to its high. Green closed higher than it opened, red lower. The shaded band is the 80% likely range for the next 5 trading days.</p>
-      <div class="sf-candles" id="adv-candles"></div>
+      <div class="sf-tabs" role="tablist" aria-label="Chart type">
+        <button type="button" role="tab" class="sf-tab" id="tab-forecast" aria-selected="true" aria-controls="pane-forecast">Forecast chart</button>
+        <button type="button" role="tab" class="sf-tab" id="tab-live" aria-selected="false" aria-controls="pane-live">Live chart</button>
+      </div>
+      <div id="pane-forecast" role="tabpanel" aria-labelledby="tab-forecast">
+        <h3 class="sf-h3">Price, last 6 months</h3>
+        <p class="sf-sub">Each candle is one trading day: the box runs from the opening to the closing price, the thin line from the day's low to its high. Green closed higher than it opened, red lower. The shaded band is the 80% likely range for the next 5 trading days.</p>
+        <div class="sf-candles" id="adv-candles"></div>
+      </div>
+      <div id="pane-live" role="tabpanel" aria-labelledby="tab-live" hidden>
+        <div class="sf-ranges" id="live-ranges" role="group" aria-label="Time frame"></div>
+        <div class="sf-live" id="live-chart"></div>
+        <p class="sf-sub">Live prices from TradingView, which can run up to about 15 minutes behind. While the market is closed the chart shows the last trade. Drag to scroll, pinch or scroll the mouse wheel to zoom.</p>
+      </div>
     </section>
     <section class="sf-sec">
       <h3 class="sf-h3">Statistics</h3>
