@@ -275,10 +275,3 @@ a { color: inherit; }
 .sf-an-lines { display: grid; gap: 6px; margin: 0 0 10px; padding-left: 18px; line-height: 1.45; }
 .sf-an-lines .sf-pos { color: var(--ok); } .sf-an-lines .sf-neg { color: var(--bad); }
 .sf-an-bar[hidden], .sf-an-legend[hidden] { display: none; }
-
-/* Earnings dates */
-.sf-earn { white-space: nowrap; }
-.sf-earnsoon { margin: 0; padding: 10px 14px; border-radius: var(--radius); border: 1px solid var(--warn); line-height: 1.6; }
-.sf-earnsoon strong { color: var(--warn); }
-.sf-linkbtn { font: inherit; font-weight: 700; color: var(--mauve); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
-.sf-linkbtn:hover, .sf-linkbtn:focus-visible { color: var(--pink); }
