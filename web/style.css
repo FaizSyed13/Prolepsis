@@ -22,7 +22,7 @@ body { margin: 0; color: var(--fg); font: 15px/1.55 var(--sans); min-height: 100
     radial-gradient(900px 600px at 50% 110%, rgba(245, 194, 231, 0.06), transparent 70%),
     var(--crust) fixed; background-color: var(--base); }
 ::selection { background: rgba(203, 166, 247, 0.35); color: var(--fg); }
-.sf a:not(.sf-tk) { color: var(--lavender); }
+.sf a:not(.sf-tk):not(.sf-gh) { color: var(--lavender); }
 .sf { max-width: 1080px; margin: 0 auto; display: grid; gap: 32px;
       padding-block: 32px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .sf h1, .sf h2, .sf h3, .sf p { margin: 0; }
@@ -149,6 +149,15 @@ a { color: inherit; }
 .sf-news--compact .sf-meta { grid-column: 1; }
 
 .sf-foot a, .sf-guide a { color: var(--lavender); }
+
+/* Footer with GitHub link */
+.sf-footer { display: grid; justify-items: center; gap: 12px; padding-top: 8px; text-align: center; }
+.sf-gh { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--surface0);
+  border: 1px solid var(--surface1); color: var(--fg); transition: transform .2s cubic-bezier(.3, 1.6, .5, 1), background .2s, color .2s, box-shadow .2s; }
+.sf-gh svg { width: 26px; height: 26px; fill: currentColor; }
+.sf-gh:hover { background: var(--mauve); border-color: var(--mauve); color: var(--crust); transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 8px 24px rgba(203, 166, 247, 0.3); }
+@media (prefers-reduced-motion: reduce) { .sf-gh:hover { transform: none; } }
 
 /* Little cat that follows the mouse (desktop only; see app.js) */
 .sf-buddy { position: fixed; left: 0; top: 0; width: 34px; height: 34px; z-index: 2147483000; pointer-events: none;
