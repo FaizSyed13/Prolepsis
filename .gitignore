@@ -6,6 +6,7 @@ __pycache__/
 # Downloaded / cached data (rebuilt automatically)
 data/*.pkl
 data/news.db
+data/fundamentals.json
 
 # Built website (made by build_site.py)
 _site/
