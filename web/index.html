@@ -17,6 +17,37 @@
     <p class="sf-lede" id="edge-line">—</p>
   </header>
 
+  <details class="sf-guide" id="how-to-read" open>
+    <summary>How to read this page <span class="sf-guide-hint">· tap to hide or show</span></summary>
+    <div class="sf-guide-grid">
+      <section>
+        <h3 class="sf-h3">What this is</h3>
+        <p>A computer forecast for 20 large US companies, looking about one week ahead (the next 5 trading days). It learns from past prices and then adjusts for recent news headlines.</p>
+      </section>
+      <section>
+        <h3 class="sf-h3">Chance of going up</h3>
+        <p><b>Up 58%</b> means that in similar past situations, the price ended the week higher about 58 times out of 100. <b>Down</b> is the rest. Most stocks sit between 50% and 60% because these companies rise in most weeks. <b>Model up</b> is the chance before the news was taken into account.</p>
+      </section>
+      <section>
+        <h3 class="sf-h3">Price range</h3>
+        <p>The <b>80% range</b> is where the price should end up about 4 weeks out of 5. About 1 week in 5 it lands outside, sometimes far outside after big news. A wider range means a bumpier week is expected.</p>
+      </section>
+      <section>
+        <h3 class="sf-h3">News</h3>
+        <p>Headlines from the last 3 days are rated from −1 (all bad) to +1 (all good). Clearly good or bad news nudges the chance of going up by 3 points per step (<b>lean up / lean down</b>). Earnings news or a flood of strong headlines widens the range (<b>Range x1.4</b> and similar). These news rules haven't been proven to help yet.</p>
+      </section>
+      <section>
+        <h3 class="sf-h3">Buy, Hold or Sell</h3>
+        <p>Click any stock to see two verdicts. <b>Short term (next week):</b> Buy if the chance of going up is at least 3 points above a normal week, Sell if at least 3 points below, otherwise Hold. <b>Long term (a year or more):</b> four simple checks (the price trend, the past year's gain or loss, analysts' price targets, and how expensive the stock is compared with its earnings), each counting +1 or −1. A total of +2 or more is Buy and −2 or less is Sell. A stock that's falling steeply never gets more than Hold.</p>
+      </section>
+      <section>
+        <h3 class="sf-h3">How good is it, honestly?</h3>
+        <p>In testing, the up/down calls were right about as often as simply guessing "up" every week, so treat them as a weak hint. The price ranges have been the most reliable part. Every forecast is saved and graded in <a href="#scorecard">How our past forecasts did</a>, with nothing left out.</p>
+      </section>
+    </div>
+    <p class="sf-guide-warn">This is a research project, not financial advice. Nobody can reliably predict next week's stock prices. Never invest money you can't afford to lose.</p>
+  </details>
+
   <div class="sf-loading" id="loading" hidden>
     <p><b>Getting everything ready.</b> <span id="loading-phase"></span></p>
     <p class="sf-sub">The first start downloads prices and the news-reading model, which can take a few minutes. After that it opens in about a minute.</p>
@@ -107,19 +138,7 @@
     <ul class="sf-news" id="news-list"></ul>
   </section>
 
-  <details class="sf-foot" id="how-to-read">
-    <summary>How to read this page</summary>
-    <ul>
-      <li><b>Up / Down</b> is the chance the price is higher or lower after 5 trading days.</li>
-      <li><b>Model up</b> is the chance from the price model alone, before the news.</li>
-      <li><b>80% range</b> is where the price should end about 4 times out of 5. Big news can push it outside.</li>
-      <li><b>News (3 days)</b> is FinBERT's overall rating of the last 3 days of headlines, from −1 (all bad) to +1 (all good), with the number of headlines.</li>
-      <li><b>Lean up / lean down</b> moves the chance of going up by 3 points per step when the news is clearly good or bad.</li>
-      <li><b>Range x1.4</b> and similar widen the range when earnings are in the news or there's a flood of strongly worded headlines.</li>
-      <li>These news rules haven't been proven to help yet. Every forecast is saved and graded once its 5 trading days are over.</li>
-      <li>This is a research tool, not financial advice.</li>
-    </ul>
-  </details>
+  <p class="sf-sub sf-foot">A research project, not financial advice. <a href="#how-to-read">How to read this page</a></p>
 </main>
 
 <dialog class="sf-dialog" id="advice" aria-labelledby="adv-title">

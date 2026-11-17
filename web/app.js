@@ -24,12 +24,25 @@
 
   var STATIC = !!window.STATE_URL;   // public daily copy (GitHub Pages) instead of the PC program
 
+  // "How to read this page": open on the first visit, then remember if the visitor hid it.
+  (function () {
+    var guide = $("how-to-read"), KEY = "sf-guide-hidden";
+    try { if (localStorage.getItem(KEY) === "1") guide.open = false; } catch (e) {}
+    guide.addEventListener("toggle", function () {
+      try { localStorage.setItem(KEY, guide.open ? "0" : "1"); } catch (e) {}
+    });
+    document.querySelectorAll('a[href="#how-to-read"]').forEach(function (a) {
+      a.addEventListener("click", function () { guide.open = true; });
+    });
+  })();
+
   function renderStatus(s) {
     var box = $("status"), phase = s.phase || "";
     if (STATIC) {
       box.dataset.state = "live";
+      var at = s.built_at || s.news_at || s.base_at;
       $("status-text").textContent = "Updated every weekday evening · last update " +
-        (s.built_at ? d3.timeFormat("%b %-d, %-I:%M %p")(new Date(s.built_at)) : "—");
+        (at ? d3.timeFormat("%b %-d, %-I:%M %p")(new Date(at)) : "—");
       return;
     }
     var live = phase === "live";
