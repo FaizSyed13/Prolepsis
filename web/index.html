@@ -17,6 +17,17 @@
     <p class="sf-lede" id="edge-line">—</p>
   </header>
 
+  <div class="sf-search" id="search">
+    <label class="sf-search-box" for="search-input">
+      <svg class="sf-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+      <input id="search-input" type="text" role="combobox" aria-expanded="false" aria-controls="search-list"
+             aria-autocomplete="list" autocomplete="off" spellcheck="false"
+             placeholder="Search a stock, like Apple or NVDA" aria-label="Search stocks">
+      <button type="button" class="sf-search-clear" id="search-clear" aria-label="Clear search" hidden>×</button>
+    </label>
+    <ul class="sf-search-list" id="search-list" role="listbox" aria-label="Stocks" hidden></ul>
+  </div>
+
   <details class="sf-guide" id="how-to-read" open>
     <summary>How to read this page <span class="sf-guide-hint">· tap to hide or show</span></summary>
     <div class="sf-guide-grid">

@@ -500,7 +500,95 @@
       .finally(function () { setTimeout(poll, STATIC ? 1800000 : state && state.forecast ? 60000 : 5000); });
   }
 
-  $("news-filter").addEventListener("change", function () { if (state && state.forecast) renderNews(state.news || [], state.forecast); });
+  // Search bar: click to see every stock, type to narrow the list, pick one to open its details.
+  (function () {
+    var input = $("search-input"), list = $("search-list"), clear = $("search-clear"), box = $("search");
+    var items = [], active = -1;
+    var norm = function (s) { return String(s || "").toLowerCase(); };
+
+    function rank(r, q) {
+      if (!q) return 0;
+      var t = norm(r.ticker), n = norm(r.name);
+      if (t === q) return 1;
+      if (t.indexOf(q) === 0) return 2;
+      if (n.indexOf(q) === 0) return 3;
+      if (n.split(/[^a-z0-9]+/).some(function (w) { return w.indexOf(q) === 0; })) return 4;
+      if (n.indexOf(q) > -1 || t.indexOf(q) > -1) return 5;
+      return -1;
+    }
+    function mark(text, q) {   // text with the typed letters in bold
+      var span = el("span"), i = q ? norm(text).indexOf(q) : -1;
+      if (i < 0) { span.textContent = text; return span; }
+      span.append(text.slice(0, i), el("mark", null, text.slice(i, i + q.length)), text.slice(i + q.length));
+      return span;
+    }
+    function setActive(i) {
+      active = i;
+      Array.prototype.forEach.call(list.children, function (li, j) { li.setAttribute("aria-selected", String(j === i)); });
+      var cur = list.children[i];
+      if (cur && cur.id) { input.setAttribute("aria-activedescendant", cur.id); cur.scrollIntoView({ block: "nearest" }); }
+      else input.removeAttribute("aria-activedescendant");
+    }
+    function show() {
+      if (!state || !state.forecast) return;
+      var q = norm(input.value.trim()), base = state.base_rate_pct || 55;
+      clear.hidden = !input.value;
+      items = state.forecast.map(function (r) { return { r: r, k: rank(r, q) }; })
+        .filter(function (x) { return x.k >= 0; })
+        .sort(function (a, b) { return a.k - b.k || d3.ascending(a.r.ticker, b.r.ticker); })
+        .map(function (x) { return x.r; });
+      list.replaceChildren();
+      if (!items.length) {
+        list.appendChild(el("li", "sf-search-empty", "No stock matches \"" + input.value.trim() + "\". Try a company name or ticker."));
+      }
+      items.forEach(function (r, i) {
+        var li = el("li", "sf-search-item");
+        li.id = "search-opt-" + i;
+        li.setAttribute("role", "option");
+        var edge = r.up_pct - base, tone = edge >= 3 ? "up" : edge <= -3 ? "down" : "flat";
+        var who = el("span", "sf-search-who");
+        who.append(el("strong", "sf-search-tk"), el("span", "sf-search-name"));
+        who.firstChild.appendChild(mark(r.ticker, q));
+        who.lastChild.appendChild(mark(r.name, q));
+        var right = el("span", "sf-search-right");
+        right.append(el("span", "sf-search-price", "$" + money(r.price)),
+                     el("span", "sf-search-up sf-search-up--" + tone, r.up_pct + "% up"));
+        li.append(who, right);
+        li.addEventListener("pointerdown", function (e) { e.preventDefault(); });   // keep focus in the box
+        li.addEventListener("click", function () { pick(r); });
+        li.addEventListener("pointermove", function () { if (active !== i) setActive(i); });
+        list.appendChild(li);
+      });
+      list.hidden = false;
+      input.setAttribute("aria-expanded", "true");
+      setActive(q && items.length ? 0 : -1);
+    }
+    function hide() { list.hidden = true; input.setAttribute("aria-expanded", "false"); setActive(-1); }
+    function pick(r) { hide(); input.blur(); openAdvice(r.ticker); }
+
+    input.addEventListener("focus", show);
+    input.addEventListener("click", show);
+    input.addEventListener("input", show);
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (list.hidden) { show(); return; }
+        if (!items.length) return;
+        var n = items.length, d = e.key === "ArrowDown" ? 1 : -1;
+        setActive(active < 0 ? (d > 0 ? 0 : n - 1) : (active + d + n) % n);
+      } else if (e.key === "Enter") {
+        var r = items[active >= 0 ? active : 0];
+        if (r && !list.hidden) { e.preventDefault(); pick(r); }
+      } else if (e.key === "Escape") {
+        if (!list.hidden) hide(); else { input.value = ""; clear.hidden = true; }
+      }
+    });
+    input.addEventListener("blur", function () { setTimeout(hide, 120); });
+    clear.addEventListener("click", function () { input.value = ""; input.focus(); show(); });
+    document.addEventListener("pointerdown", function (e) { if (!box.contains(e.target)) hide(); });
+  })();
+
+  $("news-filter").addEventListener("change",function () { if (state && state.forecast) renderNews(state.news || [], state.forecast); });
   var lastW = 0;
   window.addEventListener("resize", function () {
     var w = $("range-chart").clientWidth;

@@ -6,7 +6,7 @@
   --pop: #ffffff; --shadow: 0 6px 24px rgba(30, 28, 24, 0.12);
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
-  --radius: 10px;
+  --radius: 18px;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
@@ -68,15 +68,20 @@ a { color: inherit; }
 
 .sf-chart { position: relative; min-height: 440px; }
 .sf-chart svg { display: block; overflow: visible; }
+.sf-chart svg rect { rx: 4px; }
 .sf-chart svg text { font: 12px var(--sans); fill: var(--muted); font-variant-numeric: tabular-nums; }
 .sf-chart svg text.sf-lab { fill: var(--fg); }
 .sf-chart svg text.sf-lab--chg { font-weight: 600; }
 .sf-tip { position: absolute; z-index: 2; pointer-events: none; max-width: 280px; background: var(--pop); border: 1px solid var(--line);
-          box-shadow: var(--shadow); border-radius: 8px; padding: 8px 12px; font-size: 13px; line-height: 1.45; display: grid; gap: 2px; }
+          box-shadow: var(--shadow); border-radius: 12px; padding: 8px 12px; font-size: 13px; line-height: 1.45; display: grid; gap: 2px; }
 .sf-tip strong { font-weight: 600; }
 .sf-tip span { color: var(--muted); }
 
-.sf-scroll { overflow-x: auto; }
+.sf-scroll { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+.sf-table tbody tr:last-child td { border-bottom: 0; }
+.sf-table th:first-child, .sf-table td:first-child { padding-left: 18px; }
+.sf-table th:last-child, .sf-table td:last-child { padding-right: 18px; }
+.sf-table th { padding-top: 12px; }
 .sf-table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
 .sf-table th { text-align: left; font-size: 12px; font-weight: 500; color: var(--muted); padding: 8px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
 .sf-table td { padding: 8px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
@@ -99,7 +104,7 @@ a { color: inherit; }
 .sf-event { font-size: 13px; color: var(--warn); }
 
 .sf-filter { font-size: 13px; color: var(--muted); display: inline-flex; gap: 8px; align-items: center; }
-.sf-filter select { font: inherit; color: var(--fg); background-color: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; }
+.sf-filter select { font: inherit; color: var(--fg); background-color: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; }
 .sf-news { list-style: none; margin: 0; padding: 0; display: grid; }
 .sf-news li { display: grid; grid-template-columns: 64px 1fr auto; gap: 4px 12px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--line); }
 .sf-news .sf-tk { font-weight: 600; font-size: 13px; }
@@ -120,17 +125,17 @@ a { color: inherit; }
 .sf-chart .sf-hit { cursor: pointer; }
 
 /* Advice panel */
-.sf-dialog { border: 1px solid var(--line); border-radius: 14px; padding: 0; background: var(--bg); color: var(--fg);
+.sf-dialog { border: 1px solid var(--line); border-radius: 24px; padding: 0; background: var(--bg); color: var(--fg);
              width: min(860px, calc(100vw - 32px)); max-height: calc(100vh - 48px); box-shadow: var(--shadow); }
 .sf-dialog::backdrop { background: rgba(20, 18, 15, 0.45); }
 .sf-adv { padding: 24px; display: grid; gap: 22px; }
 .sf-adv-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
 .sf-adv-title { font-family: var(--serif); font-weight: 400; font-size: 28px; line-height: 1.2; margin: 0; }
-.sf-close { font: 24px/1 var(--sans); background: none; border: 1px solid var(--line); color: var(--fg); border-radius: 8px; width: 36px; height: 36px; cursor: pointer; flex: none; }
+.sf-close { font: 24px/1 var(--sans); background: none; border: 1px solid var(--line); color: var(--fg); border-radius: 50%; width: 36px; height: 36px; cursor: pointer; flex: none; }
 .sf-verdicts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
 .sf-verdict { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: grid; gap: 10px; align-content: start; min-width: 0; }
 .sf-vline { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.sf-vpill { font-family: var(--serif); font-size: 30px; line-height: 1; padding: 6px 14px; border-radius: 8px; border: 1.5px solid currentColor; }
+.sf-vpill { font-family: var(--serif); font-size: 30px; line-height: 1; padding: 6px 18px; border-radius: 999px; border: 1.5px solid currentColor; }
 .sf-vpill[data-v="Buy"] { color: var(--ok); }
 .sf-vpill[data-v="Sell"] { color: var(--bad); }
 .sf-vpill[data-v="Hold"] { color: var(--muted); }
@@ -149,6 +154,39 @@ a { color: inherit; }
 .sf-news--compact .sf-meta { grid-column: 1; }
 
 .sf-foot a, .sf-guide a { color: var(--series); }
+
+/* Stock search bar */
+.sf-search { position: relative; z-index: 5; max-width: 640px; width: 100%; }
+.sf-search-box { display: flex; align-items: center; gap: 10px; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 999px; padding: 0 8px 0 18px; height: 52px; box-shadow: 0 2px 10px rgba(30, 28, 24, 0.06);
+  transition: border-color .15s, box-shadow .15s; cursor: text; }
+.sf-search-box:hover { border-color: var(--chart-muted); }
+.sf-search-box:focus-within { border-color: var(--series); box-shadow: 0 0 0 4px color-mix(in srgb, var(--series) 18%, transparent); }
+.sf-search-icon { width: 20px; height: 20px; flex: none; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; }
+.sf-search-box:focus-within .sf-search-icon { stroke: var(--series); }
+.sf-search-box input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; color: var(--fg); font: 16px var(--sans); height: 100%; }
+.sf-search-box input::placeholder { color: var(--muted); }
+.sf-search-clear { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 0; background: var(--grid); color: var(--muted);
+  font: 20px/1 var(--sans); cursor: pointer; }
+.sf-search-clear:hover { color: var(--fg); }
+.sf-search-list { position: absolute; top: calc(100% + 8px); left: 0; right: 0; margin: 0; padding: 6px; list-style: none;
+  background: var(--pop); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow);
+  max-height: min(420px, 60vh); overflow-y: auto; overscroll-behavior: contain; }
+.sf-search-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px;
+  border-radius: 14px; cursor: pointer; }
+.sf-search-item[aria-selected="true"] { background: var(--grid); }
+.sf-search-who { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.sf-search-tk { font-weight: 600; min-width: 48px; }
+.sf-search-name { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sf-search-item mark { background: none; color: var(--series); font-weight: 600; }
+.sf-search-right { display: flex; align-items: center; gap: 10px; flex: none; font-variant-numeric: tabular-nums; font-size: 14px; }
+.sf-search-price { color: var(--muted); }
+.sf-search-up { padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 500; border: 1px solid currentColor; }
+.sf-search-up--up { color: var(--ok); }
+.sf-search-up--down { color: var(--bad); }
+.sf-search-up--flat { color: var(--muted); }
+.sf-search-empty { padding: 14px 12px; color: var(--muted); font-size: 14px; }
+@media (max-width: 520px) { .sf-search-price { display: none; } .sf-search-box { height: 48px; } }
 
 /* "How to read this page" guide near the top */
 .sf-guide { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 20px; }
@@ -180,7 +218,7 @@ a { color: inherit; }
 .sf-tab:focus-visible, .sf-range:focus-visible { outline: 2px solid var(--series); outline-offset: 2px; }
 .sf-ranges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .sf-range { font: 500 13px var(--sans); color: var(--fg); background: var(--panel); border: 1px solid var(--line);
-  border-radius: 6px; padding: 4px 10px; cursor: pointer; font-variant-numeric: tabular-nums; }
+  border-radius: 999px; padding: 4px 12px; cursor: pointer; font-variant-numeric: tabular-nums; }
 .sf-range[aria-pressed="true"] { background: var(--series); border-color: var(--series); color: #fff; }
 .sf-live { height: 420px; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
 .sf-live iframe { display: block; width: 100%; height: 100%; border: 0; }
