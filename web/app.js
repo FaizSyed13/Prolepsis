@@ -375,10 +375,7 @@
     ["1 month", "D", "1M"], ["6 months", "D", "6M"], ["1y", "D", "12M"], ["5y", "W", "60M"], ["Max", "M", "ALL"]
   ];
   var frame = 4, liveShown = false;
-  function isDark() {
-    var t = document.documentElement.dataset.theme;
-    return t ? t === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
-  }
+  function isDark() { return true; }   // the page always uses the dark Catppuccin Mocha palette
   function renderLive() {
     if (!openTicker || !liveShown) return;
     var box = $("live-chart"), f = FRAMES[frame];
@@ -387,7 +384,8 @@
       symbol: (NASDAQ.indexOf(openTicker) > -1 ? "NASDAQ:" : "NYSE:") + openTicker,
       interval: f[1], timezone: "America/New_York", theme: isDark() ? "dark" : "light", style: "1",
       locale: "en", autosize: true, allow_symbol_change: false, hide_side_toolbar: true,
-      hide_top_toolbar: true, save_image: false, calendar: false, support_host: "https://www.tradingview.com"
+      hide_top_toolbar: true, save_image: false, calendar: false, support_host: "https://www.tradingview.com",
+      backgroundColor: "#1e1e2e", gridColor: "rgba(49, 50, 68, 0.6)"
     };
     if (f[2]) cfg.range = f[2];
     var wrap = el("div", "tradingview-widget-container");
@@ -429,13 +427,50 @@
   function openAdvice(tk) {
     openTicker = tk;
     var d = $("advice");
-    if (!d.open) d.showModal();
+    if (!d.open) { d.showModal(); d.appendChild($("buddy")); }   // keep the cat above the pop-up
     renderAdvice();
     d.scrollTop = 0;
   }
   $("adv-close").addEventListener("click", function () { $("advice").close(); });
   $("advice").addEventListener("click", function (e) { if (e.target === e.currentTarget) e.currentTarget.close(); });
-  $("advice").addEventListener("close", function () { openTicker = null; showTab(false); });
+  $("advice").addEventListener("close", function () { openTicker = null; showTab(false); document.body.appendChild($("buddy")); });
+
+  // Little cat that trails the mouse, gets happy over clickable things, and pops a heart on click.
+  // Only with a real mouse (not touch screens), and it never blocks clicks.
+  (function () {
+    var buddy = $("buddy");
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) { buddy.remove(); return; }
+    var calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var tx = -100, ty = -100, x = -100, y = -100, tilt = 0, running = false;
+    var CLICKY = "a, button, summary, select, input, label, tr[tabindex], [role=option], .sf-note, .sf-hit, .sf-tk";
+
+    function step() {
+      var k = calm ? 1 : 0.16;
+      var dx = tx - x;
+      x += dx * k; y += (ty - y) * k;
+      tilt += ((Math.max(-18, Math.min(18, dx * 0.6))) - tilt) * 0.2;
+      buddy.style.transform = "translate(" + (x + 16).toFixed(1) + "px," + (y + 14).toFixed(1) + "px) rotate(" + tilt.toFixed(1) + "deg)";
+      if (Math.abs(tx - x) + Math.abs(ty - y) + Math.abs(tilt) > 0.3) requestAnimationFrame(step); else running = false;
+    }
+    document.addEventListener("pointermove", function (e) {
+      if (e.pointerType !== "mouse") return;
+      if (x < -50) { x = e.clientX; y = e.clientY; }
+      tx = e.clientX; ty = e.clientY;
+      buddy.classList.add("is-on");
+      buddy.classList.toggle("is-happy", !!(e.target.closest && e.target.closest(CLICKY)));
+      if (!running) { running = true; requestAnimationFrame(step); }
+    }, { passive: true });
+    document.documentElement.addEventListener("pointerleave", function () { buddy.classList.remove("is-on"); });
+    window.addEventListener("blur", function () { buddy.classList.remove("is-on"); });
+    document.addEventListener("pointerdown", function (e) {
+      if (e.pointerType !== "mouse" || calm) return;
+      var h = el("span", "sf-heart", "♥");
+      h.setAttribute("aria-hidden", "true");
+      h.style.left = e.clientX + "px"; h.style.top = e.clientY + "px";
+      ($("advice").open ? $("advice") : document.body).appendChild(h);
+      setTimeout(function () { h.remove(); }, 950);
+    });
+  })();
 
   // ---------- Scorecard: published forecasts checked against what happened ----------
   function renderScorecard(t) {
