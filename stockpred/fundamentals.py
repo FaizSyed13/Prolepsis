@@ -5,24 +5,45 @@ it was backtested as a model input and did not help (see stockpred/analyst.py)."
 import json
 import time
 from datetime import date, datetime, timezone
+from zoneinfo import ZoneInfo
 
 import yfinance as yf
 
 FIELDS = ["trailingPE", "forwardPE", "dividendYield", "targetMeanPrice", "targetLowPrice",
           "targetHighPrice", "recommendationKey", "numberOfAnalystOpinions", "marketCap", "sector"]
 MAX_AGE_H = 12
-VERSION = 2   # bump when new fields are added, so old caches are refreshed
+VERSION = 3   # bump when new fields are added, so old caches are refreshed
 RATINGS = ["strongBuy", "buy", "hold", "sell", "strongSell"]
 
 
-def _next_earnings(t):
+def _next_earnings(t, info):
+    """Next earnings report: (ISO date, "before"/"after" market or None, estimated?).
+    Yahoo's calendar is tried first; when it only has the last report, Yahoo's earnings-dates
+    list (which includes Yahoo's own estimate of the next one) fills the gap."""
+    today = date.today()
     try:
         cal = t.calendar or {}
-        dates = cal.get("Earnings Date") or []
-        future = sorted(d for d in dates if isinstance(d, date) and d >= date.today())
-        return future[0].isoformat() if future else None
+        future = sorted(d for d in (cal.get("Earnings Date") or []) if isinstance(d, date) and d >= today)
+        if future:
+            when = None
+            ts = info.get("earningsTimestampStart") or info.get("earningsTimestamp")
+            if ts:
+                dt = datetime.fromtimestamp(ts, ZoneInfo("America/New_York"))
+                if dt.date() == future[0]:
+                    when = "before" if dt.hour < 12 else "after" if dt.hour >= 15 else None
+            return future[0].isoformat(), when, bool(info.get("isEarningsDateEstimate")) or len(future) > 1
     except Exception:
-        return None
+        pass
+    try:
+        ed = t.get_earnings_dates(limit=8)
+        ahead = sorted(ts for ts in ed.index if ts.date() >= today)
+        if ahead:
+            dt = ahead[0].tz_convert("America/New_York")
+            when = "before" if dt.hour < 12 else "after" if dt.hour >= 15 else None
+            return dt.date().isoformat(), when, True
+    except Exception:
+        pass
+    return None, None, None
 
 
 def _analyst(t):
@@ -56,12 +77,13 @@ def _analyst(t):
 def _fetch_one(ticker):
     t = yf.Ticker(ticker)
     out = {"ticker": ticker}
+    info = {}
     try:
         info = t.info or {}
         out.update({k: info.get(k) for k in FIELDS})
     except Exception as e:
         out["error"] = type(e).__name__
-    out["next_earnings"] = _next_earnings(t)
+    out["next_earnings"], out["earnings_time"], out["earnings_estimated"] = _next_earnings(t, info)
     out["analyst"] = _analyst(t)
     return out
 

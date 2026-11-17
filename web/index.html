@@ -45,7 +45,7 @@
       </section>
       <section>
         <h3 class="sf-h3">News</h3>
-        <p>Headlines from the last 3 days are rated from −1 (all bad) to +1 (all good). Clearly good or bad news nudges the chance of going up by 3 points per step (<b>lean up / lean down</b>). Earnings news or a flood of strong headlines widens the range (<b>Range x1.4</b> and similar). These news rules haven't been proven to help yet.</p>
+        <p>Headlines from the last 3 days are rated from −1 (all bad) to +1 (all good). Clearly good or bad news nudges the chance of going up by 3 points per step (<b>lean up / lean down</b>). Earnings news, an earnings report due within 7 days (see the <b>Next earnings</b> column), or a flood of strong headlines widens the range (<b>Range x1.4</b> and similar). These news rules haven't been proven to help yet.</p>
       </section>
       <section>
         <h3 class="sf-h3">Buy, Hold or Sell</h3>
@@ -93,9 +93,10 @@
   <section class="sf-sec" id="all-forecasts">
     <h2 class="sf-h">All forecasts</h2>
     <p class="sf-sub">Click any stock for its statistics and advice.</p>
+    <p class="sf-earnsoon" id="earnings-soon" hidden></p>
     <div class="sf-scroll">
       <table class="sf-table">
-        <thead><tr><th>Stock</th><th class="sf-num">Price</th><th class="sf-num">Up</th><th class="sf-num">Down</th><th class="sf-num">Model up</th><th class="sf-num">Range low</th><th class="sf-num">Range high</th><th>News (3 days)</th><th>Changed by news</th></tr></thead>
+        <thead><tr><th>Stock</th><th class="sf-num">Price</th><th class="sf-num">Up</th><th class="sf-num">Down</th><th class="sf-num">Model up</th><th class="sf-num">Range low</th><th class="sf-num">Range high</th><th>News (3 days)</th><th>Next earnings</th><th>Changed by news</th></tr></thead>
         <tbody id="rows"></tbody>
       </table>
     </div>

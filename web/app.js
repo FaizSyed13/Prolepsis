@@ -13,6 +13,14 @@
     var kind = part.indexOf("range") === 0 ? "range" : part.indexOf("up") > -1 ? "up" : "down";
     return el("span", "sf-pill sf-pill--" + kind, part);
   };
+  // Earnings dates: counted in New York days, in the reader's browser, so "in 2 days" stays right.
+  var nyToday = function () { return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date()); };
+  var daysUntil = function (iso) { return Math.round((new Date(iso + "T00:00:00Z") - new Date(nyToday() + "T00:00:00Z")) / 86400000); };
+  var shortDay = function (s) { return d3.utcFormat("%b %-d")(new Date(s + "T00:00:00Z")); };
+  var weekday = function (s) { return d3.utcFormat("%A")(new Date(s + "T00:00:00Z")); };
+  var whenText = function (f) { return f.earnings_time === "before" ? "before the market opens" : f.earnings_time === "after" ? "after the market closes" : ""; };
+  var inDays = function (n) { return n === 0 ? "today" : n === 1 ? "tomorrow" : "in " + n + " days"; };
+  var EARN_SOON = 7;   // same window the forecast uses to widen the range
   var ago = function (iso) {
     var m = Math.max(0, (Date.now() - new Date(iso).getTime()) / 60000);
     if (m < 60) return Math.round(m) + " min ago";
@@ -163,12 +171,40 @@
         var t = n.score >= 0.25 ? "good" : n.score <= -0.25 ? "bad" : "neutral";
         nc.append(el("span", "sf-pill sf-pill--" + t, t + " " + signed(n.score)), el("span", "sf-dim", " " + n.n));
       } else nc.append(el("span", "sf-dim", "none"));
+      var f = r.fund || {}, ec = td("sf-earn");
+      var dn = f.next_earnings ? daysUntil(f.next_earnings) : null;
+      if (dn == null || dn < 0) ec.append(el("span", "sf-dim", dn == null ? "not set" : "just reported"));
+      else {
+        ec.append(el("span", null, shortDay(f.next_earnings)));
+        if (dn <= EARN_SOON) ec.append(" ", el("span", "sf-pill sf-pill--range", inDays(dn)));
+        else ec.append(el("span", "sf-dim", " · " + inDays(dn)));
+        if (f.earnings_estimated) ec.title = "Estimated date, not yet confirmed by the company";
+      }
       var ch = td("");
       (r.changed ? r.changed.split(", ") : []).forEach(function (part) { ch.appendChild(pill(part)); });
       tb.appendChild(tr);
     });
   }
 
+  function renderEarnings(rows) {
+    var box = $("earnings-soon");
+    box.replaceChildren();
+    var soon = rows.map(function (r) { var f = r.fund || {}; return { r: r, f: f, n: f.next_earnings ? daysUntil(f.next_earnings) : null }; })
+      .filter(function (k) { return k.n != null && k.n >= 0 && k.n <= EARN_SOON; })
+      .sort(function (a, b) { return a.n - b.n || d3.ascending(a.r.ticker, b.r.ticker); });
+    box.hidden = !soon.length;
+    if (!soon.length) return;
+    box.append(el("strong", null, "Earnings this week: "));
+    soon.forEach(function (k, i) {
+      if (i) box.append(", ");
+      var b = el("button", "sf-linkbtn", k.r.ticker);
+      b.type = "button";
+      b.addEventListener("click", function () { openAdvice(k.r.ticker); });
+      var w = whenText(k.f);
+      box.append(b, " " + (k.n <= 1 ? inDays(k.n) : weekday(k.f.next_earnings)) + (w ? " " + w : "") + (k.f.earnings_estimated ? " (estimated)" : ""));
+    });
+    box.append(el("span", "sf-dim", ". Prices often jump around a report, so these ranges are wider. The direction of the jump can't be predicted."));
+  }
   function renderNotes(rows) {
     var box = $("notes");
     box.replaceChildren();
@@ -363,7 +399,9 @@
     stat(dl, "P/E, last 12 months", num1(f.trailingPE));
     stat(dl, "P/E, next 12 months", num1(f.forwardPE));
     stat(dl, "Dividend yield", f.dividendYield == null ? "—" : Number(f.dividendYield).toFixed(2) + "%");
-    stat(dl, "Next earnings", f.next_earnings ? day(f.next_earnings) : "Not announced");
+    var en = f.next_earnings ? daysUntil(f.next_earnings) : null;
+    stat(dl, "Next earnings report", en == null ? "Not announced" : en < 0 ? "Just reported (" + day(f.next_earnings) + ")" :
+      day(f.next_earnings) + " (" + inDays(en) + (whenText(f) ? ", " + whenText(f) : "") + ")" + (f.earnings_estimated ? ", estimated" : ""));
     stat(dl, "This week: chance of going up", r.up_pct + "%");
     stat(dl, "This week: 80% likely range", dollars(r.low) + " – " + dollars(r.high));
     renderAnalyst(r, f);
@@ -577,6 +615,7 @@
     renderSummary(state.forecast, state.calibration || []);
     renderChart(state.forecast);
     renderTable(state.forecast);
+    renderEarnings(state.forecast);
     renderNotes(state.forecast);
     renderNews(state.news || [], state.forecast);
     renderScorecard(state.track);
