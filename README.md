@@ -15,7 +15,7 @@ Open **https://faizsyed13.github.io/stock-predictor/** in any browser. Nothing t
 The first start sets itself up (5-15 minutes, about 0.5 GB): it downloads a private copy of Python
 into a `python` folder inside this folder. Nothing is installed on your computer, and deleting the
 folder removes everything. The first forecast then takes around 15 minutes to build; later starts are quick.
-Needs Windows 10 or 11 and an internet connection. Not investment advice.
+Needs Windows 10 or 11 and an internet connection. Please note that this does NOT provide any type of investment or financial advice; it's just there for you to see. Just to keep things clear, you have a better chance at flipping a coin to decide to buy or sell than our program😭✌️ (We hope to train our system so eventually it can actually provide something with real value and evidence)
 
 ## Website (live news + advice)
 Double-click **`Start Stock Forecast.bat`**. It opens http://127.0.0.1:8050 (this PC only) and keeps
