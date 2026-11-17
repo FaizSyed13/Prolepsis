@@ -27,7 +27,10 @@
   // "How to read this page": open on the first visit, then remember if the visitor hid it.
   (function () {
     var guide = $("how-to-read"), KEY = "sf-guide-hidden";
-    try { if (localStorage.getItem(KEY) === "1") guide.open = false; } catch (e) {}
+    var saved = null;
+    try { saved = localStorage.getItem(KEY); } catch (e) {}
+    // Folded by default on phones (it's long there); open by default on bigger screens.
+    if (saved === "1" || (saved === null && window.matchMedia("(max-width: 600px)").matches)) guide.open = false;
     guide.addEventListener("toggle", function () {
       try { localStorage.setItem(KEY, guide.open ? "0" : "1"); } catch (e) {}
     });
@@ -186,6 +189,7 @@
     });
   }
 
+  var newsLimit = 12;   // headlines shown before "Show more"
   function renderNews(news, rows) {
     var sel = $("news-filter"), keep = sel.value;
     if (sel.options.length <= 1) {
@@ -196,7 +200,17 @@
     }
     var list = $("news-list");
     list.replaceChildren();
-    var shown = news.filter(function (h) { return !sel.value || h.ticker === sel.value; }).slice(0, 40);
+    var all = news.filter(function (h) { return !sel.value || h.ticker === sel.value; }).slice(0, 40);
+    var shown = all.slice(0, newsLimit);
+    var more = $("news-more");
+    if (!more) {
+      more = el("button", "sf-more", "");
+      more.id = "news-more"; more.type = "button";
+      more.addEventListener("click", function () { newsLimit += 12; renderNews(state.news || [], state.forecast); });
+      list.after(more);
+    }
+    more.hidden = all.length <= shown.length;
+    more.textContent = "Show more headlines (" + (all.length - shown.length) + " more)";
     if (!shown.length) { list.appendChild(el("li", "sf-sub", "No headlines yet. The first news check can take a couple of minutes.")); return; }
     shown.forEach(function (h) {
       var li = el("li");
@@ -623,7 +637,7 @@
     document.addEventListener("pointerdown", function (e) { if (!box.contains(e.target)) hide(); });
   })();
 
-  $("news-filter").addEventListener("change",function () { if (state && state.forecast) renderNews(state.news || [], state.forecast); });
+  $("news-filter").addEventListener("change",function () { newsLimit = 12; if (state && state.forecast) renderNews(state.news || [], state.forecast); });
   var lastW = 0;
   window.addEventListener("resize", function () {
     var w = $("range-chart").clientWidth;
