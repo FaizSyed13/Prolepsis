@@ -59,6 +59,40 @@
     </div>
   </section>
 
+  <section class="sf-sec" id="scorecard">
+    <h2 class="sf-h">How our past forecasts did</h2>
+    <p class="sf-sub">Every forecast is saved when it's published and checked 5 trading days later against the real price. Nothing is left out.</p>
+    <p class="sf-sub" id="sc-empty" hidden>No forecasts have been checked yet. Each one gets checked once its 5 trading days are over, so the first results show up about a week after the scorecard started. <span id="sc-pending"></span></p>
+    <div id="sc-body" hidden>
+      <div class="sf-tiles">
+        <div class="sf-tile">
+          <span class="sf-label">Price landed inside the range</span>
+          <span class="sf-big" id="sc-range">—</span>
+          <span class="sf-sub">The target is 80%.</span>
+        </div>
+        <div class="sf-tile">
+          <span class="sf-label">Called up or down right</span>
+          <span class="sf-big" id="sc-dir">—</span>
+          <span class="sf-sub">Always saying "up" would have scored <b id="sc-naive">—</b>.</span>
+        </div>
+        <div class="sf-tile">
+          <span class="sf-label">Forecasts checked</span>
+          <span class="sf-big" id="sc-n">—</span>
+          <span class="sf-sub" id="sc-span">—</span>
+        </div>
+      </div>
+      <p class="sf-sub" id="sc-news"></p>
+      <h3 class="sf-h3" id="sc-latest-h">Latest checked week</h3>
+      <div class="sf-scroll">
+        <table class="sf-table sf-table--static">
+          <thead><tr><th>Stock</th><th class="sf-num">Price then</th><th class="sf-num">Said up</th><th class="sf-num">Range</th><th class="sf-num">5 days later</th><th>Inside range</th><th>Direction</th></tr></thead>
+          <tbody id="sc-rows"></tbody>
+        </table>
+      </div>
+      <p class="sf-sub">A few weeks of results can look great or awful by luck alone. Look for a steady pattern over months.</p>
+    </div>
+  </section>
+
   <section class="sf-sec" id="reasoning">
     <h2 class="sf-h">Why these stocks changed</h2>
     <div class="sf-notes" id="notes"></div>

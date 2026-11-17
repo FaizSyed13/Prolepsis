@@ -58,28 +58,40 @@ def log_forecast(out, as_of, cfg):
     rows.drop_duplicates(["as_of", "ticker"], keep="last").to_csv(path, index=False)
 
 
-def grade(close, cfg):
+def _graded(close, cfg):
+    """Every logged forecast whose 5 trading days have passed, with what actually happened.
+
+    Compares on the same adjusted price series (ratio from the forecast day), so a dividend
+    paid during the week does not count as a price drop."""
     path = cfg.reports_dir / LOG_FILE
     if not path.exists():
-        return None
+        return None, 0
     log = pd.read_csv(path)
     dates = close.index
     done, pending = [], 0
     for r in log.itertuples():
+        if r.ticker not in close.columns:
+            continue
         i = dates.searchsorted(pd.Timestamp(r.as_of))
         if i >= len(dates) or dates[i] != pd.Timestamp(r.as_of):
             continue
         if i + cfg.horizon >= len(dates):
             pending += 1
             continue
-        final = close[r.ticker].iloc[i + cfg.horizon]
-        done.append({"ticker": r.ticker, "as_of": r.as_of, "up": float(final > r.price),
-                     "p_up": r.p_up, "p_up_r": r.p_up_r,
+        start, end = close[r.ticker].iloc[i], close[r.ticker].iloc[i + cfg.horizon]
+        final = r.price * end / start                    # outcome in the forecast day's money
+        done.append({"ticker": r.ticker, "as_of": r.as_of, "price": r.price, "final": final,
+                     "up": float(final > r.price), "p_up": r.p_up, "p_up_r": r.p_up_r,
+                     "low_r": r.low_r, "high_r": r.high_r,
                      "in_model": r.low <= final <= r.high, "in_reasoned": r.low_r <= final <= r.high_r,
                      "adjusted": (r.lean != 0) or (r.vol_mult != 1.0)})
-    if not done:
-        return {"graded": 0, "pending": pending}
-    d = pd.DataFrame(done)
+    return (pd.DataFrame(done) if done else None), pending
+
+
+def grade(close, cfg):
+    d, pending = _graded(close, cfg)
+    if d is None:
+        return {"graded": 0, "pending": pending} if pending else None
     adj = d[d["adjusted"]]
     return {
         "graded": len(d), "pending": pending, "adjusted": len(adj),
@@ -88,4 +100,30 @@ def grade(close, cfg):
         "cover_model": d["in_model"].mean(), "cover_reasoned": d["in_reasoned"].mean(),
         "adj_cover_model": adj["in_model"].mean() if len(adj) else np.nan,
         "adj_cover_reasoned": adj["in_reasoned"].mean() if len(adj) else np.nan,
+    }
+
+
+def track_record(close, cfg):
+    """Plain summary of how the published forecasts did, for the website."""
+    d, pending = _graded(close, cfg)
+    if d is None:
+        return {"graded": 0, "pending": pending}
+    pct = lambda x: round(float(x) * 100, 1)
+    called = (d["p_up_r"] > 0.5) == (d["up"] == 1)
+    latest = d[d["as_of"] == d["as_of"].max()].sort_values("ticker")
+    adj = d[d["adjusted"]]
+    return {
+        "graded": len(d), "pending": pending, "weeks": int(d["as_of"].nunique()),
+        "first": d["as_of"].min(), "last": d["as_of"].max(),
+        "range_hit_pct": pct(d["in_reasoned"].mean()),
+        "direction_hit_pct": pct(called.mean()),
+        "always_up_hit_pct": pct(d["up"].mean()),            # what "always say up" would have scored
+        "news_changed": len(adj),
+        "brier_model": round(float(np.mean((d["p_up"] - d["up"]) ** 2)), 4),
+        "brier_news": round(float(np.mean((d["p_up_r"] - d["up"]) ** 2)), 4),
+        "latest": [{"ticker": r.ticker, "as_of": r.as_of, "price": round(r.price, 2),
+                    "up_pct": round(r.p_up_r * 100), "low": round(r.low_r, 2), "high": round(r.high_r, 2),
+                    "final": round(r.final, 2), "in_range": bool(r.in_reasoned),
+                    "direction_right": bool((r.p_up_r > 0.5) == (r.up == 1))}
+                   for r in latest.itertuples()],
     }

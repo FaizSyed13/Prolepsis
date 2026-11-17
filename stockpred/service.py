@@ -16,7 +16,7 @@ from .features import build_panel
 from .fundamentals import load_fundamentals
 from .live_news import NewsStore, fetch_ticker
 from .probability import calibration_report, forecast_latest, oos_predictions
-from .reasoning import apply_reasoning, load_outlook, log_forecast
+from .reasoning import apply_reasoning, load_outlook, log_forecast, track_record
 
 
 def _now():
@@ -40,7 +40,7 @@ class ForecastService:
         cfg.data_dir.mkdir(parents=True, exist_ok=True)
         self.store = NewsStore(cfg.data_dir / "news.db")
         self.base = self.rep = self.as_of = None
-        self.stats, self.fund, self.candles = {}, {}, {}
+        self.stats, self.fund, self.candles, self.track = {}, {}, {}, None
         self.payload = None
         self.status = {"phase": "starting", "base_at": None, "news_at": None,
                        "news_new": 0, "news_errors": [], "error": None}
@@ -55,6 +55,11 @@ class ForecastService:
         fc, last = forecast_latest(panel, feature_cols, self.model, self.cfg, oos)
         stats = {tk: price_stats(close, tk, self.cfg.benchmark) for tk in self.cfg.tickers}
         candles = candle_rows(self.cfg)
+        try:
+            track = track_record(close, self.cfg)
+        except Exception as e:
+            print(f"Track record failed: {type(e).__name__}: {e}")
+            track = None
         self._set(phase="Getting company facts")
         try:
             fund = load_fundamentals(self.cfg)
@@ -63,7 +68,7 @@ class ForecastService:
             self._set(error=f"Company facts unavailable: {type(e).__name__}")
         with self.lock:
             self.base, self.rep, self.as_of, self.stats, self.fund = fc, rep, last, stats, fund
-            self.candles = candles
+            self.candles, self.track = candles, track
         self._set(base_at=_iso(_now()))
 
     # ---- fast: headlines + FinBERT ----
@@ -120,7 +125,7 @@ class ForecastService:
         news = [{"ticker": h["ticker"], "name": NAMES.get(h["ticker"], h["ticker"]), "title": h["title"],
                  "source": h["source"], "url": h["url"], "published": h["published"], "tone": tone(h),
                  "score": round(headline_score(h), 3)} for h in headlines[:300]]
-        payload = {"forecast": rows, "calibration": calibration_rows(rep), "news": news, "candles": self.candles,
+        payload = {"forecast": rows, "calibration": calibration_rows(rep), "news": news, "candles": self.candles, "track": self.track,
                    "base_rate_pct": round(base_pct, 1),
                    "status": dict(self.status, phase="live", built_at=_iso(_now()))}
         with self.lock:

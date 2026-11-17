@@ -424,6 +424,42 @@
   $("advice").addEventListener("click", function (e) { if (e.target === e.currentTarget) e.currentTarget.close(); });
   $("advice").addEventListener("close", function () { openTicker = null; showTab(false); });
 
+  // ---------- Scorecard: published forecasts checked against what happened ----------
+  function renderScorecard(t) {
+    t = t || { graded: 0, pending: 0 };
+    var has = t.graded > 0;
+    $("sc-empty").hidden = has;
+    $("sc-body").hidden = !has;
+    if (!has) {
+      $("sc-pending").textContent = t.pending ? t.pending + " forecasts are waiting for their 5 days to pass." : "";
+      return;
+    }
+    $("sc-range").textContent = t.range_hit_pct.toFixed(0) + "%";
+    $("sc-dir").textContent = t.direction_hit_pct.toFixed(0) + "%";
+    $("sc-naive").textContent = t.always_up_hit_pct.toFixed(0) + "%";
+    $("sc-n").textContent = String(t.graded);
+    $("sc-span").textContent = "From " + t.weeks + " forecast day" + (t.weeks === 1 ? "" : "s") + ", " + day(t.first) +
+      (t.first === t.last ? "" : " to " + day(t.last)) + (t.pending ? " · " + t.pending + " still waiting" : "");
+    var nn = t.news_changed;
+    $("sc-news").textContent = nn < 20
+      ? "The news changed " + nn + " of these forecasts, too few yet to tell whether the news adjustments help."
+      : "The news changed " + nn + " of these forecasts. Overall, the up/down chances were " +
+        (t.brier_news < t.brier_model ? "a little more accurate with the news adjustments than without them."
+         : t.brier_news > t.brier_model ? "a little less accurate with the news adjustments than without them."
+         : "equally accurate with or without the news adjustments.");
+    $("sc-latest-h").textContent = "Latest checked: forecasts from " + day(t.last);
+    var body = $("sc-rows");
+    body.replaceChildren();
+    (t.latest || []).forEach(function (r) {
+      var tr = document.createElement("tr");
+      tr.append(el("td", null, r.ticker), el("td", "sf-num", "$" + money(r.price)), el("td", "sf-num", r.up_pct + "%"),
+        el("td", "sf-num", "$" + money(r.low) + " – $" + money(r.high)), el("td", "sf-num", "$" + money(r.final)),
+        el("td", r.in_range ? "sf-yes" : "sf-no", r.in_range ? "Yes" : "No"),
+        el("td", r.direction_right ? "sf-yes" : "sf-no", r.direction_right ? "Right" : "Wrong"));
+      body.appendChild(tr);
+    });
+  }
+
   function render() {
     if (!state) return;
     renderStatus(state.status || {});
@@ -435,6 +471,7 @@
     renderTable(state.forecast);
     renderNotes(state.forecast);
     renderNews(state.news || [], state.forecast);
+    renderScorecard(state.track);
     renderAdvice();
   }
 
