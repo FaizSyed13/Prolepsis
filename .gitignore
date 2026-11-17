@@ -13,3 +13,4 @@ _site/
 
 # Private Python made by "Start Stock Forecast.bat" on first run
 python/
+reports/forecast_log_pc.csv

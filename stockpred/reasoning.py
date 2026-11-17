@@ -10,13 +10,15 @@ data/outlook.csv (written by Claude after researching news/events), one row per 
   written_at  UTC timestamp
 Stocks without a row keep the model's numbers unchanged.
 """
+import os
 from datetime import datetime, timezone
 
 import numpy as np
 import pandas as pd
 
 OUTLOOK_FILE = "outlook.csv"
-LOG_FILE = "forecast_log.csv"
+LOG_FILE = "forecast_log.csv"        # the official history, written only by the daily GitHub job
+PC_LOG_FILE = "forecast_log_pc.csv"  # what a PC copy logs (not uploaded), so the two never clash
 LEAN_STEP = 0.03
 
 
@@ -48,7 +50,7 @@ def apply_reasoning(fc, outlook):
 def log_forecast(out, as_of, cfg):
     """Append today's forecast so it can be graded once the outcome is known."""
     cfg.reports_dir.mkdir(parents=True, exist_ok=True)
-    path = cfg.reports_dir / LOG_FILE
+    path = cfg.reports_dir / (LOG_FILE if os.environ.get("GITHUB_ACTIONS") else PC_LOG_FILE)
     rows = out[["price", "p_up", "p_up_r", "low", "high", "low_r", "high_r", "lean", "vol_mult"]].copy()
     rows.insert(0, "as_of", f"{as_of:%Y-%m-%d}")
     rows.insert(0, "logged_at", datetime.now(timezone.utc).isoformat(timespec="seconds"))
@@ -63,10 +65,10 @@ def _graded(close, cfg):
 
     Compares on the same adjusted price series (ratio from the forecast day), so a dividend
     paid during the week does not count as a price drop."""
-    path = cfg.reports_dir / LOG_FILE
-    if not path.exists():
+    logs = [pd.read_csv(p) for p in (cfg.reports_dir / PC_LOG_FILE, cfg.reports_dir / LOG_FILE) if p.exists()]
+    if not logs:
         return None, 0
-    log = pd.read_csv(path)
+    log = pd.concat(logs).drop_duplicates(["as_of", "ticker"], keep="last")   # official rows win
     dates = close.index
     done, pending = [], 0
     for r in log.itertuples():
