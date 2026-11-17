@@ -263,3 +263,15 @@ a { color: inherit; }
 .sf-table--static tbody tr:hover td { background: none; }
 .sf-yes { color: var(--ok); font-weight: 500; }
 .sf-no { color: var(--bad); font-weight: 500; }
+
+/* What analysts think (pop-up) */
+.sf-an-bar { display: flex; gap: 3px; height: 14px; border-radius: 999px; overflow: hidden; margin: 4px 0 10px; }
+.sf-an-seg { flex: 1 1 0; min-width: 6px; }
+.sf-an-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; list-style: none; margin: 0 0 12px; padding: 0; font-size: 13px; color: var(--muted); }
+.sf-an-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.sf-an-dot { width: 10px; height: 10px; border-radius: 50%; }
+.sf-an--strongBuy { background: #a6e3a1; } .sf-an--buy { background: #94e2d5; } .sf-an--hold { background: var(--surface2); }
+.sf-an--sell { background: #fab387; } .sf-an--strongSell { background: #f38ba8; }
+.sf-an-lines { display: grid; gap: 6px; margin: 0 0 10px; padding-left: 18px; line-height: 1.45; }
+.sf-an-lines .sf-pos { color: var(--ok); } .sf-an-lines .sf-neg { color: var(--bad); }
+.sf-an-bar[hidden], .sf-an-legend[hidden] { display: none; }

@@ -17,6 +17,15 @@ into a `python` folder inside this folder. Nothing is installed on your computer
 folder removes everything. The first forecast then takes around 15 minutes to build; later starts are quick.
 Needs Windows 10 or 11 and an internet connection. Please note that this does NOT provide any type of investment or financial advice; it's just there for you to see. Just to keep things clear, you have a better chance at flipping a coin to decide to buy or sell than our program😭✌️ (We hope to train our system so eventually it can actually provide something with real value and evidence)
 
+## Run it on a Mac (no Python install needed)
+Needs a Mac with an Apple chip (M1 or newer) and macOS 14 Sonoma or newer.
+1. Click the green **Code** button above, then **Download ZIP**, and open the ZIP (it unzips itself).
+2. In the folder, **right-click** **`Start Stock Forecast (Mac).command`** and choose **Open**, then **Open** again.
+   If macOS says it "cannot be opened" or "could not verify" it: open **System Settings → Privacy & Security**,
+   scroll down, click **Open Anyway** next to the file's name, then double-click the file again.
+
+The first start sets itself up the same way as on Windows (private Python in a `python` folder, about 0.5 GB).
+
 ## Website (live news + advice)
 Double-click **`Start Stock Forecast.bat`**. It opens http://127.0.0.1:8050 (this PC only) and keeps
 running while its window is open: news every 15 minutes (Google News + Yahoo Finance, scored by

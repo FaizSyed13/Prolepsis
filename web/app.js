@@ -363,11 +363,10 @@
     stat(dl, "P/E, last 12 months", num1(f.trailingPE));
     stat(dl, "P/E, next 12 months", num1(f.forwardPE));
     stat(dl, "Dividend yield", f.dividendYield == null ? "—" : Number(f.dividendYield).toFixed(2) + "%");
-    stat(dl, "Analysts' average target", dollars(f.targetMeanPrice) + (f.targetLowPrice ? " (" + dollars(f.targetLowPrice) + " – " + dollars(f.targetHighPrice) + ")" : ""));
-    stat(dl, "Analyst rating", f.recommendationKey ? f.recommendationKey.replace("_", " ") + (f.numberOfAnalystOpinions ? " (" + f.numberOfAnalystOpinions + " analysts)" : "") : "—");
     stat(dl, "Next earnings", f.next_earnings ? day(f.next_earnings) : "Not announced");
     stat(dl, "This week: chance of going up", r.up_pct + "%");
     stat(dl, "This week: 80% likely range", dollars(r.low) + " – " + dollars(r.high));
+    renderAnalyst(r, f);
 
     var list = $("adv-news");
     list.replaceChildren();
@@ -380,6 +379,53 @@
       li.append(hl, el("span", "sf-pill sf-pill--" + h.tone, h.tone), el("span", "sf-meta", h.source + " · " + ago(h.published)));
       list.appendChild(li);
     });
+  }
+
+  // ---------- What analysts think (reading only, not used by the model) ----------
+  var RATING_KINDS = [["strongBuy", "Strong buy"], ["buy", "Buy"], ["hold", "Hold"], ["sell", "Sell"], ["strongSell", "Strong sell"]];
+  function renderAnalyst(r, f) {
+    var a = f.analyst || {}, now = a.now, before = a.before;
+    var bar = $("an-bar"), legend = $("an-legend"), lines = $("an-lines");
+    bar.replaceChildren(); legend.replaceChildren(); lines.replaceChildren();
+    var total = now ? RATING_KINDS.reduce(function (t, k) { return t + (now[k[0]] || 0); }, 0) : 0;
+    bar.hidden = legend.hidden = !total;
+    if (total) {
+      RATING_KINDS.forEach(function (k) {
+        var n = now[k[0]] || 0;
+        if (n) { var seg = el("span", "sf-an-seg sf-an--" + k[0]); seg.style.flexGrow = n; seg.title = k[1] + ": " + n; bar.appendChild(seg); }
+        var li = el("li", null); li.append(el("span", "sf-an-dot sf-an--" + k[0]), el("span", null, k[1] + " " + n)); legend.appendChild(li);
+      });
+      bar.setAttribute("aria-label", RATING_KINDS.map(function (k) { return k[1] + " " + (now[k[0]] || 0); }).join(", "));
+    }
+    function line(text, cls) { lines.appendChild(el("li", cls || null, text)); }
+    function buys(x) { return (x.strongBuy || 0) + (x.buy || 0); }
+    function sells(x) { return (x.sell || 0) + (x.strongSell || 0); }
+    if (total) {
+      var pb = Math.round(buys(now) / total * 100), ps = Math.round(sells(now) / total * 100);
+      line(pb + "% of " + total + " analysts say buy, " + (100 - pb - ps) + "% hold, " + ps + "% sell.");
+    }
+    if (total && before) {
+      var tb = RATING_KINDS.reduce(function (t, k) { return t + (before[k[0]] || 0); }, 0);
+      if (tb) {
+        var d = Math.round(buys(now) / total * 100) - Math.round(buys(before) / tb * 100);
+        line(d === 0 ? "About the same share say buy as 3 months ago."
+          : (d > 0 ? "More" : "Fewer") + " analysts say buy than 3 months ago (" + (d > 0 ? "+" : "") + d + (Math.abs(d) === 1 ? " point)." : " points)."), d > 0 ? "sf-pos" : d < 0 ? "sf-neg" : null);
+      }
+    }
+    if (f.targetMeanPrice) {
+      var up = (f.targetMeanPrice / r.price - 1) * 100;
+      line("Average price target " + dollars(f.targetMeanPrice) + ", " + Math.abs(up).toFixed(1) + "% " + (up >= 0 ? "above" : "below") + " today's price"
+        + (f.targetLowPrice ? " (lowest " + dollars(f.targetLowPrice) + ", highest " + dollars(f.targetHighPrice) + ")." : "."));
+    }
+    if (a.est_up_30d != null || a.est_down_30d != null) {
+      var u = a.est_up_30d || 0, dn = a.est_down_30d || 0;
+      line("Next year's profit estimate, last 30 days: raised by " + u + " analyst" + (u === 1 ? "" : "s") + ", cut by " + dn + ".", u > dn ? "sf-pos" : dn > u ? "sf-neg" : null);
+    }
+    if (a.est_change_90d_pct != null) {
+      var c = a.est_change_90d_pct;
+      line("Expected profit per share next year is " + (c === 0 ? "unchanged" : (c > 0 ? "up " : "down ") + Math.abs(c).toFixed(1) + "%") + " from 3 months ago.", c > 0 ? "sf-pos" : c < 0 ? "sf-neg" : null);
+    }
+    if (!lines.children.length) line("No analyst data available for this stock right now.", "sf-sub");
   }
 
   // ---------- Live chart (free TradingView widget) ----------
