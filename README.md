@@ -26,6 +26,19 @@ Needs a Mac with an Apple chip (M1 or newer) and macOS 14 Sonoma or newer.
 
 The first start sets itself up the same way as on Windows (private Python in a `python` folder, about 0.5 GB).
 
+## Run it on Linux (no Python install needed)
+Works on 64-bit Ubuntu, Debian, Mint, Fedora, Arch and similar (Intel/AMD or ARM). No `sudo` needed.
+1. Click the green **Code** button above, then **Download ZIP**, and unzip it.
+2. Open a terminal in the unzipped folder (in most file managers: right-click inside the folder → **Open in Terminal**).
+3. Type this and press Enter:
+   ```
+   bash "Start Stock Forecast (Linux).sh"
+   ```
+   Your browser opens the site. Press **Ctrl+C** in the terminal to stop it.
+
+The first start sets itself up the same way as on Windows (private Python in a `python` folder, about 0.5 GB).
+Or, if you use git: `git clone https://github.com/FaizSyed13/stock-predictor && cd stock-predictor && bash "Start Stock Forecast (Linux).sh"`
+
 ## Website (live news + advice)
 Double-click **`Start Stock Forecast.bat`**. It opens http://127.0.0.1:8050 (this PC only) and keeps
 running while its window is open: news every 15 minutes (Google News + Yahoo Finance, scored by

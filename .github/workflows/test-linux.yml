@@ -1,0 +1,37 @@
+name: Test Linux start file
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "Start Stock Forecast (Linux).sh"
+      - "requirements.txt"
+      - ".github/workflows/test-linux.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - name: Run the start file like a new user would
+        env:
+          NO_BROWSER: "1"
+        run: |
+          bash "Start Stock Forecast (Linux).sh" > start.log 2>&1 &
+          for i in $(seq 1 180); do
+            if curl -sf http://127.0.0.1:8050/ > /dev/null; then break; fi
+            sleep 5
+          done
+          cat start.log
+          curl -sf http://127.0.0.1:8050/ | head -c 300; echo
+          curl -sf http://127.0.0.1:8050/api/state; echo
+          test -f python/ready.txt
+          python/bin/python3 -c "import onnxruntime, tokenizers, pandas, sklearn, yfinance; print('add-ons OK')"
