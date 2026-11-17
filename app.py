@@ -2,6 +2,7 @@
 
     Double-click "Start Stock Forecast.bat", or run:  .venv\\Scripts\\python app.py
 """
+import os
 import threading
 import warnings
 import webbrowser
@@ -36,6 +37,7 @@ def state():
 
 if __name__ == "__main__":
     threading.Thread(target=svc.run_forever, daemon=True).start()
-    threading.Timer(1.5, lambda: webbrowser.open(f"http://127.0.0.1:{PORT}")).start()
+    if not os.environ.get("NO_BROWSER"):
+        threading.Timer(1.5, lambda: webbrowser.open(f"http://127.0.0.1:{PORT}")).start()
     print(f"Stock Forecast is running at http://127.0.0.1:{PORT}  (close this window to stop it)")
     app.run(host="127.0.0.1", port=PORT, debug=False, use_reloader=False)

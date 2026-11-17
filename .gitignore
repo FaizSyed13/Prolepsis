@@ -9,3 +9,6 @@ data/news.db
 
 # Built website (made by build_site.py)
 _site/
+
+# Private Python made by "Start Stock Forecast.bat" on first run
+python/

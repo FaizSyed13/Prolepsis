@@ -3,6 +3,20 @@
 Predicts whether each of 20 large US stocks will **beat SPY over the next 5 trading days**,
 and tests that prediction honestly with a walk-forward backtest.
 
+## Just want to see the forecasts?
+Open **https://faizsyed13.github.io/stock-predictor/** in any browser. Nothing to download. Updated every weekday evening.
+
+## Run it on your own Windows PC (no Python install needed)
+1. Click the green **Code** button above, then **Download ZIP**.
+2. Unzip it anywhere (right-click the file, **Extract All**).
+3. Open the folder and double-click **`Start Stock Forecast.bat`**.
+   If Windows shows "Windows protected your PC", click **More info**, then **Run anyway**.
+
+The first start sets itself up (5-15 minutes, about 0.5 GB): it downloads a private copy of Python
+into a `python` folder inside this folder. Nothing is installed on your computer, and deleting the
+folder removes everything. The first forecast then takes around 15 minutes to build; later starts are quick.
+Needs Windows 10 or 11 and an internet connection. Not investment advice.
+
 ## Website (live news + advice)
 Double-click **`Start Stock Forecast.bat`**. It opens http://127.0.0.1:8050 (this PC only) and keeps
 running while its window is open: news every 15 minutes (Google News + Yahoo Finance, scored by
