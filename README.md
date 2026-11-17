@@ -56,3 +56,4 @@ All settings live in `stockpred/config.py`.
 - Testing many ideas on the same history inflates results (multiple-testing bias). Keep a holdout period you never tune on.
 
 Research tool, not financial advice.
+
