@@ -252,6 +252,25 @@
   </footer>
 </main>
 
+<dialog class="sf-welcome" id="welcome" aria-labelledby="wl-title" aria-describedby="wl-what">
+  <div class="sf-wl">
+    <img class="sf-wl-logo" src="/static/logo.svg" alt="" width="72" height="61">
+    <h2 class="sf-wl-title" id="wl-title">Welcome to Prolepsis</h2>
+    <p class="sf-wl-lede">Peeking at the week ahead, honestly.</p>
+    <ul class="sf-wl-list" id="wl-what">
+      <li><b>A daily market recap</b>: what happened while you were away, in plain words.</li>
+      <li><b>5-day price forecasts</b> for 20 big US stocks, with the range where each price will likely land.</li>
+      <li><b>An honest scorecard</b>: every forecast is checked against what really happened, nothing hidden.</li>
+    </ul>
+    <p class="sf-wl-warn"><b>Please know:</b> this is a free research project, not financial advice. Nobody can reliably predict stock prices. In testing, the up/down calls were right no more often than always guessing "up"; the price ranges are the most reliable part. Never invest money you can't afford to lose.</p>
+    <label class="sf-wl-check">
+      <input type="checkbox" id="wl-ok">
+      <span class="sf-wl-box" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+      <span>I understand Prolepsis is for learning and research, not financial advice.</span>
+    </label>
+    <button type="button" class="sf-wl-go" id="wl-go" disabled>I Understand</button>
+  </div>
+</dialog>
 <dialog class="sf-dialog" id="advice" aria-labelledby="adv-title">
   <div class="sf-adv">
     <header class="sf-adv-head">

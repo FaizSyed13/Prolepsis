@@ -1136,5 +1136,25 @@
     show();
   })();
 
+
+  // First visit: a welcome box that only closes after ticking "I understand" (remembered on this device).
+  (function () {
+    var d = $("welcome"), box = $("wl-ok"), go = $("wl-go"), KEY = "sf-welcomed-v1";
+    var seen = false;
+    try { seen = localStorage.getItem(KEY) === "1"; } catch (e) {}
+    if (seen || !d.showModal) { d.remove(); return; }
+    d.addEventListener("cancel", function (e) { e.preventDefault(); });   // Esc can't skip it
+    box.addEventListener("change", function () { go.disabled = !box.checked; });
+    go.addEventListener("click", function () {
+      if (!box.checked) return;
+      try { localStorage.setItem(KEY, "1"); } catch (e) {}
+      d.classList.add("is-leaving");
+      setTimeout(function () { d.close(); d.remove(); var b = $("buddy"); if (b) document.body.appendChild(b); }, calmMotion ? 0 : 260);
+    });
+    d.showModal();
+    var b = $("buddy"); if (b) d.appendChild(b);   // keep the cat above the box
+    box.focus();
+  })();
+
   poll();
 })();
