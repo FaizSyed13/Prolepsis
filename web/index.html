@@ -37,6 +37,56 @@
     <p class="sf-intro">Prolepsis does three things, free: a <b>daily market recap</b> (this page), <b>5-day price forecasts</b> for 20 big US stocks, and an <b>honest scorecard</b> of how every forecast turned out.</p>
   </header>
 
+  <section class="sf-sec sf-honest" id="honest">
+    <h2 class="sf-h">How good are the forecasts, honestly?</h2>
+    <p class="sf-lede" id="edge-line">—</p>
+    <p class="sf-sub">This week's forecasts use prices as of <b id="asof">—</b>. Live news changed <b id="nadj">—</b> of the 20.</p>
+    <div class="sf-range-explain">
+      <div class="sf-waffle" id="waffle" role="img" aria-label="Out of 100 test weeks, how many ended inside the 80% range"></div>
+      <div class="sf-range-text">
+        <span class="sf-label">The 80% price range</span>
+        <p class="sf-range-big"><b id="t-cover">—</b> of test weeks landed inside the range</p>
+        <p class="sf-sub">Each square is one week out of 100. <span class="sf-key-in">Filled</span> means the price ended inside its 80% range, <span class="sf-key-out">empty</span> means it landed outside. The goal is 80 out of 100: a range that's right that often is honest, not too wide and not too narrow.</p>
+      </div>
+    </div>
+    <div class="sf-tiles" id="track-record" data-stagger>
+      <div class="sf-tile"><span class="sf-label">Up/down calls right</span><span class="sf-big" id="t-acc">—</span><span class="sf-sub">Always guessing the more common outcome scored <b id="t-naive">—</b>, so treat up/down as a weak hint.</span></div>
+      <div class="sf-tile"><span class="sf-label">Weeks that went up</span><span class="sf-big" id="t-base">—</span><span class="sf-sub">Share of 5-day windows in which these stocks rose. Most up/down chances sit near this number.</span></div>
+      <div class="sf-tile"><span class="sf-label">Live forecasts checked</span><span class="sf-big" id="h-live">—</span><span class="sf-sub" id="h-live-sub">Published forecasts graded against real prices.</span></div>
+    </div>
+    <p class="sf-sub">Tested on <span id="p-start">—</span> to <span id="p-end">—</span>, a stretch of history the model never trained on. Live results: <a href="#/track">Track record</a>.</p>
+  <details class="sf-guide" id="how-to-read">
+    <summary>How to read the forecasts <span class="sf-guide-hint">· tap to hide or show</span></summary>
+    <div class="sf-guide-grid">
+      <section>
+        <h3 class="sf-h3">What this is</h3>
+        <p>A computer forecast for 20 large US companies, looking about one week ahead (the next 5 trading days). It learns from past prices and then adjusts for recent news headlines.</p>
+      </section>
+      <section>
+        <h3 class="sf-h3">Chance of going up</h3>
+        <p><b>Up 58%</b> means that in similar past situations, the price ended the week higher about 58 times out of 100. <b>Down</b> is the rest. Most stocks sit between 50% and 60% because these companies rise in most weeks. <b>Model up</b> is the chance before the news was taken into account.</p>
+      </section>
+      <section>
+        <h3 class="sf-h3">Price range</h3>
+        <p>The <b>80% range</b> is where the price should end up about 4 weeks out of 5. About 1 week in 5 it lands outside, sometimes far outside after big news. A wider range means a bumpier week is expected.</p>
+      </section>
+      <section>
+        <h3 class="sf-h3">News</h3>
+        <p>Headlines from the last 3 days are rated from −1 (all bad) to +1 (all good). Clearly good or bad news nudges the chance of going up by 3 points per step (<b>lean up / lean down</b>). Earnings news or a flood of strong headlines widens the range (<b>Range x1.4</b> and similar). These news rules haven't been proven to help yet.</p>
+      </section>
+      <section>
+        <h3 class="sf-h3">Buy, Hold or Sell</h3>
+        <p>Click any stock to see two verdicts. <b>Short term (next week):</b> Buy if the chance of going up is at least 3 points above a normal week, Sell if at least 3 points below, otherwise Hold. <b>Long term (a year or more):</b> four simple checks (the price trend, the past year's gain or loss, analysts' price targets, and how expensive the stock is compared with its earnings), each counting +1 or −1. A total of +2 or more is Buy and −2 or less is Sell. A stock that's falling steeply never gets more than Hold.</p>
+      </section>
+      <section>
+        <h3 class="sf-h3">How good is it, honestly?</h3>
+        <p>In testing, the up/down calls were right about as often as simply guessing "up" every week, so treat them as a weak hint. The price ranges have been the most reliable part. Every forecast is saved and graded in <a href="#/track">Track record</a>, with nothing left out.</p>
+      </section>
+    </div>
+    <p class="sf-guide-warn">This is a research project, not financial advice. Nobody can reliably predict next week's stock prices. Never invest money you can't afford to lose.</p>
+  </details>
+  </section>
+
   <div class="sf-search" id="search">
     <label class="sf-search-box" for="search-input">
       <svg class="sf-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
@@ -103,64 +153,7 @@
     <div class="sf-heat" id="heat" data-stagger></div>
   </section>
 
-  <section class="sf-sec" id="stories">
-    <div class="sf-row">
-      <h2 class="sf-h">Top stories</h2>
-      <span class="sf-mood" id="mood"></span>
-    </div>
-    <p class="sf-sub">Market news from the last day: CNBC, MarketWatch, The Wall Street Journal, Investing.com, Seeking Alpha, the Federal Reserve and Google News. Each headline is rated good, bad or neutral by FinBERT, a finance news model.</p>
-    <ul class="sf-news sf-news--compact sf-news--stories" id="story-list" data-stagger></ul>
-  </section>
 
-  <section class="sf-sec sf-honest" id="honest">
-    <h2 class="sf-h">How good are the forecasts, honestly?</h2>
-    <p class="sf-lede" id="edge-line">—</p>
-    <p class="sf-sub">This week's forecasts use prices as of <b id="asof">—</b>. Live news changed <b id="nadj">—</b> of the 20.</p>
-    <div class="sf-range-explain">
-      <div class="sf-waffle" id="waffle" role="img" aria-label="Out of 100 test weeks, how many ended inside the 80% range"></div>
-      <div class="sf-range-text">
-        <span class="sf-label">The 80% price range</span>
-        <p class="sf-range-big"><b id="t-cover">—</b> of test weeks landed inside the range</p>
-        <p class="sf-sub">Each square is one week out of 100. <span class="sf-key-in">Filled</span> means the price ended inside its 80% range, <span class="sf-key-out">empty</span> means it landed outside. The goal is 80 out of 100: a range that's right that often is honest, not too wide and not too narrow.</p>
-      </div>
-    </div>
-    <div class="sf-tiles" id="track-record" data-stagger>
-      <div class="sf-tile"><span class="sf-label">Up/down calls right</span><span class="sf-big" id="t-acc">—</span><span class="sf-sub">Always guessing the more common outcome scored <b id="t-naive">—</b>, so treat up/down as a weak hint.</span></div>
-      <div class="sf-tile"><span class="sf-label">Weeks that went up</span><span class="sf-big" id="t-base">—</span><span class="sf-sub">Share of 5-day windows in which these stocks rose. Most up/down chances sit near this number.</span></div>
-      <div class="sf-tile"><span class="sf-label">Live forecasts checked</span><span class="sf-big" id="h-live">—</span><span class="sf-sub" id="h-live-sub">Published forecasts graded against real prices.</span></div>
-    </div>
-    <p class="sf-sub">Tested on <span id="p-start">—</span> to <span id="p-end">—</span>, a stretch of history the model never trained on. Live results: <a href="#/track">Track record</a>.</p>
-  <details class="sf-guide" id="how-to-read">
-    <summary>How to read the forecasts <span class="sf-guide-hint">· tap to hide or show</span></summary>
-    <div class="sf-guide-grid">
-      <section>
-        <h3 class="sf-h3">What this is</h3>
-        <p>A computer forecast for 20 large US companies, looking about one week ahead (the next 5 trading days). It learns from past prices and then adjusts for recent news headlines.</p>
-      </section>
-      <section>
-        <h3 class="sf-h3">Chance of going up</h3>
-        <p><b>Up 58%</b> means that in similar past situations, the price ended the week higher about 58 times out of 100. <b>Down</b> is the rest. Most stocks sit between 50% and 60% because these companies rise in most weeks. <b>Model up</b> is the chance before the news was taken into account.</p>
-      </section>
-      <section>
-        <h3 class="sf-h3">Price range</h3>
-        <p>The <b>80% range</b> is where the price should end up about 4 weeks out of 5. About 1 week in 5 it lands outside, sometimes far outside after big news. A wider range means a bumpier week is expected.</p>
-      </section>
-      <section>
-        <h3 class="sf-h3">News</h3>
-        <p>Headlines from the last 3 days are rated from −1 (all bad) to +1 (all good). Clearly good or bad news nudges the chance of going up by 3 points per step (<b>lean up / lean down</b>). Earnings news or a flood of strong headlines widens the range (<b>Range x1.4</b> and similar). These news rules haven't been proven to help yet.</p>
-      </section>
-      <section>
-        <h3 class="sf-h3">Buy, Hold or Sell</h3>
-        <p>Click any stock to see two verdicts. <b>Short term (next week):</b> Buy if the chance of going up is at least 3 points above a normal week, Sell if at least 3 points below, otherwise Hold. <b>Long term (a year or more):</b> four simple checks (the price trend, the past year's gain or loss, analysts' price targets, and how expensive the stock is compared with its earnings), each counting +1 or −1. A total of +2 or more is Buy and −2 or less is Sell. A stock that's falling steeply never gets more than Hold.</p>
-      </section>
-      <section>
-        <h3 class="sf-h3">How good is it, honestly?</h3>
-        <p>In testing, the up/down calls were right about as often as simply guessing "up" every week, so treat them as a weak hint. The price ranges have been the most reliable part. Every forecast is saved and graded in <a href="#/track">Track record</a>, with nothing left out.</p>
-      </section>
-    </div>
-    <p class="sf-guide-warn">This is a research project, not financial advice. Nobody can reliably predict next week's stock prices. Never invest money you can't afford to lose.</p>
-  </details>
-  </section>
 
   <a class="sf-cta" href="#/forecasts">See where prices could go next week <span aria-hidden="true">→</span></a>
   </div>

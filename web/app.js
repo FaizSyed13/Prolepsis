@@ -973,7 +973,7 @@
   }
 
   function renderToday() {
-    renderClock(); renderTape(); renderBrief(); renderFeats(); renderPreview(); renderHonest(); renderMarkets(); renderMkChart(); renderFutures(); renderHeat(); renderStories();
+    renderClock(); renderTape(); renderBrief(); renderFeats(); renderPreview(); renderHonest(); renderMarkets(); renderMkChart(); renderFutures(); renderHeat();
   }
   setInterval(function () { if (state && state.forecast) { renderClock(); renderFutures(); } }, 60000);
 
