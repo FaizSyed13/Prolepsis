@@ -45,10 +45,15 @@ def _parse_rss(raw, ticker, default_source):
         # Google News appends " - Outlet" to titles; strip it when it matches the source.
         if source and title.endswith(" - " + source):
             title = title[: -len(" - " + source)]
+        raw_date = (item.findtext("pubDate") or "").strip()
         try:
-            published = parsedate_to_datetime(item.findtext("pubDate")).astimezone(timezone.utc)
+            published = parsedate_to_datetime(raw_date).astimezone(timezone.utc)
         except Exception:
-            published = datetime.now(timezone.utc)
+            try:   # some feeds (Investing.com) use "2026-11-19 03:05:36", in UTC
+                d = datetime.fromisoformat(raw_date)
+                published = (d if d.tzinfo else d.replace(tzinfo=timezone.utc)).astimezone(timezone.utc)
+            except Exception:
+                published = datetime.now(timezone.utc)
         out.append({
             "ticker": ticker, "title": re.sub(r"\s+", " ", title), "source": source or default_source,
             "url": (item.findtext("link") or "").strip(), "published": published.isoformat(timespec="seconds"),

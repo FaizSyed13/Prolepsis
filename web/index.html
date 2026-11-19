@@ -13,7 +13,9 @@
 <main class="sf">
   <nav class="sf-nav" aria-label="Pages">
     <div class="sf-menu">
-      <a class="sf-menu-link" data-page="home" href="#/home">Home</a>
+      <span class="sf-menu-glow" aria-hidden="true"></span>
+      <a class="sf-menu-link" data-page="today" href="#/today">Today</a>
+      <a class="sf-menu-link" data-page="home" href="#/home">Overview</a>
       <a class="sf-menu-link" data-page="forecasts" href="#/forecasts">Forecasts</a>
       <a class="sf-menu-link" data-page="why" href="#/why">Why</a>
       <a class="sf-menu-link" data-page="news" href="#/news">News</a>
@@ -26,9 +28,68 @@
     <p class="sf-sub">The first start downloads prices and the news-reading model, which can take a few minutes. After that it opens in about a minute.</p>
   </div>
 
-  <div class="sf-page" data-page="home">
-  <header class="sf-head" id="overview">
+  <div class="sf-page" data-page="today">
+  <header class="sf-today-head">
     <div class="sf-status" id="status" role="status"><span class="sf-dot"></span><span id="status-text">Starting up…</span></div>
+    <div class="sf-brand"><img class="sf-logo" src="/static/logo.svg" alt="" width="64" height="54"><span class="sf-wordmark">Prolepsis</span></div>
+    <p class="sf-hello" id="hello">Hello</p>
+    <h1 class="sf-title sf-today-title" id="today-title">Here's what's up with the market</h1>
+    <p class="sf-lede" id="market-clock">—</p>
+  </header>
+
+  <div class="sf-tape" id="tape" aria-label="Live prices"></div>
+
+  <section class="sf-sec sf-brief" id="brief">
+    <div class="sf-row">
+      <h2 class="sf-h">The short version</h2>
+      <div class="sf-seg" role="group" aria-label="How much to read">
+        <button type="button" class="sf-seg-btn" data-len="quick" aria-pressed="true">30-second read</button>
+        <button type="button" class="sf-seg-btn" data-len="full" aria-pressed="false">The full story</button>
+      </div>
+    </div>
+    <ul class="sf-brief-list" id="brief-list" data-stagger><li class="sf-sub">Loading today's summary…</li></ul>
+  </section>
+
+  <section class="sf-sec" id="markets">
+    <h2 class="sf-h">The markets</h2>
+    <p class="sf-sub">Latest daily closing levels and the change from the day before. Tap one to see its chart.</p>
+    <div class="sf-mk-grid" id="mk-grid" data-stagger></div>
+    <div class="sf-mk-panel">
+      <div class="sf-row">
+        <div><h3 class="sf-h3" id="mk-chart-title">—</h3><p class="sf-sub" id="mk-chart-what">—</p></div>
+        <div class="sf-ranges" id="mk-spans" role="group" aria-label="Time span"></div>
+      </div>
+      <div class="sf-mk-chart" id="mk-chart"></div>
+      <p class="sf-sub">Chart drawn with <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" rel="noopener">TradingView Lightweight Charts</a>, a free open-source charting library. Prices from Yahoo Finance.</p>
+    </div>
+  </section>
+
+  <section class="sf-sec" id="futures" hidden>
+    <h2 class="sf-h">Before the bell</h2>
+    <p class="sf-sub">Futures trade almost around the clock, so while the market is closed they hint at how it might open. They're often wrong by the opening bell.</p>
+    <div class="sf-fut" id="fut-row" data-stagger></div>
+  </section>
+
+  <section class="sf-sec" id="movers">
+    <h2 class="sf-h" id="movers-title">How our 20 stocks did</h2>
+    <p class="sf-sub">Change on the last trading day, biggest gain first. Tap a stock for its forecast and advice.</p>
+    <div class="sf-heat" id="heat" data-stagger></div>
+  </section>
+
+  <section class="sf-sec" id="stories">
+    <div class="sf-row">
+      <h2 class="sf-h">Top stories</h2>
+      <span class="sf-mood" id="mood"></span>
+    </div>
+    <p class="sf-sub">Market news from the last day: CNBC, MarketWatch, The Wall Street Journal, Investing.com, Seeking Alpha, the Federal Reserve and Google News. Each headline is rated good, bad or neutral by FinBERT, a finance news model.</p>
+    <ul class="sf-news sf-news--compact sf-news--stories" id="story-list" data-stagger></ul>
+  </section>
+
+  <a class="sf-cta" href="#/forecasts">See where prices could go next week <span aria-hidden="true">→</span></a>
+  </div>
+
+  <div class="sf-page" data-page="home" hidden>
+  <header class="sf-head" id="overview">
     <div class="sf-brand"><img class="sf-logo" src="/static/logo.svg" alt="" width="64" height="54"><h1 class="sf-title">Prolepsis</h1></div>
     <p class="sf-tagline">Peeking at the week ahead: honest 5-day stock forecasts.</p>
     <p class="sf-lede">Where each stock's price is likely to be after the next 5 trading days, from prices as of <b id="asof">—</b>. Live news changed the forecast for <b id="nadj">—</b> of them.</p>
@@ -77,7 +138,7 @@
     <p class="sf-guide-warn">This is a research project, not financial advice. Nobody can reliably predict next week's stock prices. Never invest money you can't afford to lose.</p>
   </details>
 
-  <section class="sf-tiles" id="track-record">
+  <section class="sf-tiles" id="track-record" data-stagger>
     <div class="sf-tile">
       <span class="sf-label">Up/down accuracy</span>
       <span class="sf-big" id="t-acc">—</span>
@@ -159,7 +220,7 @@
   <div class="sf-page" data-page="why" hidden>
   <section class="sf-sec" id="reasoning">
     <h2 class="sf-h">Why these stocks changed</h2>
-    <div class="sf-notes" id="notes"></div>
+    <div class="sf-notes" id="notes" data-stagger></div>
   </section>
 
   </div>
@@ -168,10 +229,10 @@
   <section class="sf-sec" id="news">
     <div class="sf-row">
       <h2 class="sf-h">Latest headlines</h2>
-      <label class="sf-filter">Show <select id="news-filter" aria-label="Filter headlines by stock"><option value="">All stocks</option></select></label>
+      <label class="sf-filter">Show <select id="news-filter" aria-label="Filter headlines by stock"><option value="">Our 20 stocks</option><option value="__market">Whole market</option></select></label>
     </div>
-    <p class="sf-sub">From Google News and Yahoo Finance, checked every 15 minutes. Each headline is rated by FinBERT, a finance news model running on this PC.</p>
-    <ul class="sf-news" id="news-list"></ul>
+    <p class="sf-sub">Stock news from Google News and Yahoo Finance; market news from CNBC, MarketWatch, The Wall Street Journal, Investing.com, Seeking Alpha and the Federal Reserve. Checked every 15 minutes. Each headline is rated by FinBERT, a finance news model running on this PC.</p>
+    <ul class="sf-news" id="news-list" data-stagger></ul>
   </section>
 
   </div>
@@ -252,6 +313,7 @@
   </svg>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
 <script src="/static/app.js"></script>
 </body>
 </html>

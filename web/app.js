@@ -44,7 +44,7 @@
     if (STATIC) {
       box.dataset.state = "live";
       var at = s.built_at || s.news_at || s.base_at;
-      $("status-text").textContent = "Updated every weekday evening · last update " +
+      $("status-text").textContent = "Updated every weekday morning and evening · last update " +
         (at ? d3.timeFormat("%b %-d, %-I:%M %p")(new Date(at)) : "—");
       return;
     }
@@ -63,7 +63,7 @@
     $("asof").textContent = rows.length ? day(rows[0].as_of) : "—";
     $("nadj").textContent = String(rows.filter(changed).length);
     var get = function (m) { var r = cal.find(function (x) { return x.metric === m; }); return r ? Number(r.value) : NaN; };
-    var set = function (id, m) { var v = get(m); $(id).textContent = isNaN(v) ? "—" : v.toFixed(1) + "%"; };
+    var set = function (id, m) { var v = get(m); countTo($(id), isNaN(v) ? "—" : v.toFixed(1) + "%"); };
     set("t-acc", "direction_accuracy"); set("t-naive", "naive_accuracy");
     set("t-cover", "range_coverage"); set("t-base", "base_rate");
     if (cal.length) { $("p-start").textContent = day(cal[0].period_start); $("p-end").textContent = day(cal[0].period_end); }
@@ -73,7 +73,7 @@
       : "On past data the model called up or down no better than always guessing the more common outcome, so the price ranges are the more useful numbers here.";
   }
 
-  function renderChart(rows) {
+  function renderChart(rows, animate) {
     var box = $("range-chart");
     box.replaceChildren();
     var data = rows.map(function (r) {
@@ -110,11 +110,16 @@
     var tip = el("div", "sf-tip"); tip.hidden = true; box.appendChild(tip);
     var g = svg.append("g").selectAll("g").data(data).join("g")
       .attr("transform", function (_, i) { return "translate(0," + (m.t + i * rowH) + ")"; });
-    g.append("rect").attr("x", function (k) { return x(k.mlo); }).attr("width", function (k) { return Math.max(1, x(k.mhi) - x(k.mlo)); })
+    var outline = g.append("rect").attr("x", function (k) { return x(k.mlo); }).attr("width", function (k) { return Math.max(1, x(k.mhi) - x(k.mlo)); })
       .attr("y", rowH * 0.18).attr("height", rowH * 0.64).attr("rx", 3)
       .style("fill", "none").style("stroke", "var(--chart-muted)");
-    g.append("rect").attr("x", function (k) { return x(k.lo); }).attr("width", function (k) { return Math.max(1, x(k.hi) - x(k.lo)); })
+    var bars = g.append("rect").attr("x", function (k) { return x(k.lo); }).attr("width", function (k) { return Math.max(1, x(k.hi) - x(k.lo)); })
       .attr("y", rowH * 0.32).attr("height", rowH * 0.36).attr("rx", 2).style("fill", "var(--series)");
+    if (animate && !calmMotion) {
+      bars.attr("x", x(0)).attr("width", 0).transition().delay(function (_, i) { return 120 + i * 30; }).duration(750).ease(d3.easeCubicOut)
+        .attr("x", function (k) { return x(k.lo); }).attr("width", function (k) { return Math.max(1, x(k.hi) - x(k.lo)); });
+      outline.style("opacity", 0).transition().delay(function (_, i) { return 380 + i * 30; }).duration(500).style("opacity", 1);
+    }
     g.append("text").attr("class", function (k) { return changed(k.r) ? "sf-lab sf-lab--chg" : "sf-lab"; })
       .attr("x", m.l - 12).attr("y", rowH / 2).attr("dy", "0.35em").attr("text-anchor", "end")
       .text(function (k) { return k.r.ticker; });
@@ -200,7 +205,9 @@
     }
     var list = $("news-list");
     list.replaceChildren();
-    var all = news.filter(function (h) { return !sel.value || h.ticker === sel.value; }).slice(0, 40);
+    var market = sel.value === "__market";
+    var all = market ? (state.market_news || []).slice(0, 60)
+      : news.filter(function (h) { return !sel.value || h.ticker === sel.value; }).slice(0, 40);
     var shown = all.slice(0, newsLimit);
     var more = $("news-more");
     if (!more) {
@@ -213,6 +220,7 @@
     more.textContent = "Show more headlines (" + (all.length - shown.length) + " more)";
     if (!shown.length) { list.appendChild(el("li", "sf-sub", "No headlines yet. The first news check can take a couple of minutes.")); return; }
     shown.forEach(function (h) {
+      if (market) { list.appendChild(storyItem(h, true)); return; }
       var li = el("li");
       var tkb = el("button", "sf-tk", h.ticker);
       tkb.type = "button";
@@ -261,7 +269,7 @@
     return out;
   }
 
-  function renderCandles(r) {
+  function renderCandles(r, animate) {
     var box = $("adv-candles");
     box.replaceChildren();
     var raw = (state.candles || {})[r.ticker] || [];
@@ -307,6 +315,10 @@
     c.append("rect").attr("x", function (d) { return x(d.date); }).attr("width", bw2)
       .attr("y", function (d) { return y(Math.max(d.o, d.c)); })
       .attr("height", function (d) { return Math.max(1, Math.abs(y(d.o) - y(d.c))); });
+    if (animate && !calmMotion) {
+      c.style("opacity", 0).transition().delay(function (_, i) { return i * 5; }).duration(350).style("opacity", 1);
+      g.select(".sf-c-band").style("opacity", 0).transition().delay(data.length * 5).duration(500).style("opacity", 1);
+    }
 
     var cross = g.append("line").attr("class", "sf-c-cross").attr("y1", m.t).attr("y2", H - m.b).style("display", "none");
     var tip = el("div", "sf-tip"); tip.hidden = true; box.appendChild(tip);
@@ -334,7 +346,7 @@
       .on("pointerleave", function () { tip.hidden = true; cross.style("display", "none"); });
   }
 
-  function renderAdvice() {
+  function renderAdvice(animate) {
     if (!openTicker || !state || !state.forecast) return;
     var r = state.forecast.find(function (x) { return x.ticker === openTicker; });
     if (!r || !r.advice) return;
@@ -343,7 +355,7 @@
     $("adv-sub").textContent = "$" + money(r.price) + " · prices as of " + day(r.as_of) + (f.sector ? " · " + f.sector : "");
     fillVerdict($("adv-short"), r.advice.short, "Signal: " + r.advice.short.strength.toLowerCase() + " · Risk this week: " + r.advice.short.risk.toLowerCase());
     fillVerdict($("adv-long"), r.advice.long, "Signal: " + r.advice.long.strength.toLowerCase());
-    renderCandles(r);
+    renderCandles(r, animate);
 
     var dl = $("adv-stats");
     dl.replaceChildren();
@@ -488,7 +500,7 @@
     openTicker = tk;
     var d = $("advice");
     if (!d.open) { d.showModal(); d.appendChild($("buddy")); }   // keep the cat above the pop-up
-    renderAdvice();
+    renderAdvice(true);
     d.scrollTop = 0;
   }
   $("adv-close").addEventListener("click", function () { $("advice").close(); });
@@ -542,10 +554,10 @@
       $("sc-pending").textContent = t.pending ? t.pending + " forecasts are waiting for their 5 days to pass." : "";
       return;
     }
-    $("sc-range").textContent = t.range_hit_pct.toFixed(0) + "%";
-    $("sc-dir").textContent = t.direction_hit_pct.toFixed(0) + "%";
+    countTo($("sc-range"), t.range_hit_pct.toFixed(0) + "%");
+    countTo($("sc-dir"), t.direction_hit_pct.toFixed(0) + "%");
     $("sc-naive").textContent = t.always_up_hit_pct.toFixed(0) + "%";
-    $("sc-n").textContent = String(t.graded);
+    countTo($("sc-n"), String(t.graded));
     $("sc-span").textContent = "From " + t.weeks + " forecast day" + (t.weeks === 1 ? "" : "s") + ", " + day(t.first) +
       (t.first === t.last ? "" : " to " + day(t.last)) + (t.pending ? " · " + t.pending + " still waiting" : "");
     var nn = t.news_changed;
@@ -568,20 +580,362 @@
     });
   }
 
+  // ---------- Motion helpers (all skipped when the visitor asks for less motion) ----------
+  var calmMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function stagger(box) {
+    if (!box || calmMotion) return;
+    [].forEach.call(box.children, function (c, i) { c.style.setProperty("--i", Math.min(i, 14)); });
+    box.classList.remove("sf-anim"); void box.offsetWidth; box.classList.add("sf-anim");
+    clearTimeout(box._anim);
+    box._anim = setTimeout(function () { box.classList.remove("sf-anim"); }, 2400);
+  }
+  function animatePage(page) {
+    if (!page || calmMotion) return;
+    stagger(page);
+    page.querySelectorAll("[data-stagger]").forEach(stagger);
+  }
+  // Numbers roll up from zero the first time they appear.
+  function countTo(node, text) {
+    var first = node.dataset.val == null;
+    node.dataset.val = text;
+    var m = /^(\D*?)([\d,]*\.?\d+)(.*)$/.exec(text);
+    if (!first || calmMotion || !m) { node.textContent = text; return; }
+    var end = parseFloat(m[2].replace(/,/g, "")), dec = (m[2].split(".")[1] || "").length;
+    var fmt = d3.format((m[2].indexOf(",") > -1 ? "," : "") + "." + dec + "f"), t0 = null;
+    function tick(t) {
+      if (t0 == null) t0 = t;
+      var k = Math.min(1, (t - t0) / 800);
+      node.textContent = k < 1 ? m[1] + fmt(end * (1 - Math.pow(1 - k, 3))) + m[3] : text;
+      if (k < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // ---------- Today: what happened in the market ----------
+  var pct2 = function (v) { return (v > 0.005 ? "+" : v < -0.005 ? "−" : "") + Math.abs(v).toFixed(2) + "%"; };
+  var arrow = function (v) { return v > 0.005 ? "▲ " : v < -0.005 ? "▼ " : ""; };
+  var joinAnd = function (a) { return a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + " and " + a[a.length - 1]; };
+  var briefLen = "quick";
+  try { briefLen = localStorage.getItem("sf-brief") || "quick"; } catch (e) {}
+  var mkPick = "^GSPC", mkSpan = 2;
+  var SPANS = [["1M", 22], ["3M", 66], ["6M", 130], ["1Y", 260]];
+
+  function fmtLevel(m, v) {
+    if (m.unit === "pts") return v.toFixed(2) + "%";
+    if (m.symbol === "BTC-USD") return "$" + d3.format(",.0f")(v);
+    if (m.symbol === "CL=F" || m.symbol === "GC=F") return "$" + money(v);
+    return d3.format(",.2f")(v);
+  }
+  function fmtChg(m) { return arrow(m.chg_pct) + (m.unit === "pts" ? signed(m.chg_pts) + " pts" : pct2(m.chg_pct)); }
+  function chgTone(m) {
+    if (Math.abs(m.chg_pct) < 0.05 || m.unit === "pts") return "flat";
+    return (m.symbol === "^VIX" ? m.chg_pct < 0 : m.chg_pct > 0) ? "up" : "down";
+  }
+  function moveWord(v) {
+    var a = Math.abs(v);
+    if (a < 0.1) return "was flat";
+    return (v > 0 ? (a < 0.5 ? "edged up " : a < 1.5 ? "rose " : "jumped ") : (a < 0.5 ? "slipped " : a < 1.5 ? "fell " : "dropped ")) + a.toFixed(1) + "%";
+  }
+  function dayWord(iso) {   // "today", "yesterday", "on Friday", "on Nov 3"
+    var d = new Date(iso + "T12:00:00"), n = new Date();
+    var diff = Math.round((new Date(n.getFullYear(), n.getMonth(), n.getDate(), 12) - d) / 86400000);
+    return diff <= 0 ? "today" : diff === 1 ? "yesterday" : "on " + d3.timeFormat(diff < 7 ? "%A" : "%b %-d")(d);
+  }
+  function nyNow() {
+    var o = {};
+    new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "numeric", hourCycle: "h23" })
+      .formatToParts(new Date()).forEach(function (p) { o[p.type] = p.value; });
+    return { wd: o.weekday, min: (Number(o.hour) % 24) * 60 + Number(o.minute) };
+  }
+  function marketOpen() { var n = nyNow(); return n.wd !== "Sat" && n.wd !== "Sun" && n.min >= 570 && n.min < 960; }
+
+  function renderClock() {
+    var h = new Date().getHours();
+    $("hello").textContent = h < 4 || h >= 22 ? "Up late, night owl?" : h < 12 ? "Good morning!" : h < 17 ? "Good afternoon!" : "Good evening!";
+    $("today-title").textContent = h >= 4 && h < 12 ? "Here's what happened while you were asleep" : "Here's what's up with the market";
+    var n = nyNow(), now = new Date(), diff = ((now.getHours() * 60 + now.getMinutes()) - n.min + 2160) % 1440 - 720;
+    var local = function (nyMin) { return d3.timeFormat("%-I:%M %p")(new Date(now.getTime() + (nyMin - n.min) * 60000)); };
+    var yours = function (nyMin) { return Math.abs(diff) > 1 ? " (" + local(nyMin) + " your time)" : ""; };
+    var weekend = n.wd === "Sat" || n.wd === "Sun";
+    var text;
+    if (marketOpen()) text = "The US stock market is open right now. It closes at 4:00 PM New York time" + yours(960) + ".";
+    else if (weekend || (n.wd === "Fri" && n.min >= 960)) text = "The US stock market is closed for the weekend. It opens again Monday at 9:30 AM New York time" + yours(570) + ".";
+    else if (n.min < 570) text = "The US stock market opens today at 9:30 AM New York time" + yours(570) + ".";
+    else text = "The US stock market has closed for the day. It opens again tomorrow at 9:30 AM New York time" + yours(570) + ".";
+    $("market-clock").textContent = text + " Holidays aren't counted.";
+  }
+
+  function marketBy() { var by = {}; ((state.market || {}).markets || []).forEach(function (m) { by[m.symbol] = m; }); return by; }
+  var STORY_RX = /\b(stocks?|markets?|wall street|dow|s&p|nasdaq|shares|fed|rates?|inflation|earnings|economy|treasur\w*)\b/i;
+  function stories() {
+    var all = state.market_news || [], cut = Date.now() - 36 * 3600000;
+    var recent = all.filter(function (h) { return new Date(h.published).getTime() >= cut; });
+    return recent.length >= 5 ? recent : all;
+  }
+  var nameOf = function (tk) { var r = (state.forecast || []).find(function (x) { return x.ticker === tk; }); return r ? r.name : tk; };
+
+  function renderBrief() {
+    var box = $("brief-list"), by = marketBy(), items = [];
+    var add = function (k, full, parts) { items.push({ k: k, full: full, parts: parts }); };
+    var three = [by["^GSPC"], by["^IXIC"], by["^DJI"]].filter(Boolean);
+    if (three.length) {
+      var ups = three.filter(function (m) { return m.chg_pct >= 0.1; }).length, downs = three.filter(function (m) { return m.chg_pct <= -0.1; }).length;
+      var mood = ups === three.length ? "Stocks rose" : downs === three.length ? "Stocks fell" : ups && downs ? "It was a mixed day for stocks" : "Stocks barely moved";
+      add("market", false, [mood + " " + dayWord(three[0].date) + ": " + joinAnd(three.map(function (m) { return "the " + m.name + " " + moveWord(m.chg_pct); })) + "."]);
+    }
+    if (by["^RUT"]) add("market", true, ["Smaller companies (the Russell 2000) " + moveWord(by["^RUT"].chg_pct) + "."]);
+    var fut = (state.market || {}).futures || [];
+    if (!marketOpen() && fut.length) {
+      var es = fut[0];
+      add("futures", false, ["Right now, futures point to a " + (es.chg_pct >= 0.15 ? "higher" : es.chg_pct <= -0.15 ? "lower" : "quiet") +
+        " start: S&P 500 futures are " + pct2(es.chg_pct) + ". That's only a hint, not a promise."]);
+    }
+    var vix = by["^VIX"];
+    if (vix) {
+      var med = d3.median(vix.series, function (d) { return d[1]; });
+      add("mood", true, ["The VIX \"fear gauge\" is at " + vix.last.toFixed(1) + (vix.last > med * 1.15 ? ", higher than usual for the past year, so traders are more nervous than normal."
+        : vix.last < med * 0.87 ? ", lower than usual for the past year, so traders are fairly calm." : ", about normal for the past year.")]);
+    }
+    var tnx = by["^TNX"];
+    if (tnx) add("rates", true, ["The 10-year US interest rate " + (tnx.chg_pts >= 0.01 ? "rose" : tnx.chg_pts <= -0.01 ? "fell" : "held") + " to " + tnx.last.toFixed(2) + "%" +
+      (tnx.chg_pts >= 0.03 ? ". Higher rates tend to weigh on stock prices." : ".")]);
+    if (by["CL=F"] && by["GC=F"]) add("goods", true, ["Oil " + moveWord(by["CL=F"].chg_pct) + " to $" + money(by["CL=F"].last) + " a barrel, and gold " + moveWord(by["GC=F"].chg_pct) + "."]);
+    if (by["BTC-USD"]) add("goods", true, ["Bitcoin " + moveWord(by["BTC-USD"].chg_pct) + " to $" + d3.format(",.0f")(by["BTC-USD"].last) + "."]);
+
+    var mv = state.moves || {};
+    var tks = (state.forecast || []).map(function (r) { return r.ticker; }).filter(function (tk) { return mv[tk]; })
+      .sort(function (a, b) { return mv[b].chg_pct - mv[a].chg_pct; });
+    if (tks.length) {
+      var up = tks.filter(function (tk) { return mv[tk].chg_pct > 0; }).length, b = mv[tks[0]], w = mv[tks[tks.length - 1]];
+      add("stocks", false, ["Of our " + tks.length + " stocks, " + up + " went up and " + (tks.length - up) + " went down. " +
+        (b.chg_pct > 0 ? "Biggest gain: " : "Smallest drop: ") + b.name + " (" + pct2(b.chg_pct) + "). " +
+        (w.chg_pct < 0 ? "Biggest drop: " : "Smallest gain: ") + w.name + " (" + pct2(w.chg_pct) + ")."]);
+    }
+    var st = stories();
+    if (st.length) {
+      var talk = {};
+      st.forEach(function (h) { (h.mentions || []).forEach(function (tk) { talk[tk] = (talk[tk] || 0) + 1; }); });
+      var hot = Object.keys(talk).sort(function (a, b) { return talk[b] - talk[a]; }).slice(0, 3).filter(function (tk) { return talk[tk] >= 2; });
+      if (hot.length) add("stocks", true, ["Most talked-about of our stocks in the market news: " +
+        joinAnd(hot.map(function (tk) { return nameOf(tk) + " (" + talk[tk] + " headlines)"; })) + "."]);
+      var g = st.filter(function (h) { return h.tone === "good"; }).length, bd = st.filter(function (h) { return h.tone === "bad"; }).length;
+      add("news", true, ["Market news mood: " + (g > bd * 1.5 ? "mostly upbeat" : bd > g * 1.5 ? "mostly gloomy" : "mixed") + ", with " + g + " good, " + bd + " bad and " +
+        (st.length - g - bd) + " neutral headlines."]);
+      var top = st.find(function (h) { return STORY_RX.test(h.title); }) || st[0];
+      add("news", false, ["Top story: ", { text: top.title, url: top.url }, " (" + top.source + ")."]);
+    }
+    var fc = (state.forecast || []).slice().sort(function (a, b) { return (b.high - b.low) / b.price - (a.high - a.low) / a.price; });
+    if (fc.length > 1) add("forecast", true, ["Next week, the forecast expects the bumpiest ride from " + fc[0].name + " and " + fc[1].name + " (their likely price ranges are the widest)."]);
+
+    box.replaceChildren();
+    items.filter(function (it) { return briefLen === "full" || !it.full; }).forEach(function (it) {
+      var li = el("li", "sf-brief-item sf-brief--" + it.k), t = el("span");
+      it.parts.forEach(function (p) {
+        if (typeof p === "string") { t.append(p); return; }
+        var url = safeUrl(p.url);
+        if (url) { var a = el("a", null, p.text); a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer"; t.appendChild(a); } else t.append(p.text);
+      });
+      li.append(el("span", "sf-brief-dot"), t);
+      box.appendChild(li);
+    });
+    if (!box.children.length) box.appendChild(el("li", "sf-sub", "The market summary appears after the next update."));
+    document.querySelectorAll(".sf-seg-btn").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.len === briefLen)); });
+  }
+  document.querySelectorAll(".sf-seg-btn").forEach(function (b) {
+    b.addEventListener("click", function () {
+      briefLen = b.dataset.len;
+      try { localStorage.setItem("sf-brief", briefLen); } catch (e) {}
+      if (state && state.forecast) { renderBrief(); stagger($("brief-list")); }
+    });
+  });
+
+  function spark(series, tone) {
+    var NS = "http://www.w3.org/2000/svg", svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 100 30"); svg.setAttribute("preserveAspectRatio", "none");
+    svg.setAttribute("class", "sf-spark sf-spark--" + tone); svg.setAttribute("aria-hidden", "true");
+    var ys = series.map(function (d) { return d[1]; }), lo = d3.min(ys), hi = d3.max(ys);
+    var line = d3.line().x(function (_, i) { return i / Math.max(1, ys.length - 1) * 100; })
+      .y(function (v) { return hi === lo ? 15 : 27 - (v - lo) / (hi - lo) * 24; });
+    var p = document.createElementNS(NS, "path");
+    p.setAttribute("d", line(ys)); p.setAttribute("pathLength", "1");
+    svg.appendChild(p);
+    return svg;
+  }
+
+  function renderMarkets() {
+    var mk = (state.market || {}).markets || [], grid = $("mk-grid");
+    grid.replaceChildren();
+    if (!mk.length) { grid.appendChild(el("p", "sf-sub", "Market numbers aren't available right now. They come back with the next update.")); return; }
+    if (!mk.some(function (m) { return m.symbol === mkPick; })) mkPick = mk[0].symbol;
+    mk.forEach(function (m) {
+      var b = el("button", "sf-mk"), tone = chgTone(m);
+      b.type = "button"; b.dataset.sym = m.symbol; b.title = m.name + ": " + m.what;
+      b.setAttribute("aria-pressed", String(m.symbol === mkPick));
+      b.append(el("span", "sf-mk-name", m.name), el("span", "sf-mk-val", fmtLevel(m, m.last)),
+               el("span", "sf-mk-chg sf-mk-chg--" + tone, fmtChg(m)), spark(m.series.slice(-22), tone));
+      b.addEventListener("click", function () {
+        mkPick = m.symbol;
+        grid.querySelectorAll(".sf-mk").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.sym === mkPick)); });
+        renderMkChart();
+      });
+      grid.appendChild(b);
+    });
+  }
+
+  // Big market chart: TradingView Lightweight Charts (open source, Apache 2.0).
+  var lwc = null, lwcSeries = null;
+  function renderMkChart() {
+    var mk = ((state.market || {}).markets || []).find(function (m) { return m.symbol === mkPick; });
+    if (!mk) return;
+    $("mk-chart-title").textContent = mk.name + " · " + fmtLevel(mk, mk.last);
+    $("mk-chart-what").textContent = mk.what.charAt(0).toUpperCase() + mk.what.slice(1) + ". Daily closes; drag to scroll, pinch or scroll to zoom.";
+    if (!window.LightweightCharts) { $("mk-chart").replaceChildren(el("p", "sf-sub", "The chart couldn't load. Try refreshing the page.")); return; }
+    if (!lwc) {
+      lwc = LightweightCharts.createChart($("mk-chart"), {
+        autoSize: true,
+        layout: { background: { type: "solid", color: "transparent" }, textColor: "#a6adc8", fontFamily: "Nunito, system-ui, sans-serif" },
+        grid: { vertLines: { visible: false }, horzLines: { color: "rgba(69, 71, 90, 0.45)" } },
+        rightPriceScale: { borderVisible: false }, timeScale: { borderVisible: false },
+        crosshair: { mode: 0, vertLine: { color: "#6c7086", labelBackgroundColor: "#45475a" }, horzLine: { color: "#6c7086", labelBackgroundColor: "#45475a" } },
+        handleScroll: { vertTouchDrag: false }
+      });
+      lwcSeries = lwc.addAreaSeries({ lineWidth: 2, priceLineVisible: false });
+    }
+    var pts = mk.series.slice(-SPANS[mkSpan][1]).map(function (d) { return { time: d[0], value: d[1] }; });
+    var rising = pts.length > 1 && pts[pts.length - 1].value >= pts[0].value;
+    var rgb = mk.symbol === "^VIX" ? "203, 166, 247" : rising ? "166, 227, 161" : "243, 139, 168";
+    lwcSeries.applyOptions({ lineColor: "rgb(" + rgb + ")", topColor: "rgba(" + rgb + ", 0.32)", bottomColor: "rgba(" + rgb + ", 0.02)",
+      priceFormat: mk.symbol === "BTC-USD" ? { type: "price", precision: 0, minMove: 1 } : { type: "price", precision: 2, minMove: 0.01 } });
+    lwcSeries.setData(pts);
+    lwc.timeScale().fitContent();
+  }
+  (function () {
+    var bar = $("mk-spans");
+    SPANS.forEach(function (s, i) {
+      var b = el("button", "sf-range", s[0]);
+      b.type = "button"; b.setAttribute("aria-pressed", String(i === mkSpan));
+      b.addEventListener("click", function () {
+        mkSpan = i;
+        bar.querySelectorAll("button").forEach(function (x, j) { x.setAttribute("aria-pressed", String(j === i)); });
+        renderMkChart();
+      });
+      bar.appendChild(b);
+    });
+  })();
+
+  function renderFutures() {
+    var f = (state.market || {}).futures || [], row = $("fut-row");
+    $("futures").hidden = marketOpen() || !f.length;
+    row.replaceChildren();
+    f.forEach(function (m) {
+      var c = el("div", "sf-fut-item"), tone = Math.abs(m.chg_pct) < 0.05 ? "flat" : m.chg_pct > 0 ? "up" : "down";
+      c.append(el("span", "sf-mk-name", m.name), el("span", "sf-mk-chg sf-mk-chg--" + tone, arrow(m.chg_pct) + pct2(m.chg_pct)));
+      row.appendChild(c);
+    });
+  }
+
+  function renderHeat() {
+    var mv = state.moves || {}, box = $("heat");
+    box.replaceChildren();
+    var rows = (state.forecast || []).filter(function (r) { return mv[r.ticker]; })
+      .sort(function (a, b) { return mv[b.ticker].chg_pct - mv[a.ticker].chg_pct; });
+    if (!rows.length) { box.appendChild(el("p", "sf-sub", "Daily changes appear after the next price update.")); return; }
+    $("movers-title").textContent = "How our 20 stocks did " + dayWord(mv[rows[0].ticker].date);
+    var ext = Math.max(2, d3.max(rows, function (r) { return Math.abs(mv[r.ticker].chg_pct); }));
+    rows.forEach(function (r) {
+      var v = mv[r.ticker].chg_pct, b = el("button", "sf-heat-cell");
+      b.type = "button";
+      b.dataset.dir = v > 0.05 ? "up" : v < -0.05 ? "down" : "flat";
+      b.style.setProperty("--amt", Math.round(10 + Math.min(1, Math.abs(v) / ext) * 32) + "%");
+      b.setAttribute("aria-label", r.name + " " + pct2(v) + ". Open its forecast");
+      b.append(el("strong", null, r.ticker), el("span", "sf-heat-name", r.name), el("span", "sf-heat-chg", pct2(v)));
+      b.addEventListener("click", function () { openAdvice(r.ticker); });
+      box.appendChild(b);
+    });
+  }
+
+  function storyItem(h, withTag) {
+    var li = el("li");
+    if (withTag) li.appendChild(el("span", "sf-tk sf-tk--mkt", "Market"));
+    var hl = el("span", "sf-hl"), url = safeUrl(h.url);
+    if (url) { var a = el("a", null, h.title); a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer"; hl.appendChild(a); }
+    else hl.textContent = h.title;
+    var meta = el("span", "sf-meta", h.source + " · " + ago(h.published));
+    (h.mentions || []).forEach(function (tk) {
+      var b = el("button", "sf-chip", tk);
+      b.type = "button"; b.setAttribute("aria-label", "Open forecast for " + tk);
+      b.addEventListener("click", function () { openAdvice(tk); });
+      meta.appendChild(b);
+    });
+    li.append(hl, el("span", "sf-pill sf-pill--" + h.tone, h.tone), meta);
+    return li;
+  }
+  var storyLimit = 8;
+  function renderStories() {
+    var list = $("story-list"), st = stories();
+    list.replaceChildren();
+    var g = st.filter(function (h) { return h.tone === "good"; }).length, bd = st.filter(function (h) { return h.tone === "bad"; }).length;
+    var mood = $("mood");
+    mood.hidden = !st.length;
+    mood.dataset.tone = g > bd * 1.5 ? "good" : bd > g * 1.5 ? "bad" : "neutral";
+    mood.textContent = "News mood: " + (mood.dataset.tone === "good" ? "upbeat" : mood.dataset.tone === "bad" ? "gloomy" : "mixed");
+    if (!st.length) list.appendChild(el("li", "sf-sub", "No market headlines yet. They appear after the next news check."));
+    st.slice(0, storyLimit).forEach(function (h) { list.appendChild(storyItem(h, false)); });
+    var more = $("story-more");
+    if (!more) {
+      more = el("button", "sf-more", ""); more.id = "story-more"; more.type = "button";
+      more.addEventListener("click", function () { storyLimit += 8; renderStories(); });
+      list.after(more);
+    }
+    var left = Math.min(st.length, 48) - Math.min(storyLimit, st.length);
+    more.hidden = left <= 0;
+    more.textContent = "Show more stories (" + left + " more)";
+  }
+
+  // Live scrolling prices: free TradingView ticker-tape widget, loaded once.
+  var tapeDone = false;
+  function renderTape() {
+    if (tapeDone) return;
+    tapeDone = true;
+    var wrap = el("div", "tradingview-widget-container"), sc = document.createElement("script");
+    sc.src = "https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js";
+    sc.async = true;
+    var sym = function (p, t) { return { proName: p, title: t }; };
+    sc.textContent = JSON.stringify({
+      symbols: [sym("FOREXCOM:SPXUSD", "S&P 500"), sym("FOREXCOM:NSXUSD", "Nasdaq 100"), sym("FOREXCOM:DJI", "Dow"),
+        sym("BITSTAMP:BTCUSD", "Bitcoin"), sym("OANDA:XAUUSD", "Gold"),
+        sym("NASDAQ:NVDA", "Nvidia"), sym("NASDAQ:AAPL", "Apple"), sym("NASDAQ:MSFT", "Microsoft"),
+        sym("NASDAQ:AMZN", "Amazon"), sym("NASDAQ:GOOGL", "Alphabet"), sym("NASDAQ:META", "Meta")],
+      showSymbolLogo: true, isTransparent: true, displayMode: "adaptive", colorTheme: "dark", locale: "en"
+    });
+    wrap.append(el("div", "tradingview-widget-container__widget"), sc);
+    $("tape").appendChild(wrap);
+  }
+
+  function renderToday() {
+    renderClock(); renderTape(); renderBrief(); renderMarkets(); renderMkChart(); renderFutures(); renderHeat(); renderStories();
+  }
+  setInterval(function () { if (state && state.forecast) { renderClock(); renderFutures(); } }, 60000);
+
   function render() {
     if (!state) return;
     renderStatus(state.status || {});
     var ready = !!state.forecast;
     $("loading").hidden = ready;
     if (!ready) { $("loading-phase").textContent = (state.status && state.status.phase) || ""; return; }
+    var first = !rendered;
+    rendered = true;
+    renderToday();
     renderSummary(state.forecast, state.calibration || []);
-    renderChart(state.forecast);
+    renderChart(state.forecast, first);
     renderTable(state.forecast);
     renderNotes(state.forecast);
     renderNews(state.news || [], state.forecast);
     renderScorecard(state.track);
     renderAdvice();
+    if (first) animatePage(document.querySelector(".sf-page:not([hidden])"));
   }
+  var rendered = false;
 
   function poll() {
     fetch(window.STATE_URL || "/api/state", { cache: "no-store" })
@@ -699,7 +1053,7 @@
       if (m && pages.some(function (p) { return p.dataset.page === m[1]; })) return { page: m[1] };
       var el = hash.length > 1 ? document.getElementById(decodeURIComponent(hash.slice(1))) : null;
       var host = el && el.closest(".sf-page");
-      return host ? { page: host.dataset.page, el: el } : { page: "home" };
+      return host ? { page: host.dataset.page, el: el } : { page: "today" };
     }
     function show() {
       var t = target();
@@ -708,10 +1062,30 @@
         if (a.dataset.page === t.page) { a.setAttribute("aria-current", "page"); a.scrollIntoView({ block: "nearest", inline: "nearest" }); }
         else a.removeAttribute("aria-current");
       });
+      moveGlow();
+      var page = pages.filter(function (p) { return p.dataset.page === t.page; })[0];
+      if (state && state.forecast) {
+        if (t.page === "forecasts") { lastW = $("range-chart").clientWidth; renderChart(state.forecast, true); }
+        if (t.page === "today" && lwc) lwc.timeScale().fitContent();
+        if (!booting) animatePage(page);
+      }
+      booting = false;
       window.dispatchEvent(new Event("resize"));   // the range chart sizes itself once its page is visible
       if (t.el) { if (t.el.tagName === "DETAILS") t.el.open = true; t.el.scrollIntoView(); }
       else window.scrollTo(0, 0);
     }
+    var booting = true;
+    // Mauve pill that slides to the page you pick
+    function moveGlow() {
+      var cur = document.querySelector('.sf-menu-link[aria-current="page"]'), glow = document.querySelector(".sf-menu-glow");
+      if (!cur || !glow) return;
+      glow.style.width = cur.offsetWidth + "px";
+      glow.style.height = cur.offsetHeight + "px";
+      glow.style.transform = "translate(" + cur.offsetLeft + "px," + cur.offsetTop + "px)";
+      if (!glow.classList.contains("is-on")) requestAnimationFrame(function () { glow.classList.add("is-on"); });
+    }
+    window.addEventListener("resize", moveGlow);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveGlow);
     window.addEventListener("hashchange", show);
     show();
   })();

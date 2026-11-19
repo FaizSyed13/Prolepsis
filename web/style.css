@@ -43,7 +43,14 @@ a { color: inherit; }
   color: var(--muted); text-decoration: none; font-weight: 700; font-size: 14px; transition: background 0.15s, color 0.15s; }
 .sf .sf-nav a.sf-menu-link { color: var(--muted); }
 .sf .sf-nav a.sf-menu-link:hover { color: var(--fg); background: var(--surface0); }
-.sf .sf-nav a.sf-menu-link[aria-current="page"] { color: var(--base); background: var(--mauve); }
+.sf .sf-nav a.sf-menu-link[aria-current="page"] { color: var(--base); background: transparent; }
+.sf-menu { position: relative; }
+.sf-menu-link { position: relative; z-index: 1; }
+.sf-menu-glow { position: absolute; left: 0; top: 0; width: 0; height: 0; border-radius: 999px; background: var(--mauve); opacity: 0;
+  box-shadow: 0 6px 20px rgba(203, 166, 247, 0.28); pointer-events: none; }
+.sf-menu-glow.is-on { opacity: 1; transition: transform .45s cubic-bezier(.3, 1.3, .5, 1), width .45s cubic-bezier(.3, 1.3, .5, 1), opacity .2s; }
+@media (prefers-reduced-motion: reduce) { .sf-menu-glow.is-on { transition: none; } }
+.sf .sf-nav a.sf-menu-link[aria-current="page"]:hover { background: transparent; color: var(--base); }
 .sf-page { display: grid; gap: 32px; min-width: 0; }
 @media (max-width: 600px) { .sf-menu { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .sf-menu-link { padding: 0 14px; } }
 .sf-status { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
@@ -291,3 +298,109 @@ a { color: inherit; }
 .sf-an-lines { display: grid; gap: 6px; margin: 0 0 10px; padding-left: 18px; line-height: 1.45; }
 .sf-an-lines .sf-pos { color: var(--ok); } .sf-an-lines .sf-neg { color: var(--bad); }
 .sf-an-bar[hidden], .sf-an-legend[hidden] { display: none; }
+
+/* ---------- Today page ---------- */
+.sf-today-head { display: grid; gap: 8px; }
+.sf-wordmark { font-family: var(--serif); font-weight: 500; font-size: 22px; color: var(--fg); letter-spacing: -0.01em; }
+.sf-today-head .sf-logo { width: 44px; }
+.sf-hello { font-family: var(--serif); font-size: 18px; color: var(--pink); margin-top: 6px; }
+.sf-today-title { font-size: clamp(28px, 5vw, 42px); }
+.sf-tape iframe { color-scheme: normal; }
+.sf-tape { min-height: 46px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); overflow: hidden; }
+
+.sf-seg { display: inline-flex; padding: 4px; gap: 4px; border-radius: 999px; background: var(--base); border: 1px solid var(--line); }
+.sf-seg-btn { font: 600 13px var(--sans); color: var(--muted); background: none; border: 0; border-radius: 999px; padding: 6px 14px; min-height: 34px; cursor: pointer; }
+.sf-seg-btn:hover { color: var(--fg); }
+.sf-seg-btn[aria-pressed="true"] { background: var(--mauve); color: var(--crust); }
+.sf-brief { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 22px; }
+.sf-brief-list { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 12px; }
+.sf-brief-item { display: grid; grid-template-columns: 12px 1fr; gap: 12px; align-items: baseline; font-size: 16px; line-height: 1.55; }
+.sf .sf-brief-item a { color: var(--lavender); text-decoration: none; }
+.sf .sf-brief-item a:hover { text-decoration: underline; }
+.sf-brief-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--mauve); transform: translateY(-1px); }
+.sf-brief--market .sf-brief-dot { background: var(--blue); }
+.sf-brief--futures .sf-brief-dot { background: var(--peach); }
+.sf-brief--stocks .sf-brief-dot { background: var(--ok); }
+.sf-brief--news .sf-brief-dot { background: var(--pink); }
+.sf-brief--mood .sf-brief-dot, .sf-brief--rates .sf-brief-dot, .sf-brief--goods .sf-brief-dot { background: var(--lavender); }
+@media (max-width: 520px) { .sf-brief { padding: 16px; } .sf-brief-item { font-size: 15px; } }
+
+.sf-mk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.sf-mk { display: grid; gap: 2px; text-align: left; font: inherit; color: var(--fg); background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 14px 14px 10px; cursor: pointer; min-width: 0; }
+.sf-mk[aria-pressed="true"] { border-color: var(--mauve); box-shadow: 0 0 0 3px rgba(203, 166, 247, 0.18); }
+.sf-mk-name { font-size: 12px; font-weight: 700; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sf-mk-val { font-family: var(--serif); font-size: 21px; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sf-mk-chg { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.sf-mk-chg--up { color: var(--ok); } .sf-mk-chg--down { color: var(--bad); } .sf-mk-chg--flat { color: var(--muted); }
+.sf-spark { width: 100%; height: 30px; margin-top: 6px; overflow: visible; }
+.sf-spark path { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.sf-spark--up path { stroke: var(--ok); } .sf-spark--down path { stroke: var(--bad); } .sf-spark--flat path { stroke: var(--lavender); }
+.sf-mk-panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: grid; gap: 10px; min-width: 0; }
+.sf-mk-panel .sf-ranges { margin: 0; }
+.sf-mk-chart { height: 320px; min-width: 0; }
+@media (max-width: 560px) { .sf-mk-chart { height: 260px; } .sf-mk-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sf-mk-panel { padding: 14px; } }
+
+.sf-fut { display: flex; flex-wrap: wrap; gap: 12px; }
+.sf-fut-item { display: grid; gap: 2px; padding: 12px 18px; border-radius: var(--radius); background: var(--panel); border: 1px solid var(--line); }
+
+.sf-heat { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+.sf-heat-cell { --tint: var(--surface2); display: grid; gap: 1px; text-align: left; font: inherit; color: var(--fg); cursor: pointer; min-width: 0;
+  padding: 12px 14px; border-radius: 16px; border: 1px solid color-mix(in srgb, var(--tint) 45%, transparent);
+  background: color-mix(in srgb, var(--tint) var(--amt, 10%), var(--panel)); }
+.sf-heat-cell[data-dir="up"] { --tint: var(--ok); }
+.sf-heat-cell[data-dir="down"] { --tint: var(--bad); }
+.sf-heat-cell strong { font-size: 15px; }
+.sf-heat-name { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sf-heat-chg { font-weight: 700; font-variant-numeric: tabular-nums; }
+@media (max-width: 420px) { .sf-heat { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.sf-mood { font-size: 13px; font-weight: 700; padding: 4px 12px; border-radius: 999px; border: 1px solid currentColor; color: var(--muted); }
+.sf-mood[data-tone="good"] { color: var(--ok); } .sf-mood[data-tone="bad"] { color: var(--bad); }
+.sf-chip { margin-left: 8px; font: 700 11px var(--sans); color: var(--lavender); background: var(--surface0); border: 0; border-radius: 999px; padding: 2px 8px; cursor: pointer; }
+.sf-chip:hover { background: var(--mauve); color: var(--crust); }
+.sf-news .sf-tk--mkt { font-size: 12px; color: var(--peach); font-weight: 700; }
+.sf-cta { justify-self: center; display: inline-flex; gap: 8px; align-items: center; padding: 12px 24px; border-radius: 999px; font-weight: 700; text-decoration: none;
+  background: linear-gradient(90deg, var(--mauve), var(--pink)); box-shadow: 0 8px 24px rgba(203, 166, 247, 0.25); }
+.sf a.sf-cta:not(.sf-tk):not(.sf-gh) { color: var(--crust); }
+
+/* ---------- Motion (only for visitors who haven't asked for less) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .sf-anim > * { animation: sf-rise .6s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i, 0) * 65ms); }
+  @keyframes sf-rise { from { opacity: 0; transform: translateY(16px); } }
+
+  .sf-logo { animation: sf-peek .9s .1s cubic-bezier(.3, 1.5, .5, 1) both; }
+  @keyframes sf-peek { from { opacity: 0; transform: translateY(14px) rotate(-6deg); } }
+  .sf-title { background-size: 220% 100%; animation: sf-shimmer 9s ease-in-out infinite alternate; }
+  @keyframes sf-shimmer { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+  .sf-hello { animation: sf-wave .8s .3s both; }
+  @keyframes sf-wave { from { opacity: 0; transform: translateX(-10px); } }
+
+  .sf-tile, .sf-note, .sf-mk, .sf-verdict, .sf-heat-cell, .sf-fut-item, .sf-cta {
+    transition: transform .3s cubic-bezier(.3, 1.5, .5, 1), box-shadow .3s, border-color .2s, background .2s; }
+  .sf-tile:hover, .sf-note:hover, .sf-mk:hover, .sf-heat-cell:hover, .sf-fut-item:hover {
+    transform: translateY(-3px); box-shadow: 0 10px 26px rgba(17, 17, 27, 0.5); }
+  .sf-cta:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 12px 30px rgba(203, 166, 247, 0.35); }
+  .sf-cta span { transition: transform .3s; }
+  .sf-cta:hover span { transform: translateX(4px); }
+  .sf-heat-cell:active, .sf-mk:active { transform: scale(.97); }
+
+  .sf-spark path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: sf-draw 1.1s .25s ease-out forwards; }
+  @keyframes sf-draw { to { stroke-dashoffset: 0; } }
+  .sf-brief-dot { animation: sf-glow 2.8s ease-in-out infinite; }
+  @keyframes sf-glow { 50% { box-shadow: 0 0 0 5px rgba(203, 166, 247, 0.14); } }
+
+  .sf-dialog[open] { animation: sf-pop .32s cubic-bezier(.2, .9, .3, 1.15); }
+  .sf-dialog[open]::backdrop { animation: sf-fade .3s ease-out; }
+  @keyframes sf-pop { from { opacity: 0; transform: translateY(14px) scale(.97); } }
+  @keyframes sf-fade { from { opacity: 0; } }
+  .sf-guide[open] .sf-guide-grid { animation: sf-rise .4s ease-out; }
+  .sf-table tbody tr td, .sf-news li { transition: background .2s; }
+  .sf-more, .sf-range, .sf-seg-btn, .sf-menu-link { transition: background .25s, color .25s, transform .2s; }
+  .sf-more:active, .sf-range:active, .sf-seg-btn:active { transform: scale(.95); }
+}
+
+/* Keep every page section inside the screen on phones (charts and widgets can't push it wider) */
+.sf, .sf-page { grid-template-columns: minmax(0, 1fr); }
+.sf-page > *, .sf > * { min-width: 0; }
+.sf-mk-panel, .sf-mk-chart { overflow: hidden; }

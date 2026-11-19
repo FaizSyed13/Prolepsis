@@ -27,6 +27,7 @@ def main():
     except Exception as e:   # page still builds from prices alone if the news step fails
         print(f"News step failed: {type(e).__name__}: {e}")
         svc._set(error=f"News unavailable today: {type(e).__name__}")
+    svc.refresh_market()
     svc.rebuild()
     if not svc.payload:
         raise SystemExit("No forecast was built")
@@ -43,8 +44,8 @@ def main():
     html = html.replace('/static/logo.svg', 'logo.svg')
     html = html.replace('<script src="/static/app.js"></script>',
                         '<script>window.STATE_URL = "state.json";</script>\n<script src="app.js"></script>')
-    html = html.replace("checked every 15 minutes. Each headline is rated by FinBERT, a finance news model running on this PC.",
-                        "checked once each weekday evening. Each headline is rated by FinBERT, a free finance news model.")
+    html = html.replace("Checked every 15 minutes. Each headline is rated by FinBERT, a finance news model running on this PC.",
+                        "Checked twice each weekday (early morning and evening). Each headline is rated by FinBERT, a free finance news model.")
     (OUT / "index.html").write_text(html, encoding="utf-8")
     (OUT / "state.json").write_text(json.dumps(svc.payload, default=str), encoding="utf-8")
     (OUT / ".nojekyll").write_text("", encoding="utf-8")

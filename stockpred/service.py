@@ -15,6 +15,7 @@ from .export import calibration_rows, forecast_rows
 from .features import build_panel
 from .fundamentals import load_fundamentals
 from .live_news import NewsStore, fetch_ticker
+from .market import MARKET, day_moves, fetch_market_news, load_market, mentions
 from .probability import calibration_report, forecast_latest, oos_predictions
 from .reasoning import apply_reasoning, load_outlook, log_forecast, track_record
 
@@ -41,6 +42,7 @@ class ForecastService:
         self.store = NewsStore(cfg.data_dir / "news.db")
         self.base = self.rep = self.as_of = None
         self.stats, self.fund, self.candles, self.track = {}, {}, {}, None
+        self.market, self.moves = {}, {}
         self.payload = None
         self.status = {"phase": "starting", "base_at": None, "news_at": None,
                        "news_new": 0, "news_errors": [], "error": None}
@@ -55,6 +57,7 @@ class ForecastService:
         fc, last = forecast_latest(panel, feature_cols, self.model, self.cfg, oos)
         stats = {tk: price_stats(close, tk, self.cfg.benchmark) for tk in self.cfg.tickers}
         candles = candle_rows(self.cfg)
+        moves = day_moves(close, list(self.cfg.tickers) + [self.cfg.benchmark])
         try:
             track = track_record(close, self.cfg)
         except Exception as e:
@@ -69,6 +72,7 @@ class ForecastService:
         with self.lock:
             self.base, self.rep, self.as_of, self.stats, self.fund = fc, rep, last, stats, fund
             self.candles, self.track = candles, track
+            self.moves = moves
         self._set(base_at=_iso(_now()))
 
     # ---- fast: headlines + FinBERT ----
@@ -80,6 +84,9 @@ class ForecastService:
             got, errs = fetch_ticker(tk)
             items += got
             errors += [f"{tk}: {e}" for e in errs]
+        got, errs = fetch_market_news()
+        items += got
+        errors += [f"Market: {e}" for e in errs]
         new = self.store.add_new(items)
         pending = self.store.unscored()
         if pending:
@@ -87,13 +94,25 @@ class ForecastService:
             self.store.save_scores(score(pending))
         self._set(news_at=_iso(_now()), news_new=len(new), news_errors=errors[:10])
 
+    # ---- quick: index levels and overnight futures for the Today page (reading only) ----
+    def refresh_market(self):
+        self._set(phase="Checking the markets")
+        market = load_market()
+        if market:
+            with self.lock:
+                self.market = market
+
     # ---- combine and publish to the page ----
     def rebuild(self):
         with self.lock:
             if self.base is None:
                 return
             base, rep, as_of, stats, fund = self.base, self.rep, self.as_of, self.stats, self.fund
-        headlines = unique(self.store.recent(window_start()))
+        everything = unique(self.store.recent(window_start()))
+        headlines = [h for h in everything if h["ticker"] != MARKET]
+        market_news = [{"title": h["title"], "source": h["source"], "url": h["url"], "published": h["published"],
+                        "tone": tone(h), "score": round(headline_score(h), 3), "mentions": mentions(h["title"])}
+                       for h in everything if h["ticker"] == MARKET][:120]
         earnings = {tk: (fund.get(tk) or {}).get("next_earnings") for tk in self.cfg.tickers}
         auto, summary = build_outlook(headlines, self.cfg.tickers, earnings)
         manual = load_outlook(self.cfg)            # Claude's own research, if recent, wins
@@ -126,6 +145,7 @@ class ForecastService:
                  "source": h["source"], "url": h["url"], "published": h["published"], "tone": tone(h),
                  "score": round(headline_score(h), 3)} for h in headlines[:300]]
         payload = {"forecast": rows, "calibration": calibration_rows(rep), "news": news, "candles": self.candles, "track": self.track,
+                   "market": self.market, "moves": self.moves, "market_news": market_news,
                    "base_rate_pct": round(base_pct, 1),
                    "status": dict(self.status, phase="live", built_at=_iso(_now()))}
         with self.lock:
@@ -147,6 +167,7 @@ class ForecastService:
                     last_base = _now()
                     self.rebuild()
                 self.refresh_news()
+                self.refresh_market()
                 self.rebuild()
                 self._set(error=None)
             except Exception as e:
