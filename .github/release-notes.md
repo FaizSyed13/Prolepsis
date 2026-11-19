@@ -9,6 +9,6 @@ Under **Assets** below, click **Prolepsis-….zip** (not "Source code"), then un
 The first start sets itself up (5-15 minutes, about 0.5 GB, nothing installed on your computer),
 then builds the first forecast (about 15 minutes). Later starts are quick.
 
-Don't want to download anything? Open the live page: https://faizsyed13.github.io/stock-predictor/
+Don't want to download anything? Open the live page: https://faizsyed13.github.io/Prolepsis---Future-of-stock-forecasting/
 
 Research project, not financial advice.

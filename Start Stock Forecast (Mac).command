@@ -33,7 +33,7 @@ elif [ ! -f "python/ready.txt" ]; then
     MACOS="$(sw_vers -productVersion | cut -d. -f1)"
     if [ "$(uname -m)" != "arm64" ] || [ "${MACOS:-0}" -lt 14 ]; then
         echo "Sorry, this needs a Mac with an Apple chip (M1 or newer) and macOS 14 Sonoma or newer."
-        echo "You can still see the forecasts here: https://faizsyed13.github.io/stock-predictor/"
+        echo "You can still see the forecasts here: https://faizsyed13.github.io/Prolepsis---Future-of-stock-forecasting/"
         read -r -p "Press Return to close."
         exit 1
     fi
