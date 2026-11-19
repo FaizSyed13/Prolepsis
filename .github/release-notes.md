@@ -1,9 +1,7 @@
 ## What's new
-- **Cleaner, calmer design**: the Today page now shows just the essentials: stock search, next week's 5 biggest expected swings, a short market summary and one honest line about accuracy. Same dark colors, less clutter, gentle fades instead of bouncy animations.
-- **New Markets page**: the market tiles, big chart, overnight futures and how all 40 stocks did now live here.
-- **Track record** now opens with the accuracy check (the 100-square chart and key numbers).
 - **License added**: Prolepsis is free to download and use for yourself; copying, sharing or selling it isn't allowed without permission. See the LICENSE file.
-- Still included from v1.1.1: much faster setup and forecasts within seconds of starting.
+- Same design as before (v1.1.2 tried a new look; it's been rolled back and removed).
+- Still included from v1.1.1: much faster setup (about 1 minute instead of 4 on a test laptop) and forecasts within seconds of starting, while your computer builds its own in the background.
 
 ## Download
 Under **Assets** below, click **Prolepsis-….zip** (not "Source code"), then unzip it.
