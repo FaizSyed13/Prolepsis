@@ -35,7 +35,26 @@
     <p class="sf-hello" id="hello">Hello</p>
     <h1 class="sf-title sf-today-title" id="today-title">Here's what's up with the market</h1>
     <p class="sf-lede" id="market-clock">—</p>
+    <p class="sf-intro">Prolepsis does three things, free: a <b>daily market recap</b> (this page), <b>5-day price forecasts</b> for 20 big US stocks, and an <b>honest scorecard</b> of how every forecast turned out.</p>
   </header>
+
+  <div class="sf-search" id="search">
+    <label class="sf-search-box" for="search-input">
+      <svg class="sf-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+      <input id="search-input" type="text" role="combobox" aria-expanded="false" aria-controls="search-list"
+             aria-autocomplete="list" autocomplete="off" spellcheck="false"
+             placeholder="Search a stock, like Apple or NVDA" aria-label="Search stocks">
+      <button type="button" class="sf-search-clear" id="search-clear" aria-label="Clear search" hidden>×</button>
+    </label>
+    <ul class="sf-search-list" id="search-list" role="listbox" aria-label="Stocks" hidden></ul>
+  </div>
+
+  <nav class="sf-feats" id="feats" aria-label="What's inside" data-stagger>
+    <a class="sf-feat" href="#/forecasts"><span class="sf-feat-k">Forecasts</span><b>Where prices could be next week</b><span class="sf-feat-stat" id="f-fc">—</span></a>
+    <a class="sf-feat" href="#/why"><span class="sf-feat-k">Why</span><b>The news behind each forecast</b><span class="sf-feat-stat" id="f-why">—</span></a>
+    <a class="sf-feat" href="#/track"><span class="sf-feat-k">Track record</span><b>Every forecast checked, nothing hidden</b><span class="sf-feat-stat" id="f-track">—</span></a>
+    <a class="sf-feat" href="#/news"><span class="sf-feat-k">News</span><b>Headlines for all 20 stocks</b><span class="sf-feat-stat" id="f-news">—</span></a>
+  </nav>
 
   <div class="sf-tape" id="tape" aria-label="Live prices"></div>
 
@@ -48,6 +67,15 @@
       </div>
     </div>
     <ul class="sf-brief-list" id="brief-list" data-stagger><li class="sf-sub">Loading today's summary…</li></ul>
+  </section>
+
+  <section class="sf-sec" id="preview">
+    <div class="sf-row">
+      <h2 class="sf-h">Next week at a glance</h2>
+      <a class="sf-link" href="#/forecasts">See all forecasts <span aria-hidden="true">→</span></a>
+    </div>
+    <p class="sf-sub" id="preview-sub">Where each stock's price will likely be after 5 trading days (80% likely range), biggest expected swings first. Swipe or scroll sideways, tap a stock for details.</p>
+    <div class="sf-pv" id="pv" data-stagger></div>
   </section>
 
   <section class="sf-sec" id="markets">
@@ -85,6 +113,16 @@
     <ul class="sf-news sf-news--compact sf-news--stories" id="story-list" data-stagger></ul>
   </section>
 
+  <section class="sf-sec sf-honest" id="honest">
+    <h2 class="sf-h">How good are the forecasts, honestly?</h2>
+    <div class="sf-tiles" data-stagger>
+      <div class="sf-tile"><span class="sf-label">Price range hit rate</span><span class="sf-big" id="h-cover">—</span><span class="sf-sub">How often the price landed inside the 80% range in testing. The target is 80%. This is the most reliable part.</span></div>
+      <div class="sf-tile"><span class="sf-label">Up/down calls right</span><span class="sf-big" id="h-acc">—</span><span class="sf-sub">Always guessing "up" scored <b id="h-naive">—</b>, so treat up/down as a weak hint.</span></div>
+      <div class="sf-tile"><span class="sf-label">Live forecasts checked</span><span class="sf-big" id="h-live">—</span><span class="sf-sub" id="h-live-sub">Published forecasts graded against real prices.</span></div>
+    </div>
+    <p class="sf-sub">A research project, not financial advice. <a href="#how-to-read">How to read the forecasts</a></p>
+  </section>
+
   <a class="sf-cta" href="#/forecasts">See where prices could go next week <span aria-hidden="true">→</span></a>
   </div>
 
@@ -96,16 +134,6 @@
     <p class="sf-lede" id="edge-line">—</p>
   </header>
 
-  <div class="sf-search" id="search">
-    <label class="sf-search-box" for="search-input">
-      <svg class="sf-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
-      <input id="search-input" type="text" role="combobox" aria-expanded="false" aria-controls="search-list"
-             aria-autocomplete="list" autocomplete="off" spellcheck="false"
-             placeholder="Search a stock, like Apple or NVDA" aria-label="Search stocks">
-      <button type="button" class="sf-search-clear" id="search-clear" aria-label="Clear search" hidden>×</button>
-    </label>
-    <ul class="sf-search-list" id="search-list" role="listbox" aria-label="Stocks" hidden></ul>
-  </div>
 
   <details class="sf-guide" id="how-to-read" open>
     <summary>How to read this page <span class="sf-guide-hint">· tap to hide or show</span></summary>

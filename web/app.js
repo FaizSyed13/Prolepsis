@@ -912,8 +912,58 @@
     $("tape").appendChild(wrap);
   }
 
+  // ---------- Today page: the rest of the site at a glance ----------
+  function calVal(m) { var r = (state.calibration || []).find(function (x) { return x.metric === m; }); return r ? Number(r.value) : NaN; }
+  function renderFeats() {
+    var rows = state.forecast || [];
+    var wide = rows.slice().sort(function (a, b) { return (b.high - b.low) / b.price - (a.high - a.low) / a.price; })[0];
+    $("f-fc").textContent = wide ? "Biggest expected swing: " + wide.name + " (" + pct((wide.low / wide.price - 1) * 100) + " to " + pct((wide.high / wide.price - 1) * 100) + ")" : "—";
+    var n = rows.filter(changed).length;
+    $("f-why").textContent = "The news changed " + n + " of 20 forecasts";
+    var t = state.track || {}, cov = calVal("range_coverage");
+    $("f-track").textContent = t.graded ? t.graded + " live forecasts checked so far" : !isNaN(cov) ? "Ranges hit " + cov.toFixed(0) + "% in testing" : "—";
+    $("f-news").textContent = (state.news || []).length + " stock headlines, " + (state.market_news || []).length + " market stories";
+  }
+  function renderPreview() {
+    var box = $("pv"), rows = (state.forecast || []).slice();
+    box.replaceChildren();
+    if (!rows.length) return;
+    var lo = function (r) { return (r.low / r.price - 1) * 100; }, hi = function (r) { return (r.high / r.price - 1) * 100; };
+    rows.sort(function (a, b) { return (hi(b) - lo(b)) - (hi(a) - lo(a)); });
+    var ext = d3.max(rows, function (r) { return Math.max(-lo(r), hi(r)); }) * 1.05;
+    var pos = function (v) { return (50 + v / ext * 50).toFixed(2) + "%"; };
+    rows.forEach(function (r) {
+      var c = el("button", "sf-pv-card");
+      c.type = "button";
+      c.setAttribute("aria-label", r.name + ": likely between $" + money(r.low) + " and $" + money(r.high) + " in 5 trading days. Open details");
+      var top = el("span", "sf-pv-top");
+      top.append(el("strong", null, r.ticker), el("span", "sf-pv-up", "Up " + r.up_pct + "%"));
+      var bar = el("span", "sf-pv-bar"), fill = el("span", "sf-pv-fill"), now = el("span", "sf-pv-now");
+      fill.style.left = pos(lo(r)); fill.style.width = (hi(r) - lo(r)) / ext * 50 + "%";
+      now.style.left = "50%";
+      fill.style.transformOrigin = Math.max(0, Math.min(100, -lo(r) / (hi(r) - lo(r)) * 100)).toFixed(1) + "% 50%";   // grows out from today's price
+      bar.append(fill, now);
+      var ends = el("span", "sf-pv-ends");
+      ends.append(el("span", null, "$" + money(r.low)), el("span", null, "$" + money(r.high)));
+      c.append(top, el("span", "sf-pv-name", r.name), el("span", "sf-pv-price", "$" + money(r.price) + " today"), bar, ends,
+               el("span", "sf-pv-pct", pct(lo(r)) + " to " + pct(hi(r))));
+      c.addEventListener("click", function () { openAdvice(r.ticker); });
+      box.appendChild(c);
+    });
+  }
+  function renderHonest() {
+    var cov = calVal("range_coverage"), acc = calVal("direction_accuracy"), nv = calVal("naive_accuracy"), t = state.track || {};
+    countTo($("h-cover"), isNaN(cov) ? "—" : cov.toFixed(1) + "%");
+    countTo($("h-acc"), isNaN(acc) ? "—" : acc.toFixed(1) + "%");
+    $("h-naive").textContent = isNaN(nv) ? "—" : nv.toFixed(1) + "%";
+    countTo($("h-live"), String(t.graded || 0));
+    $("h-live-sub").textContent = t.graded
+      ? "Published forecasts graded against real prices: " + t.range_hit_pct.toFixed(0) + "% landed inside their range."
+      : "Each forecast is graded 5 trading days after it's published. " + (t.pending ? t.pending + " are waiting." : "");
+  }
+
   function renderToday() {
-    renderClock(); renderTape(); renderBrief(); renderMarkets(); renderMkChart(); renderFutures(); renderHeat(); renderStories();
+    renderClock(); renderTape(); renderBrief(); renderFeats(); renderPreview(); renderHonest(); renderMarkets(); renderMkChart(); renderFutures(); renderHeat(); renderStories();
   }
   setInterval(function () { if (state && state.forecast) { renderClock(); renderFutures(); } }, 60000);
 
