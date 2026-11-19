@@ -38,6 +38,7 @@
     <p class="sf-lede" id="market-clock">—</p>
     <p class="sf-intro">Prolepsis does three things, free: a <b>daily market recap</b> (this page), <b>5-day price forecasts</b> for 20 big US stocks, and an <b>honest scorecard</b> of how every forecast turned out.</p>
   </header>
+  <div class="sf-top-right">
   <div class="sf-search" id="search">
     <label class="sf-search-box" for="search-input">
       <svg class="sf-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
@@ -48,37 +49,22 @@
     </label>
     <ul class="sf-search-list" id="search-list" role="listbox" aria-label="Stocks" hidden></ul>
   </div>
+  <div class="sf-tape" id="tape" aria-label="Live prices"></div>
+  </div>
   </div>
 
-  <section class="sf-sec sf-honest" id="honest">
-    <h2 class="sf-h">How good are the forecasts, honestly?</h2>
-    <p class="sf-lede" id="edge-line">—</p>
-    <p class="sf-sub">This week's forecasts use prices as of <b id="asof">—</b>. Live news changed <b id="nadj">—</b> of the 20.</p>
-    <div class="sf-range-explain">
-      <div class="sf-waffle" id="waffle" role="img" aria-label="Out of 100 test weeks, how many ended inside the 80% range"></div>
-      <div class="sf-range-text">
-        <span class="sf-label">The 80% price range</span>
-        <p class="sf-range-big"><b id="t-cover">—</b> of test weeks landed inside the range</p>
-        <p class="sf-sub">Each square is one week out of 100. <span class="sf-key-in">Filled</span> means the price ended inside its 80% range, <span class="sf-key-out">empty</span> means it landed outside. The goal is 80 out of 100: a range that's right that often is honest, not too wide and not too narrow.</p>
-      </div>
+  <section class="sf-sec" id="preview">
+    <div class="sf-row">
+      <h2 class="sf-h">Next week at a glance</h2>
+      <a class="sf-link" href="#/forecasts">See all forecasts <span aria-hidden="true">→</span></a>
     </div>
-    <div class="sf-tiles" id="track-record" data-stagger>
-      <div class="sf-tile"><span class="sf-label">Up/down calls right</span><span class="sf-big" id="t-acc">—</span><span class="sf-sub">Always guessing the more common outcome scored <b id="t-naive">—</b>, so treat up/down as a weak hint.</span></div>
-      <div class="sf-tile"><span class="sf-label">Weeks that went up</span><span class="sf-big" id="t-base">—</span><span class="sf-sub">Share of 5-day windows in which these stocks rose. Most up/down chances sit near this number.</span></div>
-      <div class="sf-tile"><span class="sf-label">Live forecasts checked</span><span class="sf-big" id="h-live">—</span><span class="sf-sub" id="h-live-sub">Published forecasts graded against real prices.</span></div>
-    </div>
-    <p class="sf-sub">Tested on <span id="p-start">—</span> to <span id="p-end">—</span>, a stretch of history the model never trained on. Live results: <a href="#/track">Track record</a>. New here? <a href="#/guide">How to read the forecasts</a>.</p>
+    <p class="sf-sub" id="preview-sub">Where each stock's price will likely be after 5 trading days (80% likely range), biggest expected swings first. Swipe or scroll sideways, tap a stock for details.</p>
+    <div class="sf-pv" id="pv" data-stagger></div>
   </section>
 
 
-  <nav class="sf-feats" id="feats" aria-label="What's inside" data-stagger>
-    <a class="sf-feat" href="#/forecasts"><span class="sf-feat-k">Forecasts</span><b>Where prices could be next week</b><span class="sf-feat-stat" id="f-fc">—</span></a>
-    <a class="sf-feat" href="#/why"><span class="sf-feat-k">Why</span><b>The news behind each forecast</b><span class="sf-feat-stat" id="f-why">—</span></a>
-    <a class="sf-feat" href="#/track"><span class="sf-feat-k">Track record</span><b>Every forecast checked, nothing hidden</b><span class="sf-feat-stat" id="f-track">—</span></a>
-    <a class="sf-feat" href="#/news"><span class="sf-feat-k">News</span><b>Headlines for all 20 stocks</b><span class="sf-feat-stat" id="f-news">—</span></a>
-  </nav>
 
-  <div class="sf-tape" id="tape" aria-label="Live prices"></div>
+
 
   <section class="sf-sec sf-brief" id="brief">
     <div class="sf-row">
@@ -91,14 +77,13 @@
     <ul class="sf-brief-list" id="brief-list" data-stagger><li class="sf-sub">Loading today's summary…</li></ul>
   </section>
 
-  <section class="sf-sec" id="preview">
-    <div class="sf-row">
-      <h2 class="sf-h">Next week at a glance</h2>
-      <a class="sf-link" href="#/forecasts">See all forecasts <span aria-hidden="true">→</span></a>
-    </div>
-    <p class="sf-sub" id="preview-sub">Where each stock's price will likely be after 5 trading days (80% likely range), biggest expected swings first. Swipe or scroll sideways, tap a stock for details.</p>
-    <div class="sf-pv" id="pv" data-stagger></div>
-  </section>
+  <nav class="sf-feats" id="feats" aria-label="What's inside" data-stagger>
+    <a class="sf-feat" href="#/forecasts"><span class="sf-feat-k">Forecasts</span><b>Where prices could be next week</b><span class="sf-feat-stat" id="f-fc">—</span></a>
+    <a class="sf-feat" href="#/why"><span class="sf-feat-k">Why</span><b>The news behind each forecast</b><span class="sf-feat-stat" id="f-why">—</span></a>
+    <a class="sf-feat" href="#/track"><span class="sf-feat-k">Track record</span><b>Every forecast checked, nothing hidden</b><span class="sf-feat-stat" id="f-track">—</span></a>
+    <a class="sf-feat" href="#/news"><span class="sf-feat-k">News</span><b>Headlines for all 20 stocks</b><span class="sf-feat-stat" id="f-news">—</span></a>
+  </nav>
+
 
   <section class="sf-sec" id="markets">
     <h2 class="sf-h">The markets</h2>
@@ -127,6 +112,26 @@
   </section>
 
 
+
+  <section class="sf-sec sf-honest" id="honest">
+    <h2 class="sf-h">How good are the forecasts, honestly?</h2>
+    <p class="sf-lede" id="edge-line">—</p>
+    <p class="sf-sub">This week's forecasts use prices as of <b id="asof">—</b>. Live news changed <b id="nadj">—</b> of the 20.</p>
+    <div class="sf-range-explain">
+      <div class="sf-waffle" id="waffle" role="img" aria-label="Out of 100 test weeks, how many ended inside the 80% range"></div>
+      <div class="sf-range-text">
+        <span class="sf-label">The 80% price range</span>
+        <p class="sf-range-big"><b id="t-cover">—</b> of test weeks landed inside the range</p>
+        <p class="sf-sub">Each square is one week out of 100. <span class="sf-key-in">Filled</span> means the price ended inside its 80% range, <span class="sf-key-out">empty</span> means it landed outside. The goal is 80 out of 100: a range that's right that often is honest, not too wide and not too narrow.</p>
+      </div>
+    </div>
+    <div class="sf-tiles" id="track-record" data-stagger>
+      <div class="sf-tile"><span class="sf-label">Up/down calls right</span><span class="sf-big" id="t-acc">—</span><span class="sf-sub">Always guessing the more common outcome scored <b id="t-naive">—</b>, so treat up/down as a weak hint.</span></div>
+      <div class="sf-tile"><span class="sf-label">Weeks that went up</span><span class="sf-big" id="t-base">—</span><span class="sf-sub">Share of 5-day windows in which these stocks rose. Most up/down chances sit near this number.</span></div>
+      <div class="sf-tile"><span class="sf-label">Live forecasts checked</span><span class="sf-big" id="h-live">—</span><span class="sf-sub" id="h-live-sub">Published forecasts graded against real prices.</span></div>
+    </div>
+    <p class="sf-sub">Tested on <span id="p-start">—</span> to <span id="p-end">—</span>, a stretch of history the model never trained on. Live results: <a href="#/track">Track record</a>. New here? <a href="#/guide">How to read the forecasts</a>.</p>
+  </section>
 
   <a class="sf-cta" href="#/forecasts">See where prices could go next week <span aria-hidden="true">→</span></a>
   </div>

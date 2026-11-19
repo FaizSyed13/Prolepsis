@@ -918,9 +918,12 @@
     rows.sort(function (a, b) { return (hi(b) - lo(b)) - (hi(a) - lo(a)); });
     var ext = d3.max(rows, function (r) { return Math.max(-lo(r), hi(r)); }) * 1.05;
     var pos = function (v) { return (50 + v / ext * 50).toFixed(2) + "%"; };
-    rows.forEach(function (r) {
+    var tried = false;   // "CLICK ME!!" on the first card until the visitor opens any stock
+    try { tried = localStorage.getItem("sf-opened-card") === "1"; } catch (e) {}
+    rows.forEach(function (r, i) {
       var c = el("button", "sf-pv-card");
       c.type = "button";
+      if (i === 0 && !tried) { c.classList.add("is-hint"); c.appendChild(el("span", "sf-clickme", "CLICK ME!!")); }
       c.setAttribute("aria-label", r.name + ": likely between $" + money(r.low) + " and $" + money(r.high) + " in 5 trading days. Open details");
       var top = el("span", "sf-pv-top");
       top.append(el("strong", null, r.ticker), el("span", "sf-pv-up", "Up " + r.up_pct + "%"));
@@ -933,7 +936,12 @@
       ends.append(el("span", null, "$" + money(r.low)), el("span", null, "$" + money(r.high)));
       c.append(top, el("span", "sf-pv-name", r.name), el("span", "sf-pv-price", "$" + money(r.price) + " today"), bar, ends,
                el("span", "sf-pv-pct", pct(lo(r)) + " to " + pct(hi(r))));
-      c.addEventListener("click", function () { openAdvice(r.ticker); });
+      c.addEventListener("click", function () {
+        try { localStorage.setItem("sf-opened-card", "1"); } catch (e) {}
+        box.querySelectorAll(".sf-clickme").forEach(function (x) { x.remove(); });
+        box.querySelectorAll(".is-hint").forEach(function (x) { x.classList.remove("is-hint"); });
+        openAdvice(r.ticker);
+      });
       box.appendChild(c);
     });
   }
