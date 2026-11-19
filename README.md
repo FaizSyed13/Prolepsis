@@ -25,9 +25,10 @@ Open **https://faizsyed13.github.io/Prolepsis---Future-of-stock-forecasting/** i
 3. Open the folder and double-click **`Start Stock Forecast.bat`**.
    If Windows shows "Windows protected your PC", click **More info**, then **Run anyway**.
 
-The first start sets itself up (5-15 minutes, about 0.5 GB): it downloads a private copy of Python
+The first start sets itself up (usually 1-5 minutes, about 0.5 GB): it downloads a private copy of Python
 into a `python` folder inside this folder. Nothing is installed on your computer, and deleting the
-folder removes everything. The first forecast then takes around 15 minutes to build; later starts are quick.
+folder removes everything. Forecasts show up within seconds after that: the app borrows today's forecast
+from the public page while your computer builds its own (about 15-30 minutes the first time).
 Needs Windows 10 or 11 and an internet connection. Please note that this does NOT provide any type of investment or financial advice; it's just there for you to see. Just to keep things clear, you have a better chance at flipping a coin to decide to buy or sell than our program😭✌️ (We hope to train our system so eventually it can actually provide something with real value and evidence)
 
 ## Run it on a Mac (no Python install needed)
