@@ -30,7 +30,7 @@
     var saved = null;
     try { saved = localStorage.getItem(KEY); } catch (e) {}
     // Folded by default on phones (it's long there); open by default on bigger screens.
-    if (saved === "1" || (saved === null && window.matchMedia("(max-width: 600px)").matches)) guide.open = false;
+    guide.open = saved === "0";
     guide.addEventListener("toggle", function () {
       try { localStorage.setItem(KEY, guide.open ? "0" : "1"); } catch (e) {}
     });
@@ -952,10 +952,20 @@
     });
   }
   function renderHonest() {
-    var cov = calVal("range_coverage"), acc = calVal("direction_accuracy"), nv = calVal("naive_accuracy"), t = state.track || {};
-    countTo($("h-cover"), isNaN(cov) ? "—" : cov.toFixed(1) + "%");
-    countTo($("h-acc"), isNaN(acc) ? "—" : acc.toFixed(1) + "%");
-    $("h-naive").textContent = isNaN(nv) ? "—" : nv.toFixed(1) + "%";
+    var cov = calVal("range_coverage"), t = state.track || {};
+    var waf = $("waffle"), hit = isNaN(cov) ? 0 : Math.round(cov);
+    if (waf.children.length !== 100 || waf.dataset.hit !== String(hit)) {
+      waf.replaceChildren();
+      waf.dataset.hit = hit;
+      for (var i = 0; i < 100; i++) { var c = el("span", i < hit ? "sf-w sf-w--in" : "sf-w"); c.style.setProperty("--i", i); waf.appendChild(c); }
+    }
+    if (!waf.dataset.watch) {   // squares fill in when the visitor scrolls down to them
+      waf.dataset.watch = "1";
+      if (!("IntersectionObserver" in window)) waf.classList.add("is-seen");
+      else new IntersectionObserver(function (es, obs) {
+        if (es[0].isIntersecting) { waf.classList.add("is-seen"); obs.disconnect(); }
+      }, { threshold: 0.4 }).observe(waf);
+    }
     countTo($("h-live"), String(t.graded || 0));
     $("h-live-sub").textContent = t.graded
       ? "Published forecasts graded against real prices: " + t.range_hit_pct.toFixed(0) + "% landed inside their range."

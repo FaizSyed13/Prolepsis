@@ -15,7 +15,6 @@
     <div class="sf-menu">
       <span class="sf-menu-glow" aria-hidden="true"></span>
       <a class="sf-menu-link" data-page="today" href="#/today">Today</a>
-      <a class="sf-menu-link" data-page="home" href="#/home">Overview</a>
       <a class="sf-menu-link" data-page="forecasts" href="#/forecasts">Forecasts</a>
       <a class="sf-menu-link" data-page="why" href="#/why">Why</a>
       <a class="sf-menu-link" data-page="news" href="#/news">News</a>
@@ -115,28 +114,24 @@
 
   <section class="sf-sec sf-honest" id="honest">
     <h2 class="sf-h">How good are the forecasts, honestly?</h2>
-    <div class="sf-tiles" data-stagger>
-      <div class="sf-tile"><span class="sf-label">Price range hit rate</span><span class="sf-big" id="h-cover">—</span><span class="sf-sub">How often the price landed inside the 80% range in testing. The target is 80%. This is the most reliable part.</span></div>
-      <div class="sf-tile"><span class="sf-label">Up/down calls right</span><span class="sf-big" id="h-acc">—</span><span class="sf-sub">Always guessing "up" scored <b id="h-naive">—</b>, so treat up/down as a weak hint.</span></div>
+    <p class="sf-lede" id="edge-line">—</p>
+    <p class="sf-sub">This week's forecasts use prices as of <b id="asof">—</b>. Live news changed <b id="nadj">—</b> of the 20.</p>
+    <div class="sf-range-explain">
+      <div class="sf-waffle" id="waffle" role="img" aria-label="Out of 100 test weeks, how many ended inside the 80% range"></div>
+      <div class="sf-range-text">
+        <span class="sf-label">The 80% price range</span>
+        <p class="sf-range-big"><b id="t-cover">—</b> of test weeks landed inside the range</p>
+        <p class="sf-sub">Each square is one week out of 100. <span class="sf-key-in">Filled</span> means the price ended inside its 80% range, <span class="sf-key-out">empty</span> means it landed outside. The goal is 80 out of 100: a range that's right that often is honest, not too wide and not too narrow.</p>
+      </div>
+    </div>
+    <div class="sf-tiles" id="track-record" data-stagger>
+      <div class="sf-tile"><span class="sf-label">Up/down calls right</span><span class="sf-big" id="t-acc">—</span><span class="sf-sub">Always guessing the more common outcome scored <b id="t-naive">—</b>, so treat up/down as a weak hint.</span></div>
+      <div class="sf-tile"><span class="sf-label">Weeks that went up</span><span class="sf-big" id="t-base">—</span><span class="sf-sub">Share of 5-day windows in which these stocks rose. Most up/down chances sit near this number.</span></div>
       <div class="sf-tile"><span class="sf-label">Live forecasts checked</span><span class="sf-big" id="h-live">—</span><span class="sf-sub" id="h-live-sub">Published forecasts graded against real prices.</span></div>
     </div>
-    <p class="sf-sub">A research project, not financial advice. <a href="#how-to-read">How to read the forecasts</a></p>
-  </section>
-
-  <a class="sf-cta" href="#/forecasts">See where prices could go next week <span aria-hidden="true">→</span></a>
-  </div>
-
-  <div class="sf-page" data-page="home" hidden>
-  <header class="sf-head" id="overview">
-    <div class="sf-brand"><img class="sf-logo" src="/static/logo.svg" alt="" width="64" height="54"><h1 class="sf-title">Prolepsis</h1></div>
-    <p class="sf-tagline">Peeking at the week ahead: honest 5-day stock forecasts.</p>
-    <p class="sf-lede">Where each stock's price is likely to be after the next 5 trading days, from prices as of <b id="asof">—</b>. Live news changed the forecast for <b id="nadj">—</b> of them.</p>
-    <p class="sf-lede" id="edge-line">—</p>
-  </header>
-
-
-  <details class="sf-guide" id="how-to-read" open>
-    <summary>How to read this page <span class="sf-guide-hint">· tap to hide or show</span></summary>
+    <p class="sf-sub">Tested on <span id="p-start">—</span> to <span id="p-end">—</span>, a stretch of history the model never trained on. Live results: <a href="#/track">Track record</a>.</p>
+  <details class="sf-guide" id="how-to-read">
+    <summary>How to read the forecasts <span class="sf-guide-hint">· tap to hide or show</span></summary>
     <div class="sf-guide-grid">
       <section>
         <h3 class="sf-h3">What this is</h3>
@@ -160,31 +155,14 @@
       </section>
       <section>
         <h3 class="sf-h3">How good is it, honestly?</h3>
-        <p>In testing, the up/down calls were right about as often as simply guessing "up" every week, so treat them as a weak hint. The price ranges have been the most reliable part. Every forecast is saved and graded in <a href="#scorecard">How our past forecasts did</a>, with nothing left out.</p>
+        <p>In testing, the up/down calls were right about as often as simply guessing "up" every week, so treat them as a weak hint. The price ranges have been the most reliable part. Every forecast is saved and graded in <a href="#/track">Track record</a>, with nothing left out.</p>
       </section>
     </div>
     <p class="sf-guide-warn">This is a research project, not financial advice. Nobody can reliably predict next week's stock prices. Never invest money you can't afford to lose.</p>
   </details>
-
-  <section class="sf-tiles" id="track-record" data-stagger>
-    <div class="sf-tile">
-      <span class="sf-label">Up/down accuracy</span>
-      <span class="sf-big" id="t-acc">—</span>
-      <span class="sf-sub">Always guessing the more common outcome: <b id="t-naive">—</b></span>
-    </div>
-    <div class="sf-tile">
-      <span class="sf-label">Price range hit rate</span>
-      <span class="sf-big" id="t-cover">—</span>
-      <span class="sf-sub">How often the final price landed inside the 80% range. The target is 80%.</span>
-    </div>
-    <div class="sf-tile">
-      <span class="sf-label">Weeks that went up</span>
-      <span class="sf-big" id="t-base">—</span>
-      <span class="sf-sub">Share of 5-day windows in which these stocks rose. Most forecasts sit near this number.</span>
-    </div>
   </section>
-  <p class="sf-sub">Track record measured on <span id="p-start">—</span> to <span id="p-end">—</span>, a stretch of history the model never trained on.</p>
 
+  <a class="sf-cta" href="#/forecasts">See where prices could go next week <span aria-hidden="true">→</span></a>
   </div>
 
   <div class="sf-page" data-page="forecasts" hidden>
