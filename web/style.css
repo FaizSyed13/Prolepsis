@@ -35,22 +35,17 @@ a { color: inherit; }
 .sf-head { display: grid; gap: 10px; }
 
 /* Menu bar on top; each page is one group of sections (switched in app.js) */
-.sf-nav { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 20px;
-  margin-top: -32px; padding: 10px 0; background: rgba(30, 30, 46, 0.86); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--line); }
-.sf-nav-brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--fg);
-  font-family: var(--serif); font-weight: 600; font-size: 20px; min-height: 44px; }
-.sf-nav-brand img { width: 34px; height: auto; }
-.sf-menu { display: flex; flex-wrap: wrap; gap: 6px; flex: 1 1 auto; min-width: 0; }
+.sf-nav { position: sticky; top: 0; z-index: 20; display: flex; justify-content: center;
+  margin-top: -32px; padding: 10px 0; background: transparent; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+.sf-menu { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; min-width: 0; max-width: 100%; }
 .sf-menu::-webkit-scrollbar { display: none; }
 .sf-menu-link { flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px;
   color: var(--muted); text-decoration: none; font-weight: 700; font-size: 14px; transition: background 0.15s, color 0.15s; }
 .sf .sf-nav a.sf-menu-link { color: var(--muted); }
-.sf .sf-nav a.sf-nav-brand { color: var(--fg); }
 .sf .sf-nav a.sf-menu-link:hover { color: var(--fg); background: var(--surface0); }
 .sf .sf-nav a.sf-menu-link[aria-current="page"] { color: var(--base); background: var(--mauve); }
 .sf-page { display: grid; gap: 32px; min-width: 0; }
-@media (max-width: 600px) { .sf-nav-brand span { display: none; } .sf-menu { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .sf-menu-link { padding: 0 14px; } }
+@media (max-width: 600px) { .sf-menu { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .sf-menu-link { padding: 0 14px; } }
 .sf-status { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
 .sf-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--chart-muted); flex: none; }
 .sf-status[data-state="live"] .sf-dot { background: var(--ok); }
