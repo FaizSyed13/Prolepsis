@@ -93,3 +93,8 @@ All settings live in `stockpred/config.py`.
 
 Research tool, not financial advice.
 
+## License
+
+Copyright (c) 2026 FaizSyed13. All rights reserved. You may download and run Prolepsis for your own
+personal, non-commercial use. Copying, changing, sharing, re-uploading or selling any part of it is not
+allowed without written permission. See [LICENSE](LICENSE) for the full terms.

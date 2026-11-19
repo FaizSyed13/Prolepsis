@@ -1,0 +1,36 @@
+Prolepsis
+Copyright (c) 2026 FaizSyed13. All rights reserved.
+
+This software, including its source code, website, design, text, logo, name and
+documentation (together, "Prolepsis"), is the property of the copyright holder.
+The code is published so people can see it and run it. It is NOT open source.
+
+WHAT YOU MAY DO
+- View the code on GitHub.
+- Download Prolepsis and run it on your own computer for your own personal,
+  non-commercial use.
+
+WHAT YOU MAY NOT DO without written permission from the copyright holder
+- Copy, reuse or adapt any part of Prolepsis in another project.
+- Modify it and share or publish the modified version.
+- Share, re-upload, sell, rent or otherwise distribute it, in whole or in part.
+- Use it, or anything built from it, in a commercial product or service.
+- Use the Prolepsis name or logo.
+
+Forking this repository on GitHub, which GitHub's Terms of Service allow, does
+not grant any of these rights.
+
+THIRD-PARTY PARTS
+Prolepsis downloads and uses free third-party software (for example Python,
+pandas, scikit-learn, onnxruntime, Flask, yfinance and the FinBERT model) and
+loads TradingView charts. Those parts belong to their owners and stay under
+their own licenses. This notice covers only the original work in this
+repository.
+
+NO WARRANTY, NOT FINANCIAL ADVICE
+Prolepsis is provided "as is", without warranty of any kind. Its forecasts are
+for research and education only and are not financial or investment advice.
+The copyright holder is not liable for any loss or damage from using it.
+
+To ask for permission, contact the copyright holder through GitHub:
+https://github.com/FaizSyed13
