@@ -1,6 +1,9 @@
 ## What's new
-- **Much faster setup**: add-ons now install with uv instead of pip. On a test laptop, setup dropped from about 4 minutes to about 1.
-- **Forecasts right away**: the app shows today's forecast from the public page within seconds of starting, while your computer builds its own in the background (about 15-30 minutes the first time). The page switches over by itself when it's done.
+- **Cleaner, calmer design**: the Today page now shows just the essentials: stock search, next week's 5 biggest expected swings, a short market summary and one honest line about accuracy. Same dark colors, less clutter, gentle fades instead of bouncy animations.
+- **New Markets page**: the market tiles, big chart, overnight futures and how all 40 stocks did now live here.
+- **Track record** now opens with the accuracy check (the 100-square chart and key numbers).
+- **License added**: Prolepsis is free to download and use for yourself; copying, sharing or selling it isn't allowed without permission. See the LICENSE file.
+- Still included from v1.1.1: much faster setup and forecasts within seconds of starting.
 
 ## Download
 Under **Assets** below, click **Prolepsis-….zip** (not "Source code"), then unzip it.
