@@ -588,7 +588,22 @@
     stagger(page);
     page.querySelectorAll("[data-stagger]").forEach(stagger);
   }
-  function countTo(node, text) { node.textContent = text; }   // calm look: numbers just appear
+  // Numbers roll up from zero the first time they appear.
+  function countTo(node, text) {
+    var first = node.dataset.val == null;
+    node.dataset.val = text;
+    var m = /^(\D*?)([\d,]*\.?\d+)(.*)$/.exec(text);
+    if (!first || calmMotion || !m) { node.textContent = text; return; }
+    var end = parseFloat(m[2].replace(/,/g, "")), dec = (m[2].split(".")[1] || "").length;
+    var fmt = d3.format((m[2].indexOf(",") > -1 ? "," : "") + "." + dec + "f"), t0 = null;
+    function tick(t) {
+      if (t0 == null) t0 = t;
+      var k = Math.min(1, (t - t0) / 800);
+      node.textContent = k < 1 ? m[1] + fmt(end * (1 - Math.pow(1 - k, 3))) + m[3] : text;
+      if (k < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
 
   // ---------- Today: what happened in the market ----------
   var pct2 = function (v) { return (v > 0.005 ? "+" : v < -0.005 ? "−" : "") + Math.abs(v).toFixed(2) + "%"; };
@@ -889,32 +904,64 @@
     more.textContent = "Show more stories (" + left + " more)";
   }
 
+  // Live scrolling prices: free TradingView ticker-tape widget, loaded once.
+  var tapeDone = false;
+  function renderTape() {
+    if (tapeDone) return;
+    tapeDone = true;
+    var wrap = el("div", "tradingview-widget-container"), sc = document.createElement("script");
+    sc.src = "https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js";
+    sc.async = true;
+    var sym = function (p, t) { return { proName: p, title: t }; };
+    sc.textContent = JSON.stringify({
+      symbols: [sym("FOREXCOM:SPXUSD", "S&P 500"), sym("FOREXCOM:NSXUSD", "Nasdaq 100"), sym("FOREXCOM:DJI", "Dow"),
+        sym("BITSTAMP:BTCUSD", "Bitcoin"), sym("OANDA:XAUUSD", "Gold"),
+        sym("NASDAQ:NVDA", "Nvidia"), sym("NASDAQ:AAPL", "Apple"), sym("NASDAQ:MSFT", "Microsoft"),
+        sym("NASDAQ:AMZN", "Amazon"), sym("NASDAQ:GOOGL", "Alphabet"), sym("NASDAQ:META", "Meta")],
+      showSymbolLogo: true, isTransparent: true, displayMode: "adaptive", colorTheme: "dark", locale: "en"
+    });
+    wrap.append(el("div", "tradingview-widget-container__widget"), sc);
+    $("tape").appendChild(wrap);
+  }
+
   // ---------- Today page: the rest of the site at a glance ----------
   function calVal(m) { var r = (state.calibration || []).find(function (x) { return x.metric === m; }); return r ? Number(r.value) : NaN; }
-  function renderPreview() {   // Today: the 5 biggest expected swings as a simple list
+  function renderFeats() {
+    var rows = state.forecast || [];
+    var wide = rows.slice().sort(function (a, b) { return (b.high - b.low) / b.price - (a.high - a.low) / a.price; })[0];
+    $("f-fc").textContent = wide ? "Biggest expected swing: " + wide.name + " (" + pct((wide.low / wide.price - 1) * 100) + " to " + pct((wide.high / wide.price - 1) * 100) + ")" : "—";
+    var n = rows.filter(changed).length;
+    $("f-why").textContent = "The news changed " + n + " of " + rows.length + " forecasts";
+    var t = state.track || {}, cov = calVal("range_coverage");
+    $("f-track").textContent = t.graded ? t.graded + " live forecasts checked so far" : !isNaN(cov) ? "Ranges hit " + cov.toFixed(0) + "% in testing" : "—";
+    $("f-news").textContent = (state.news || []).length + " stock headlines, " + (state.market_news || []).length + " market stories";
+  }
+  function renderPreview() {
     var box = $("pv"), rows = (state.forecast || []).slice();
     box.replaceChildren();
     if (!rows.length) return;
     var lo = function (r) { return (r.low / r.price - 1) * 100; }, hi = function (r) { return (r.high / r.price - 1) * 100; };
     rows.sort(function (a, b) { return (hi(b) - lo(b)) - (hi(a) - lo(a)); });
-    rows = rows.slice(0, 5);
     var ext = d3.max(rows, function (r) { return Math.max(-lo(r), hi(r)); }) * 1.05;
     var pos = function (v) { return (50 + v / ext * 50).toFixed(2) + "%"; };
-    var tried = false;   // gentle "Tap me" on the first row until the visitor opens any stock
+    var tried = false;   // "CLICK ME!!" on the first card until the visitor opens any stock
     try { tried = localStorage.getItem("sf-opened-card") === "1"; } catch (e) {}
     rows.forEach(function (r, i) {
-      var c = el("button", "sf-pv-row");
+      var c = el("button", "sf-pv-card");
       c.type = "button";
+      if (i === 0 && !tried) { c.classList.add("is-hint"); c.appendChild(el("span", "sf-clickme", "CLICK ME!!")); }
       c.setAttribute("aria-label", r.name + ": likely between $" + money(r.low) + " and $" + money(r.high) + " in 5 trading days. Open details");
-      var who = el("span", "sf-pv-who");
-      who.append(el("strong", null, r.ticker), el("span", "sf-pv-name", r.name));
-      if (i === 0 && !tried) { c.classList.add("is-hint"); who.appendChild(el("span", "sf-clickme", "Tap me")); }
+      var top = el("span", "sf-pv-top");
+      top.append(el("strong", null, r.ticker), el("span", "sf-pv-up", "Up " + r.up_pct + "%"));
       var bar = el("span", "sf-pv-bar"), fill = el("span", "sf-pv-fill"), now = el("span", "sf-pv-now");
       fill.style.left = pos(lo(r)); fill.style.width = (hi(r) - lo(r)) / ext * 50 + "%";
       now.style.left = "50%";
+      fill.style.transformOrigin = Math.max(0, Math.min(100, -lo(r) / (hi(r) - lo(r)) * 100)).toFixed(1) + "% 50%";   // grows out from today's price
       bar.append(fill, now);
-      c.append(who, el("span", "sf-pv-price", "$" + money(r.price)), bar,
-               el("span", "sf-pv-pct", pct(lo(r)) + " to " + pct(hi(r))), el("span", "sf-pv-up", "Up " + r.up_pct + "%"));
+      var ends = el("span", "sf-pv-ends");
+      ends.append(el("span", null, "$" + money(r.low)), el("span", null, "$" + money(r.high)));
+      c.append(top, el("span", "sf-pv-name", r.name), el("span", "sf-pv-price", "$" + money(r.price) + " today"), bar, ends,
+               el("span", "sf-pv-pct", pct(lo(r)) + " to " + pct(hi(r))));
       c.addEventListener("click", function () {
         try { localStorage.setItem("sf-opened-card", "1"); } catch (e) {}
         box.querySelectorAll(".sf-clickme").forEach(function (x) { x.remove(); });
@@ -923,20 +970,6 @@
       });
       box.appendChild(c);
     });
-  }
-  function renderTodayHonest() {   // Today: one plain line about accuracy
-    var cov = calVal("range_coverage"), acc = calVal("direction_accuracy"), naive = calVal("naive_accuracy");
-    var box = $("today-honest");
-    box.replaceChildren();
-    if (isNaN(cov)) { box.textContent = "—"; return; }
-    var edge = acc - naive >= 0.5;
-    box.append(el("b", null, "Honestly: "),
-      document.createTextNode("in testing, the price ranges caught the real price " + cov.toFixed(0) + "% of the time (the goal is 80%). " +
-        (edge ? "Up/down calls were only a little better than always guessing “up”. "
-              : "Up/down calls were no better than always guessing “up”, so treat them as a weak hint. ")));
-    var a = el("a", "sf-link", "See the track record →");
-    a.href = "#/track";
-    box.appendChild(a);
   }
   function renderHonest() {
     var cov = calVal("range_coverage"), t = state.track || {};
@@ -960,7 +993,7 @@
   }
 
   function renderToday() {
-    renderClock(); renderBrief(); renderPreview(); renderTodayHonest(); renderHonest(); renderMarkets(); renderMkChart(); renderFutures(); renderHeat();
+    renderClock(); renderTape(); renderBrief(); renderFeats(); renderPreview(); renderHonest(); renderMarkets(); renderMkChart(); renderFutures(); renderHeat();
   }
   setInterval(function () { if (state && state.forecast) { renderClock(); renderFutures(); } }, 60000);
 
@@ -1113,7 +1146,7 @@
       var page = pages.filter(function (p) { return p.dataset.page === t.page; })[0];
       if (state && state.forecast) {
         if (t.page === "forecasts") { lastW = $("range-chart").clientWidth; renderChart(state.forecast, true); }
-        if (t.page === "markets" && lwc) lwc.timeScale().fitContent();
+        if (t.page === "today" && lwc) lwc.timeScale().fitContent();
         if (!booting) animatePage(page);
       }
       booting = false;
