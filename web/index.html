@@ -36,7 +36,7 @@
     <p class="sf-hello" id="hello">Hello</p>
     <h1 class="sf-title sf-today-title" id="today-title">Here's what's up with the market</h1>
     <p class="sf-lede" id="market-clock">—</p>
-    <p class="sf-intro">Prolepsis does three things, free: a <b>daily market recap</b> (this page), <b>5-day price forecasts</b> for 20 big US stocks, and an <b>honest scorecard</b> of how every forecast turned out.</p>
+    <p class="sf-intro">Prolepsis does three things, free: a <b>daily market recap</b> (this page), <b>5-day price forecasts</b> for 40 big US stocks, and an <b>honest scorecard</b> of how every forecast turned out.</p>
   </header>
   <div class="sf-top-right">
   <div class="sf-search" id="search">
@@ -81,7 +81,7 @@
     <a class="sf-feat" href="#/forecasts"><span class="sf-feat-k">Forecasts</span><b>Where prices could be next week</b><span class="sf-feat-stat" id="f-fc">—</span></a>
     <a class="sf-feat" href="#/why"><span class="sf-feat-k">Why</span><b>The news behind each forecast</b><span class="sf-feat-stat" id="f-why">—</span></a>
     <a class="sf-feat" href="#/track"><span class="sf-feat-k">Track record</span><b>Every forecast checked, nothing hidden</b><span class="sf-feat-stat" id="f-track">—</span></a>
-    <a class="sf-feat" href="#/news"><span class="sf-feat-k">News</span><b>Headlines for all 20 stocks</b><span class="sf-feat-stat" id="f-news">—</span></a>
+    <a class="sf-feat" href="#/news"><span class="sf-feat-k">News</span><b>Headlines for all 40 stocks</b><span class="sf-feat-stat" id="f-news">—</span></a>
   </nav>
 
 
@@ -106,7 +106,7 @@
   </section>
 
   <section class="sf-sec" id="movers">
-    <h2 class="sf-h" id="movers-title">How our 20 stocks did</h2>
+    <h2 class="sf-h" id="movers-title">How our 40 stocks did</h2>
     <p class="sf-sub">Change on the last trading day, biggest gain first. Tap a stock for its forecast and advice.</p>
     <div class="sf-heat" id="heat" data-stagger></div>
   </section>
@@ -116,7 +116,7 @@
   <section class="sf-sec sf-honest" id="honest">
     <h2 class="sf-h">How good are the forecasts, honestly?</h2>
     <p class="sf-lede" id="edge-line">—</p>
-    <p class="sf-sub">This week's forecasts use prices as of <b id="asof">—</b>. Live news changed <b id="nadj">—</b> of the 20.</p>
+    <p class="sf-sub">This week's forecasts use prices as of <b id="asof">—</b>. Live news changed <b id="nadj">—</b> of the 40.</p>
     <div class="sf-range-explain">
       <div class="sf-waffle" id="waffle" role="img" aria-label="Out of 100 test weeks, how many ended inside the 80% range"></div>
       <div class="sf-range-text">
@@ -206,7 +206,7 @@
   <section class="sf-sec" id="news">
     <div class="sf-row">
       <h2 class="sf-h">Latest headlines</h2>
-      <label class="sf-filter">Show <select id="news-filter" aria-label="Filter headlines by stock"><option value="">Our 20 stocks</option><option value="__market">Whole market</option></select></label>
+      <label class="sf-filter">Show <select id="news-filter" aria-label="Filter headlines by stock"><option value="">All our stocks</option><option value="__market">Whole market</option></select></label>
     </div>
     <p class="sf-sub">Stock news from Google News and Yahoo Finance; market news from CNBC, MarketWatch, The Wall Street Journal, Investing.com, Seeking Alpha and the Federal Reserve. Checked every 15 minutes. Each headline is rated by FinBERT, a finance news model running on this PC.</p>
     <ul class="sf-news" id="news-list" data-stagger></ul>
@@ -221,7 +221,7 @@
     <div class="sf-guide-grid">
       <section>
         <h3 class="sf-h3">What this is</h3>
-        <p>A computer forecast for 20 large US companies, looking about one week ahead (the next 5 trading days). It learns from past prices and then adjusts for recent news headlines.</p>
+        <p>A computer forecast for 40 large US companies, looking about one week ahead (the next 5 trading days). It learns from past prices and then adjusts for recent news headlines.</p>
       </section>
       <section>
         <h3 class="sf-h3">Chance of going up</h3>
@@ -264,7 +264,7 @@
     <p class="sf-wl-lede">Peeking at the week ahead, honestly.</p>
     <ul class="sf-wl-list" id="wl-what">
       <li><b>A daily market recap</b>: what happened while you were away, in plain words.</li>
-      <li><b>5-day price forecasts</b> for 20 big US stocks, with the range where each price will likely land.</li>
+      <li><b>5-day price forecasts</b> for 40 big US stocks, with the range where each price will likely land.</li>
       <li><b>An honest scorecard</b>: every forecast is checked against what really happened, nothing hidden.</li>
     </ul>
     <p class="sf-wl-warn"><b>Please know:</b> this is a free research project, not financial advice. Nobody can reliably predict stock prices. In testing, the up/down calls were right no more often than always guessing "up"; the price ranges are the most reliable part. Never invest money you can't afford to lose.</p>

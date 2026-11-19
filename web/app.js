@@ -427,7 +427,7 @@
   }
 
   // ---------- Live chart (free TradingView widget) ----------
-  var NASDAQ = ["AAPL", "MSFT", "AMZN", "GOOGL", "META", "NVDA", "PEP", "WMT", "COST"];
+  var NASDAQ = ["AAPL", "MSFT", "AMZN", "GOOGL", "META", "NVDA", "PEP", "WMT", "COST", "TSLA", "NFLX", "AMD", "AVGO", "ADBE", "INTC", "CSCO", "QCOM"];
   var FRAMES = [   // label, candle size, visible span (none = TradingView's default for that size)
     ["1 min", "1"], ["5 min", "5"], ["30 min", "30"], ["1 hour", "60"], ["1 day", "D"],
     ["1 month", "D", "1M"], ["6 months", "D", "6M"], ["1y", "D", "12M"], ["5y", "W", "60M"], ["Max", "M", "ALL"]
@@ -439,7 +439,7 @@
     var box = $("live-chart"), f = FRAMES[frame];
     box.replaceChildren();
     var cfg = {
-      symbol: (NASDAQ.indexOf(openTicker) > -1 ? "NASDAQ:" : "NYSE:") + openTicker,
+      symbol: (NASDAQ.indexOf(openTicker) > -1 ? "NASDAQ:" : "NYSE:") + openTicker.replace("-", "."),   // BRK-B -> NYSE:BRK.B
       interval: f[1], timezone: "America/New_York", theme: isDark() ? "dark" : "light", style: "1",
       locale: "en", autosize: true, allow_symbol_change: false, hide_side_toolbar: true,
       hide_top_toolbar: true, save_image: false, calendar: false, support_host: "https://www.tradingview.com",
@@ -826,7 +826,7 @@
     var rows = (state.forecast || []).filter(function (r) { return mv[r.ticker]; })
       .sort(function (a, b) { return mv[b.ticker].chg_pct - mv[a.ticker].chg_pct; });
     if (!rows.length) { box.appendChild(el("p", "sf-sub", "Daily changes appear after the next price update.")); return; }
-    $("movers-title").textContent = "How our 20 stocks did " + dayWord(mv[rows[0].ticker].date);
+    $("movers-title").textContent = "How our " + rows.length + " stocks did " + dayWord(mv[rows[0].ticker].date);
     var ext = Math.max(2, d3.max(rows, function (r) { return Math.abs(mv[r.ticker].chg_pct); }));
     rows.forEach(function (r) {
       var v = mv[r.ticker].chg_pct, b = el("button", "sf-heat-cell");
@@ -905,7 +905,7 @@
     var wide = rows.slice().sort(function (a, b) { return (b.high - b.low) / b.price - (a.high - a.low) / a.price; })[0];
     $("f-fc").textContent = wide ? "Biggest expected swing: " + wide.name + " (" + pct((wide.low / wide.price - 1) * 100) + " to " + pct((wide.high / wide.price - 1) * 100) + ")" : "—";
     var n = rows.filter(changed).length;
-    $("f-why").textContent = "The news changed " + n + " of 20 forecasts";
+    $("f-why").textContent = "The news changed " + n + " of " + rows.length + " forecasts";
     var t = state.track || {}, cov = calVal("range_coverage");
     $("f-track").textContent = t.graded ? t.graded + " live forecasts checked so far" : !isNaN(cov) ? "Ranges hit " + cov.toFixed(0) + "% in testing" : "—";
     $("f-news").textContent = (state.news || []).length + " stock headlines, " + (state.market_news || []).length + " market stories";

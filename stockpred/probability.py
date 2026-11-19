@@ -21,10 +21,12 @@ def oos_predictions(panel, feature_cols, model_name, cfg, use_cache=True, max_ag
     """Walk-forward history used for calibration. It takes minutes to rebuild, so a cached copy
     up to `max_age_days` old is reused (calibration barely changes from one day to the next)."""
     last = panel.index.get_level_values("date").max()
+    tickers = sorted(panel.index.get_level_values("ticker").unique())
     path = cfg.data_dir / f"oos_{model_name}_h{cfg.horizon}.pkl"
     if use_cache and path.exists():
         cached = pd.read_pickle(path)
-        if (last - cached["last"]).days <= max_age_days:
+        # reuse only if recent AND made for the same list of stocks
+        if (last - cached["last"]).days <= max_age_days and cached.get("tickers") == tickers:
             return cached["oos"]
 
     print("Training on history, walk-forward (first run takes a few minutes)...")
@@ -33,7 +35,7 @@ def oos_predictions(panel, feature_cols, model_name, cfg, use_cache=True, max_ag
         "q_lo": walk_forward(panel, feature_cols, "q_lo", cfg, target="fwd_ret"),
         "q_hi": walk_forward(panel, feature_cols, "q_hi", cfg, target="fwd_ret"),
     }).join(panel[["up", "fwd_ret"]]).dropna(subset=["up"])
-    pd.to_pickle({"last": last, "oos": oos}, path)
+    pd.to_pickle({"last": last, "oos": oos, "tickers": tickers}, path)
     return oos
 
 

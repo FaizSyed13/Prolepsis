@@ -7,13 +7,13 @@
 <a href="https://faizsyed13.github.io/Prolepsis---Future-of-stock-forecasting/">Open the live page</a> · <a href="https://github.com/FaizSyed13/Prolepsis---Future-of-stock-forecasting/releases/latest">Download</a></p>
 
 <p align="center">
-  <img src="docs/screenshot-home.png" alt="Prolepsis home page: forecast summary, search box and how-to-read guide" width="49%">
-  <img src="docs/screenshot-forecast.png" alt="Chart of where each of the 20 stocks could land after 5 trading days" width="49%">
+  <img src="docs/screenshot-home.png" alt="Prolepsis Today page: greeting, stock search, next week at a glance and the market summary" width="49%">
+  <img src="docs/screenshot-forecast.png" alt="Chart of where each of the 40 stocks could land after 5 trading days" width="49%">
 </p>
 
 ## Stock Predictor (research pipeline)
 
-Predicts whether each of 20 large US stocks will **beat SPY over the next 5 trading days**,
+Predicts whether each of 40 large US stocks will **beat SPY over the next 5 trading days**,
 and tests that prediction honestly with a walk-forward backtest.
 
 ## Just want to see the forecasts?

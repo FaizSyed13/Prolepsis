@@ -45,11 +45,31 @@ _NAME_RE = {tk: re.compile(r"\b(" + pat + r")\b") for tk, pat in {
     "JNJ": "Johnson & Johnson|J&J", "V": "Visa", "PG": "Procter & Gamble|P&G", "XOM": "Exxon",
     "UNH": "UnitedHealth", "HD": "Home Depot", "MA": "Mastercard", "KO": "Coca-Cola|Coke",
     "PEP": "PepsiCo|Pepsi", "MRK": "Merck", "CVX": "Chevron", "WMT": "Walmart", "COST": "Costco",
+    "TSLA": "Tesla",
+    "NFLX": "Netflix",
+    "AMD": "AMD|Advanced Micro Devices",
+    "AVGO": "Broadcom",
+    "LLY": "Eli Lilly|Lilly",
+    "BRK-B": "Berkshire",
+    "ORCL": "Oracle",
+    "CRM": "Salesforce",
+    "ADBE": "Adobe",
+    "DIS": "Disney",
+    "BAC": "Bank of America|BofA",
+    "INTC": "Intel",
+    "PFE": "Pfizer",
+    "NKE": "Nike",
+    "MCD": "McDonald's|McDonald’s",
+    "BA": "Boeing",
+    "ABBV": "AbbVie",
+    "CSCO": "Cisco",
+    "QCOM": "Qualcomm",
+    "UBER": "Uber",
 }.items()}
 
 
 def mentions(title):
-    """Which of our 20 stocks a market headline talks about (by company name)."""
+    """Which of our stocks a market headline talks about (by company name)."""
     return [tk for tk, rx in _NAME_RE.items() if rx.search(title)]
 
 

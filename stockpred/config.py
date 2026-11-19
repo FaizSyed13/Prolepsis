@@ -8,16 +8,19 @@ NAMES = {
     "META": "Meta", "NVDA": "Nvidia", "JPM": "JPMorgan Chase", "JNJ": "Johnson & Johnson",
     "V": "Visa", "PG": "Procter & Gamble", "XOM": "Exxon Mobil", "UNH": "UnitedHealth",
     "HD": "Home Depot", "MA": "Mastercard", "KO": "Coca-Cola", "PEP": "PepsiCo",
-    "MRK": "Merck", "CVX": "Chevron", "WMT": "Walmart", "COST": "Costco", "SPY": "S&P 500 ETF",
+    "MRK": "Merck", "CVX": "Chevron", "WMT": "Walmart", "COST": "Costco",
+    "TSLA": "Tesla", "NFLX": "Netflix", "AMD": "AMD", "AVGO": "Broadcom", "LLY": "Eli Lilly", "BRK-B": "Berkshire Hathaway", "ORCL": "Oracle", "CRM": "Salesforce", "ADBE": "Adobe", "DIS": "Disney", "BAC": "Bank of America", "INTC": "Intel", "PFE": "Pfizer", "NKE": "Nike", "MCD": "McDonald's", "BA": "Boeing", "ABBV": "AbbVie", "CSCO": "Cisco", "QCOM": "Qualcomm", "UBER": "Uber",
+    "SPY": "S&P 500 ETF",
 }
 
 
 @dataclass
 class Config:
-    # Universe: 20 large US stocks. NOTE: picked with today's hindsight -> survivorship bias.
+    # Universe: 40 large US stocks (20 original + 20 popular names added 2026-11-18). NOTE: picked with today's hindsight -> survivorship bias.
     tickers: list = field(default_factory=lambda: [
         "AAPL", "MSFT", "AMZN", "GOOGL", "META", "NVDA", "JPM", "JNJ", "V", "PG",
         "XOM", "UNH", "HD", "MA", "KO", "PEP", "MRK", "CVX", "WMT", "COST",
+        "TSLA", "NFLX", "AMD", "AVGO", "LLY", "BRK-B", "ORCL", "CRM", "ADBE", "DIS", "BAC", "INTC", "PFE", "NKE", "MCD", "BA", "ABBV", "CSCO", "QCOM", "UBER",
     ])
     benchmark: str = "SPY"
     start: str = "2010-01-01"
