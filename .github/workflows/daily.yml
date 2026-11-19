@@ -49,13 +49,20 @@ jobs:
         run: python build_site.py
 
       - name: Save today's forecast for the scorecard
+        # A save clash with another build must not stop the website from being published.
+        continue-on-error: true
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add reports/forecast_log.csv
           if git diff --cached --quiet; then echo "Nothing new to save"; exit 0; fi
           git commit -m "Daily forecast log [skip ci]"
-          git pull --rebase --autostash origin main && git push origin HEAD:main
+          for try in 1 2 3; do   # another build or push may land at the same moment: retry
+            if git pull --rebase --autostash origin main && git push origin HEAD:main; then exit 0; fi
+            git rebase --abort 2>/dev/null || true
+            sleep $((try * 10))
+          done
+          echo "::warning::Could not save the forecast log this time"; exit 1
 
       - uses: actions/upload-pages-artifact@v5
         with:
