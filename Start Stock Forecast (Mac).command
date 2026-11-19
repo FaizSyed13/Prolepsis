@@ -7,12 +7,14 @@ PY="python/bin/python3"
 # Portable Python build (python-build-standalone, the same builds the "uv" tool uses).
 TAG="20261026"
 VER="3.12.16"
+# Fast add-on installer (uv), pinned version.
+UV_VER="0.13.6"
 
 fail() {
     echo
     echo "Setup did not finish. Check your internet connection, then double-click"
     echo "\"Start Stock Forecast (Mac)\" again to retry."
-    rm -rf python
+    rm -rf python py.tar.gz uv.tar.gz
     read -r -p "Press Return to close."
     exit 1
 }
@@ -26,7 +28,7 @@ elif [ ! -f "python/ready.txt" ]; then
     echo " app needs (about 0.5 GB) into the \"python\" folder here."
     echo " Nothing is installed on your Mac. To remove everything,"
     echo " just delete this whole folder."
-    echo " This can take 5-15 minutes depending on your internet."
+    echo " This usually takes 2-5 minutes depending on your internet."
     echo "============================================================"
     echo
     # The news AI engine (onnxruntime) only supports Apple-chip Macs on macOS 14 or newer.
@@ -43,16 +45,22 @@ elif [ ! -f "python/ready.txt" ]; then
     curl -L --fail --progress-bar -o py.tar.gz "$URL" || fail
     tar -xzf py.tar.gz || fail                # unpacks into ./python
     rm -f py.tar.gz
-    echo "[2/3] Installing add-ons (the slow part)..."
-    "$PY" -m pip install --disable-pip-version-check -q -r requirements.txt || fail
-    echo "[3/3] Done."
+    echo "[2/3] Downloading the fast add-on installer (uv)..."
+    curl -L --fail --progress-bar -o uv.tar.gz "https://github.com/astral-sh/uv/releases/download/${UV_VER}/uv-aarch64-apple-darwin.tar.gz" || fail
+    tar -xzf uv.tar.gz -C python --strip-components=1 "uv-aarch64-apple-darwin/uv" || fail
+    rm -f uv.tar.gz
+    echo "[3/3] Installing add-ons..."
+    # Keep uv's download cache inside this folder too, and remove it when done.
+    UV_CACHE_DIR="$PWD/python/uv-cache" python/uv pip install --python "$PY" -r requirements.txt || fail
+    rm -rf python/uv-cache
+    echo "Done."
     echo ok > python/ready.txt
     echo
 fi
 
 echo "Starting Stock Forecast... your browser will open in a moment."
-echo "The very first start also downloads prices, news and the news AI model,"
-echo "so the page may say \"loading\" for several minutes. Later starts are faster."
+echo "Right away the page shows today's forecast from the public website, while"
+echo "this computer makes its own (the first time takes about 15-30 minutes)."
 echo "Keep this window open while you use the website. Close it to stop."
 echo
 "$PY" app.py

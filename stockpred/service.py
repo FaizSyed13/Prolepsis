@@ -20,6 +20,11 @@ from .probability import calibration_report, forecast_latest, oos_predictions
 from .reasoning import apply_reasoning, load_outlook, log_forecast, track_record
 
 
+# The public daily copy of the site. Shown right away when the program starts, so nobody has
+# to stare at "loading" while this computer builds its own forecast (15-30 minutes the first time).
+PUBLIC_STATE_URL = "https://faizsyed13.github.io/Prolepsis---Future-of-stock-forecasting/state.json"
+
+
 def _now():
     return datetime.now(timezone.utc)
 
@@ -46,6 +51,28 @@ class ForecastService:
         self.payload = None
         self.status = {"phase": "starting", "base_at": None, "news_at": None,
                        "news_new": 0, "news_errors": [], "error": None}
+
+    # ---- instant: borrow the public forecast until our own is ready ----
+    def load_public(self, url=PUBLIC_STATE_URL, timeout=30):
+        import requests
+        try:
+            r = requests.get(url, timeout=timeout)
+            r.raise_for_status()
+            p = r.json()
+        except Exception as e:
+            print(f"Couldn't get the public forecast ({type(e).__name__}); building this computer's own only.")
+            return False
+        if not p.get("forecast"):
+            return False
+        with self.lock:
+            if self.payload:                       # our own forecast already finished first
+                return False
+            ps = p.get("status") or {}
+            self.status["public_at"] = ps.get("built_at") or ps.get("news_at") or ps.get("base_at") or "unknown"
+            p["status"] = dict(self.status)
+            self.payload = p
+        print("Showing the public forecast until this computer's own is ready.")
+        return True
 
     # ---- slow: prices, model, company facts ----
     def refresh_base(self, refresh_prices=True):
@@ -149,6 +176,8 @@ class ForecastService:
                    "base_rate_pct": round(base_pct, 1),
                    "status": dict(self.status, phase="live", built_at=_iso(_now()))}
         with self.lock:
+            self.status.pop("public_at", None)     # our own forecast replaces the borrowed one
+            payload["status"].pop("public_at", None)
             self.payload = payload
         self._set(phase="live")
 

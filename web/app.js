@@ -34,6 +34,14 @@
         (at ? d3.timeFormat("%b %-d, %-I:%M %p")(new Date(at)) : "—");
       return;
     }
+    if (s.public_at && phase !== "live") {   // borrowed public copy while this computer builds its own
+      box.dataset.state = "busy";
+      var pub = new Date(s.public_at);
+      $("status-text").textContent = "Showing the public forecast" +
+        (isNaN(pub) ? "" : " from " + d3.timeFormat("%b %-d, %-I:%M %p")(pub)) +
+        " while this computer makes its own (" + (phase || "working") + "; the first time takes 15-30 minutes)";
+      return;
+    }
     var live = phase === "live";
     box.dataset.state = s.error && !live ? "error" : live ? "live" : "busy";
     var parts = [];
