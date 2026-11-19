@@ -1,3 +1,5 @@
+import time
+
 import pandas as pd
 import yfinance as yf
 
@@ -17,8 +19,17 @@ def load_prices(cfg, refresh=False):
             return cached["close"], cached["volume"]
 
     print(f"Downloading {len(wanted)} tickers from Yahoo Finance...")
-    raw = yf.download(sorted(wanted), start=cfg.start, auto_adjust=True,
-                      progress=False, group_by="column")
+    for attempt in range(4):   # Yahoo sometimes refuses for a moment; wait and try again
+        try:
+            raw = yf.download(sorted(wanted), start=cfg.start, auto_adjust=True,
+                              progress=False, group_by="column")
+        except Exception as e:
+            print(f"Price download failed ({type(e).__name__}: {e}), try {attempt + 1} of 4")
+            raw = pd.DataFrame()
+        if not raw.empty and "Close" in raw and raw["Close"].notna().any().sum() >= len(wanted):
+            break
+        if attempt < 3:
+            time.sleep(30 * (attempt + 1))
     if raw.empty:
         raise RuntimeError("Download returned no data. Check your internet connection.")
 
