@@ -11,6 +11,23 @@
 </head>
 <body>
 <main class="sf">
+  <nav class="sf-nav" aria-label="Pages">
+    <a class="sf-nav-brand" href="#/home"><img src="/static/logo.svg" alt="" width="34" height="29"><span>Prolepsis</span></a>
+    <div class="sf-menu">
+      <a class="sf-menu-link" data-page="home" href="#/home">Home</a>
+      <a class="sf-menu-link" data-page="forecasts" href="#/forecasts">Forecasts</a>
+      <a class="sf-menu-link" data-page="why" href="#/why">Why</a>
+      <a class="sf-menu-link" data-page="news" href="#/news">News</a>
+      <a class="sf-menu-link" data-page="track" href="#/track">Track record</a>
+    </div>
+  </nav>
+
+  <div class="sf-loading" id="loading" hidden>
+    <p><b>Getting everything ready.</b> <span id="loading-phase"></span></p>
+    <p class="sf-sub">The first start downloads prices and the news-reading model, which can take a few minutes. After that it opens in about a minute.</p>
+  </div>
+
+  <div class="sf-page" data-page="home">
   <header class="sf-head" id="overview">
     <div class="sf-status" id="status" role="status"><span class="sf-dot"></span><span id="status-text">Starting up…</span></div>
     <div class="sf-brand"><img class="sf-logo" src="/static/logo.svg" alt="" width="64" height="54"><h1 class="sf-title">Prolepsis</h1></div>
@@ -61,11 +78,6 @@
     <p class="sf-guide-warn">This is a research project, not financial advice. Nobody can reliably predict next week's stock prices. Never invest money you can't afford to lose.</p>
   </details>
 
-  <div class="sf-loading" id="loading" hidden>
-    <p><b>Getting everything ready.</b> <span id="loading-phase"></span></p>
-    <p class="sf-sub">The first start downloads prices and the news-reading model, which can take a few minutes. After that it opens in about a minute.</p>
-  </div>
-
   <section class="sf-tiles" id="track-record">
     <div class="sf-tile">
       <span class="sf-label">Up/down accuracy</span>
@@ -85,6 +97,9 @@
   </section>
   <p class="sf-sub">Track record measured on <span id="p-start">—</span> to <span id="p-end">—</span>, a stretch of history the model never trained on.</p>
 
+  </div>
+
+  <div class="sf-page" data-page="forecasts" hidden>
   <section class="sf-sec" id="ranges">
     <h2 class="sf-h">Where each price could land</h2>
     <p class="sf-sub">80% likely range after 5 trading days, as a change from today's price. Widest ranges first.</p>
@@ -103,6 +118,9 @@
     </div>
   </section>
 
+  </div>
+
+  <div class="sf-page" data-page="track" hidden>
   <section class="sf-sec" id="scorecard">
     <h2 class="sf-h">How our past forecasts did</h2>
     <p class="sf-sub">Every forecast is saved when it's published and checked 5 trading days later against the real price. Nothing is left out.</p>
@@ -137,11 +155,17 @@
     </div>
   </section>
 
+  </div>
+
+  <div class="sf-page" data-page="why" hidden>
   <section class="sf-sec" id="reasoning">
     <h2 class="sf-h">Why these stocks changed</h2>
     <div class="sf-notes" id="notes"></div>
   </section>
 
+  </div>
+
+  <div class="sf-page" data-page="news" hidden>
   <section class="sf-sec" id="news">
     <div class="sf-row">
       <h2 class="sf-h">Latest headlines</h2>
@@ -150,6 +174,8 @@
     <p class="sf-sub">From Google News and Yahoo Finance, checked every 15 minutes. Each headline is rated by FinBERT, a finance news model running on this PC.</p>
     <ul class="sf-news" id="news-list"></ul>
   </section>
+
+  </div>
 
   <footer class="sf-footer">
     <a class="sf-gh" href="https://github.com/FaizSyed13" target="_blank" rel="noopener" aria-label="FaizSyed13 on GitHub" title="FaizSyed13 on GitHub">

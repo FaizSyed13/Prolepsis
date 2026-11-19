@@ -689,5 +689,32 @@
     var w = $("range-chart").clientWidth;
     if (state && state.forecast && Math.abs(w - lastW) > 4) { lastW = w; renderChart(state.forecast); }
   });
+  // Pages: the menu on top shows one group of sections at a time (#/home, #/forecasts, ...).
+  // Old links to a section (#scorecard, #how-to-read) open the page holding it.
+  (function () {
+    var pages = [].slice.call(document.querySelectorAll(".sf-page"));
+    var tabs = [].slice.call(document.querySelectorAll(".sf-menu-link"));
+    function target() {
+      var hash = location.hash || "", m = /^#\/([\w-]+)$/.exec(hash);
+      if (m && pages.some(function (p) { return p.dataset.page === m[1]; })) return { page: m[1] };
+      var el = hash.length > 1 ? document.getElementById(decodeURIComponent(hash.slice(1))) : null;
+      var host = el && el.closest(".sf-page");
+      return host ? { page: host.dataset.page, el: el } : { page: "home" };
+    }
+    function show() {
+      var t = target();
+      pages.forEach(function (p) { p.hidden = p.dataset.page !== t.page; });
+      tabs.forEach(function (a) {
+        if (a.dataset.page === t.page) { a.setAttribute("aria-current", "page"); a.scrollIntoView({ block: "nearest", inline: "nearest" }); }
+        else a.removeAttribute("aria-current");
+      });
+      window.dispatchEvent(new Event("resize"));   // the range chart sizes itself once its page is visible
+      if (t.el) { if (t.el.tagName === "DETAILS") t.el.open = true; t.el.scrollIntoView(); }
+      else window.scrollTo(0, 0);
+    }
+    window.addEventListener("hashchange", show);
+    show();
+  })();
+
   poll();
 })();
