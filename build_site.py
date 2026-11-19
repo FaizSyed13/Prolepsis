@@ -36,10 +36,11 @@ def main():
     if OUT.exists():
         shutil.rmtree(OUT)
     OUT.mkdir()
-    for f in ("app.js", "style.css"):
+    for f in ("app.js", "style.css", "logo.svg"):
         shutil.copy(WEB / f, OUT / f)
     html = (WEB / "index.html").read_text(encoding="utf-8")
     html = html.replace('href="/static/style.css"', 'href="style.css"')
+    html = html.replace('/static/logo.svg', 'logo.svg')
     html = html.replace('<script src="/static/app.js"></script>',
                         '<script>window.STATE_URL = "state.json";</script>\n<script src="app.js"></script>')
     html = html.replace("checked every 15 minutes. Each headline is rated by FinBERT, a finance news model running on this PC.",

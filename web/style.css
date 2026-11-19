@@ -44,6 +44,9 @@ a { color: inherit; }
 }
 .sf-title { width: fit-content; font-family: var(--serif); font-weight: 500; letter-spacing: -0.01em;
   background: linear-gradient(90deg, var(--mauve), var(--pink) 45%, var(--blue)); -webkit-background-clip: text; background-clip: text; color: transparent; font-size: clamp(30px, 5vw, 40px); line-height: 1.15; text-wrap: balance; }
+.sf-brand { display: flex; align-items: center; gap: 14px; }
+.sf-logo { width: clamp(48px, 8vw, 64px); height: auto; flex: none; }
+.sf-tagline { margin: -4px 0 0; color: var(--muted); font-size: 16px; }
 .sf-lede { max-width: 68ch; color: var(--muted); line-height: 1.55; }
 .sf-lede b { color: var(--fg); font-weight: 500; }
 .sf-loading { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; display: grid; gap: 6px; }

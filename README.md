@@ -1,4 +1,16 @@
-# Stock Predictor (research pipeline)
+<p align="center">
+  <img src="web/logo.svg" alt="Nextsight logo" width="120">
+</p>
+<h1 align="center">Nextsight</h1>
+<p align="center"><b>Peeking at the week ahead: honest 5-day stock forecasts.</b><br>
+<a href="https://faizsyed13.github.io/stock-predictor/">Open the live page</a></p>
+
+<p align="center">
+  <img src="docs/screenshot-home.png" alt="Nextsight home page: forecast summary, search box and how-to-read guide" width="49%">
+  <img src="docs/screenshot-forecast.png" alt="Chart of where each of the 20 stocks could land after 5 trading days" width="49%">
+</p>
+
+## Stock Predictor (research pipeline)
 
 Predicts whether each of 20 large US stocks will **beat SPY over the next 5 trading days**,
 and tests that prediction honestly with a walk-forward backtest.
