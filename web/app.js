@@ -24,20 +24,6 @@
 
   var STATIC = !!window.STATE_URL;   // public daily copy (GitHub Pages) instead of the PC program
 
-  // "How to read this page": open on the first visit, then remember if the visitor hid it.
-  (function () {
-    var guide = $("how-to-read"), KEY = "sf-guide-hidden";
-    var saved = null;
-    try { saved = localStorage.getItem(KEY); } catch (e) {}
-    // Folded by default on phones (it's long there); open by default on bigger screens.
-    guide.open = saved === "0";
-    guide.addEventListener("toggle", function () {
-      try { localStorage.setItem(KEY, guide.open ? "0" : "1"); } catch (e) {}
-    });
-    document.querySelectorAll('a[href="#how-to-read"]').forEach(function (a) {
-      a.addEventListener("click", function () { guide.open = true; });
-    });
-  })();
 
   function renderStatus(s) {
     var box = $("status"), phase = s.phase || "";
@@ -1131,7 +1117,7 @@
       }
       booting = false;
       window.dispatchEvent(new Event("resize"));   // the range chart sizes itself once its page is visible
-      if (t.el) { if (t.el.tagName === "DETAILS") t.el.open = true; t.el.scrollIntoView(); }
+      if (t.el && t.el.closest(".sf-page").dataset.page !== "guide") t.el.scrollIntoView();
       else window.scrollTo(0, 0);
     }
     var booting = true;

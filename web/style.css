@@ -470,3 +470,11 @@ a { color: inherit; }
   .sf-waffle.is-seen .sf-w--in { animation: sf-fill .45s cubic-bezier(.3, 1.6, .5, 1) both; animation-delay: calc(var(--i, 0) * 12ms); }
   @keyframes sf-fill { from { opacity: 0; transform: scale(.4); } }
 }
+
+/* Today: greeting on the left, stock search on the top right */
+.sf-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 380px); gap: 16px 32px; align-items: start; }
+.sf-top .sf-search { margin-top: 0; }
+@media (max-width: 800px) { .sf-top { grid-template-columns: minmax(0, 1fr); } }
+/* "How to read" page */
+section.sf-guide { padding: 22px 24px; }
+section.sf-guide .sf-guide-grid { margin-top: 4px; }

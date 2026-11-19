@@ -19,6 +19,7 @@
       <a class="sf-menu-link" data-page="why" href="#/why">Why</a>
       <a class="sf-menu-link" data-page="news" href="#/news">News</a>
       <a class="sf-menu-link" data-page="track" href="#/track">Track record</a>
+      <a class="sf-menu-link" data-page="guide" href="#/guide">How to read</a>
     </div>
   </nav>
 
@@ -28,6 +29,7 @@
   </div>
 
   <div class="sf-page" data-page="today">
+  <div class="sf-top">
   <header class="sf-today-head">
     <div class="sf-status" id="status" role="status"><span class="sf-dot"></span><span id="status-text">Starting up…</span></div>
     <div class="sf-brand"><img class="sf-logo" src="/static/logo.svg" alt="" width="64" height="54"><span class="sf-wordmark">Prolepsis</span></div>
@@ -36,6 +38,17 @@
     <p class="sf-lede" id="market-clock">—</p>
     <p class="sf-intro">Prolepsis does three things, free: a <b>daily market recap</b> (this page), <b>5-day price forecasts</b> for 20 big US stocks, and an <b>honest scorecard</b> of how every forecast turned out.</p>
   </header>
+  <div class="sf-search" id="search">
+    <label class="sf-search-box" for="search-input">
+      <svg class="sf-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+      <input id="search-input" type="text" role="combobox" aria-expanded="false" aria-controls="search-list"
+             aria-autocomplete="list" autocomplete="off" spellcheck="false"
+             placeholder="Search a stock, like Apple or NVDA" aria-label="Search stocks">
+      <button type="button" class="sf-search-clear" id="search-clear" aria-label="Clear search" hidden>×</button>
+    </label>
+    <ul class="sf-search-list" id="search-list" role="listbox" aria-label="Stocks" hidden></ul>
+  </div>
+  </div>
 
   <section class="sf-sec sf-honest" id="honest">
     <h2 class="sf-h">How good are the forecasts, honestly?</h2>
@@ -54,49 +67,9 @@
       <div class="sf-tile"><span class="sf-label">Weeks that went up</span><span class="sf-big" id="t-base">—</span><span class="sf-sub">Share of 5-day windows in which these stocks rose. Most up/down chances sit near this number.</span></div>
       <div class="sf-tile"><span class="sf-label">Live forecasts checked</span><span class="sf-big" id="h-live">—</span><span class="sf-sub" id="h-live-sub">Published forecasts graded against real prices.</span></div>
     </div>
-    <p class="sf-sub">Tested on <span id="p-start">—</span> to <span id="p-end">—</span>, a stretch of history the model never trained on. Live results: <a href="#/track">Track record</a>.</p>
-  <details class="sf-guide" id="how-to-read">
-    <summary>How to read the forecasts <span class="sf-guide-hint">· tap to hide or show</span></summary>
-    <div class="sf-guide-grid">
-      <section>
-        <h3 class="sf-h3">What this is</h3>
-        <p>A computer forecast for 20 large US companies, looking about one week ahead (the next 5 trading days). It learns from past prices and then adjusts for recent news headlines.</p>
-      </section>
-      <section>
-        <h3 class="sf-h3">Chance of going up</h3>
-        <p><b>Up 58%</b> means that in similar past situations, the price ended the week higher about 58 times out of 100. <b>Down</b> is the rest. Most stocks sit between 50% and 60% because these companies rise in most weeks. <b>Model up</b> is the chance before the news was taken into account.</p>
-      </section>
-      <section>
-        <h3 class="sf-h3">Price range</h3>
-        <p>The <b>80% range</b> is where the price should end up about 4 weeks out of 5. About 1 week in 5 it lands outside, sometimes far outside after big news. A wider range means a bumpier week is expected.</p>
-      </section>
-      <section>
-        <h3 class="sf-h3">News</h3>
-        <p>Headlines from the last 3 days are rated from −1 (all bad) to +1 (all good). Clearly good or bad news nudges the chance of going up by 3 points per step (<b>lean up / lean down</b>). Earnings news or a flood of strong headlines widens the range (<b>Range x1.4</b> and similar). These news rules haven't been proven to help yet.</p>
-      </section>
-      <section>
-        <h3 class="sf-h3">Buy, Hold or Sell</h3>
-        <p>Click any stock to see two verdicts. <b>Short term (next week):</b> Buy if the chance of going up is at least 3 points above a normal week, Sell if at least 3 points below, otherwise Hold. <b>Long term (a year or more):</b> four simple checks (the price trend, the past year's gain or loss, analysts' price targets, and how expensive the stock is compared with its earnings), each counting +1 or −1. A total of +2 or more is Buy and −2 or less is Sell. A stock that's falling steeply never gets more than Hold.</p>
-      </section>
-      <section>
-        <h3 class="sf-h3">How good is it, honestly?</h3>
-        <p>In testing, the up/down calls were right about as often as simply guessing "up" every week, so treat them as a weak hint. The price ranges have been the most reliable part. Every forecast is saved and graded in <a href="#/track">Track record</a>, with nothing left out.</p>
-      </section>
-    </div>
-    <p class="sf-guide-warn">This is a research project, not financial advice. Nobody can reliably predict next week's stock prices. Never invest money you can't afford to lose.</p>
-  </details>
+    <p class="sf-sub">Tested on <span id="p-start">—</span> to <span id="p-end">—</span>, a stretch of history the model never trained on. Live results: <a href="#/track">Track record</a>. New here? <a href="#/guide">How to read the forecasts</a>.</p>
   </section>
 
-  <div class="sf-search" id="search">
-    <label class="sf-search-box" for="search-input">
-      <svg class="sf-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
-      <input id="search-input" type="text" role="combobox" aria-expanded="false" aria-controls="search-list"
-             aria-autocomplete="list" autocomplete="off" spellcheck="false"
-             placeholder="Search a stock, like Apple or NVDA" aria-label="Search stocks">
-      <button type="button" class="sf-search-clear" id="search-clear" aria-label="Clear search" hidden>×</button>
-    </label>
-    <ul class="sf-search-list" id="search-list" role="listbox" aria-label="Stocks" hidden></ul>
-  </div>
 
   <nav class="sf-feats" id="feats" aria-label="What's inside" data-stagger>
     <a class="sf-feat" href="#/forecasts"><span class="sf-feat-k">Forecasts</span><b>Where prices could be next week</b><span class="sf-feat-stat" id="f-fc">—</span></a>
@@ -236,11 +209,46 @@
 
   </div>
 
+  <div class="sf-page" data-page="guide" hidden>
+  <section class="sf-sec sf-guide" id="how-to-read">
+    <h2 class="sf-h">How to read the forecasts</h2>
+    <p class="sf-sub">What every number on this site means, in plain words.</p>
+    <div class="sf-guide-grid">
+      <section>
+        <h3 class="sf-h3">What this is</h3>
+        <p>A computer forecast for 20 large US companies, looking about one week ahead (the next 5 trading days). It learns from past prices and then adjusts for recent news headlines.</p>
+      </section>
+      <section>
+        <h3 class="sf-h3">Chance of going up</h3>
+        <p><b>Up 58%</b> means that in similar past situations, the price ended the week higher about 58 times out of 100. <b>Down</b> is the rest. Most stocks sit between 50% and 60% because these companies rise in most weeks. <b>Model up</b> is the chance before the news was taken into account.</p>
+      </section>
+      <section>
+        <h3 class="sf-h3">Price range</h3>
+        <p>The <b>80% range</b> is where the price should end up about 4 weeks out of 5. About 1 week in 5 it lands outside, sometimes far outside after big news. A wider range means a bumpier week is expected.</p>
+      </section>
+      <section>
+        <h3 class="sf-h3">News</h3>
+        <p>Headlines from the last 3 days are rated from −1 (all bad) to +1 (all good). Clearly good or bad news nudges the chance of going up by 3 points per step (<b>lean up / lean down</b>). Earnings news or a flood of strong headlines widens the range (<b>Range x1.4</b> and similar). These news rules haven't been proven to help yet.</p>
+      </section>
+      <section>
+        <h3 class="sf-h3">Buy, Hold or Sell</h3>
+        <p>Click any stock to see two verdicts. <b>Short term (next week):</b> Buy if the chance of going up is at least 3 points above a normal week, Sell if at least 3 points below, otherwise Hold. <b>Long term (a year or more):</b> four simple checks (the price trend, the past year's gain or loss, analysts' price targets, and how expensive the stock is compared with its earnings), each counting +1 or −1. A total of +2 or more is Buy and −2 or less is Sell. A stock that's falling steeply never gets more than Hold.</p>
+      </section>
+      <section>
+        <h3 class="sf-h3">How good is it, honestly?</h3>
+        <p>In testing, the up/down calls were right about as often as simply guessing "up" every week, so treat them as a weak hint. The price ranges have been the most reliable part. Every forecast is saved and graded in <a href="#/track">Track record</a>, with nothing left out.</p>
+      </section>
+    </div>
+    <p class="sf-guide-warn">This is a research project, not financial advice. Nobody can reliably predict next week's stock prices. Never invest money you can't afford to lose.</p>
+  </section>
+
+  </div>
+
   <footer class="sf-footer">
     <a class="sf-gh" href="https://github.com/FaizSyed13" target="_blank" rel="noopener" aria-label="FaizSyed13 on GitHub" title="FaizSyed13 on GitHub">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
     </a>
-    <p class="sf-sub sf-foot">A research project, not financial advice. <a href="#how-to-read">How to read this page</a></p>
+    <p class="sf-sub sf-foot">A research project, not financial advice. <a href="#/guide">How to read the forecasts</a></p>
   </footer>
 </main>
 
