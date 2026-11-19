@@ -725,9 +725,9 @@
       box.appendChild(li);
     });
     if (!box.children.length) box.appendChild(el("li", "sf-sub", "The market summary appears after the next update."));
-    document.querySelectorAll(".sf-seg-btn").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.len === briefLen)); });
+    document.querySelectorAll("#brief .sf-seg-btn").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.len === briefLen)); });
   }
-  document.querySelectorAll(".sf-seg-btn").forEach(function (b) {
+  document.querySelectorAll("#brief .sf-seg-btn").forEach(function (b) {
     b.addEventListener("click", function () {
       briefLen = b.dataset.len;
       try { localStorage.setItem("sf-brief", briefLen); } catch (e) {}
@@ -820,6 +820,14 @@
     });
   }
 
+  var heatHalf = "high";
+  document.querySelectorAll(".sf-half-btn").forEach(function (b) {
+    b.addEventListener("click", function () {
+      heatHalf = b.dataset.half;
+      if (state && state.forecast) { renderHeat(); stagger($("heat")); }
+    });
+  });
+
   function renderHeat() {
     var mv = state.moves || {}, box = $("heat");
     box.replaceChildren();
@@ -828,7 +836,17 @@
     if (!rows.length) { box.appendChild(el("p", "sf-sub", "Daily changes appear after the next price update.")); return; }
     $("movers-title").textContent = "How our " + rows.length + " stocks did " + dayWord(mv[rows[0].ticker].date);
     var ext = Math.max(2, d3.max(rows, function (r) { return Math.abs(mv[r.ticker].chg_pct); }));
-    rows.forEach(function (r) {
+    // split at the midpoint: top half = high end, bottom half = low end
+    var mid = Math.ceil(rows.length / 2), hi = rows.slice(0, mid), lo = rows.slice(mid);
+    document.querySelectorAll(".sf-half-btn").forEach(function (b) {
+      var n = b.dataset.half === "high" ? hi.length : lo.length;
+      b.textContent = (b.dataset.half === "high" ? "High end" : "Low end") + " (" + n + ")";
+      b.setAttribute("aria-pressed", String(b.dataset.half === heatHalf));
+    });
+    $("movers-sub").textContent = heatHalf === "high"
+      ? "The top " + hi.length + " on the last trading day, best first. Tap a stock for its forecast and advice."
+      : "The bottom " + lo.length + " on the last trading day, worst last. Tap a stock for its forecast and advice.";
+    (heatHalf === "high" ? hi : lo).forEach(function (r) {
       var v = mv[r.ticker].chg_pct, b = el("button", "sf-heat-cell");
       b.type = "button";
       b.dataset.dir = v > 0.05 ? "up" : v < -0.05 ? "down" : "flat";

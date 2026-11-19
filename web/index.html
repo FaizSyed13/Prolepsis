@@ -106,8 +106,14 @@
   </section>
 
   <section class="sf-sec" id="movers">
-    <h2 class="sf-h" id="movers-title">How our 40 stocks did</h2>
-    <p class="sf-sub">Change on the last trading day, biggest gain first. Tap a stock for its forecast and advice.</p>
+    <div class="sf-row">
+      <h2 class="sf-h" id="movers-title">How our 40 stocks did</h2>
+      <div class="sf-seg" role="group" aria-label="Which half to show">
+        <button type="button" class="sf-seg-btn sf-half-btn" data-half="high" aria-pressed="true">High end</button>
+        <button type="button" class="sf-seg-btn sf-half-btn" data-half="low" aria-pressed="false">Low end</button>
+      </div>
+    </div>
+    <p class="sf-sub" id="movers-sub">Change on the last trading day, biggest gain first. Tap a stock for its forecast and advice.</p>
     <div class="sf-heat" id="heat" data-stagger></div>
   </section>
 
