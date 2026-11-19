@@ -1,12 +1,13 @@
 <p align="center">
-  <img src="web/logo.svg" alt="Nextsight logo" width="120">
+  <img src="web/logo.svg" alt="Prolepsis logo" width="120">
 </p>
-<h1 align="center">Nextsight</h1>
+<h1 align="center">Prolepsis</h1>
 <p align="center"><b>Peeking at the week ahead: honest 5-day stock forecasts.</b><br>
+<i>prolepsis (n.): a flash-forward; seeing what comes next before it happens.</i><br>
 <a href="https://faizsyed13.github.io/stock-predictor/">Open the live page</a> · <a href="https://github.com/FaizSyed13/stock-predictor/releases/latest">Download</a></p>
 
 <p align="center">
-  <img src="docs/screenshot-home.png" alt="Nextsight home page: forecast summary, search box and how-to-read guide" width="49%">
+  <img src="docs/screenshot-home.png" alt="Prolepsis home page: forecast summary, search box and how-to-read guide" width="49%">
   <img src="docs/screenshot-forecast.png" alt="Chart of where each of the 20 stocks could land after 5 trading days" width="49%">
 </p>
 
@@ -19,7 +20,7 @@ and tests that prediction honestly with a walk-forward backtest.
 Open **https://faizsyed13.github.io/stock-predictor/** in any browser. Nothing to download. Updated every weekday evening.
 
 ## Run it on your own Windows PC (no Python install needed)
-1. Go to the [latest release](https://github.com/FaizSyed13/stock-predictor/releases/latest) and click **Nextsight-….zip** under **Assets** to download it.
+1. Go to the [latest release](https://github.com/FaizSyed13/stock-predictor/releases/latest) and click **Prolepsis-….zip** under **Assets** to download it.
 2. Unzip it anywhere (right-click the file, **Extract All**).
 3. Open the folder and double-click **`Start Stock Forecast.bat`**.
    If Windows shows "Windows protected your PC", click **More info**, then **Run anyway**.
@@ -31,7 +32,7 @@ Needs Windows 10 or 11 and an internet connection. Please note that this does NO
 
 ## Run it on a Mac (no Python install needed)
 Needs a Mac with an Apple chip (M1 or newer) and macOS 14 Sonoma or newer.
-1. Go to the [latest release](https://github.com/FaizSyed13/stock-predictor/releases/latest), click **Nextsight-….zip** under **Assets**, and open the ZIP (it unzips itself).
+1. Go to the [latest release](https://github.com/FaizSyed13/stock-predictor/releases/latest), click **Prolepsis-….zip** under **Assets**, and open the ZIP (it unzips itself).
 2. In the folder, **right-click** **`Start Stock Forecast (Mac).command`** and choose **Open**, then **Open** again.
    If macOS says it "cannot be opened" or "could not verify" it: open **System Settings → Privacy & Security**,
    scroll down, click **Open Anyway** next to the file's name, then double-click the file again.
@@ -40,7 +41,7 @@ The first start sets itself up the same way as on Windows (private Python in a `
 
 ## Run it on Linux (no Python install needed)
 Works on 64-bit Ubuntu, Debian, Mint, Fedora, Arch and similar (Intel/AMD or ARM). No `sudo` needed.
-1. Go to the [latest release](https://github.com/FaizSyed13/stock-predictor/releases/latest), click **Nextsight-….zip** under **Assets**, and unzip it.
+1. Go to the [latest release](https://github.com/FaizSyed13/stock-predictor/releases/latest), click **Prolepsis-….zip** under **Assets**, and unzip it.
 2. Open a terminal in the unzipped folder (in most file managers: right-click inside the folder → **Open in Terminal**).
 3. Type this and press Enter:
    ```

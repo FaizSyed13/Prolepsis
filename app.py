@@ -1,4 +1,4 @@
-"""Nextsight (Weekly Stock Forecast) website. Runs on this PC only (http://127.0.0.1:8050).
+"""Prolepsis (Weekly Stock Forecast) website. Runs on this PC only (http://127.0.0.1:8050).
 
     Double-click "Start Stock Forecast.bat", or run:  .venv\\Scripts\\python app.py
 """
