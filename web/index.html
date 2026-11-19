@@ -16,10 +16,10 @@
       <span class="sf-menu-glow" aria-hidden="true"></span>
       <a class="sf-menu-link" data-page="today" href="#/today">Today</a>
       <a class="sf-menu-link" data-page="forecasts" href="#/forecasts">Forecasts</a>
+      <a class="sf-menu-link" data-page="markets" href="#/markets">Markets</a>
       <a class="sf-menu-link" data-page="why" href="#/why">Why</a>
       <a class="sf-menu-link" data-page="news" href="#/news">News</a>
       <a class="sf-menu-link" data-page="track" href="#/track">Track record</a>
-      <a class="sf-menu-link" data-page="guide" href="#/guide">How to read</a>
     </div>
   </nav>
 
@@ -36,7 +36,7 @@
     <p class="sf-hello" id="hello">Hello</p>
     <h1 class="sf-title sf-today-title" id="today-title">Here's what's up with the market</h1>
     <p class="sf-lede" id="market-clock">—</p>
-    <p class="sf-intro">Prolepsis does three things, free: a <b>daily market recap</b> (this page), <b>5-day price forecasts</b> for 40 big US stocks, and an <b>honest scorecard</b> of how every forecast turned out.</p>
+    <p class="sf-intro">Free <b>5-day price forecasts</b> for 40 big US stocks, a daily market recap, and an honest scorecard.</p>
   </header>
   <div class="sf-top-right">
   <div class="sf-search" id="search">
@@ -49,22 +49,17 @@
     </label>
     <ul class="sf-search-list" id="search-list" role="listbox" aria-label="Stocks" hidden></ul>
   </div>
-  <div class="sf-tape" id="tape" aria-label="Live prices"></div>
   </div>
   </div>
 
   <section class="sf-sec" id="preview">
     <div class="sf-row">
-      <h2 class="sf-h">Next week at a glance</h2>
-      <a class="sf-link" href="#/forecasts">See all forecasts <span aria-hidden="true">→</span></a>
+      <h2 class="sf-h">Next week</h2>
+      <a class="sf-link" href="#/forecasts">See all 40 <span aria-hidden="true">→</span></a>
     </div>
-    <p class="sf-sub" id="preview-sub">Where each stock's price will likely be after 5 trading days (80% likely range), biggest expected swings first. Swipe or scroll sideways, tap a stock for details.</p>
+    <p class="sf-sub" id="preview-sub">The biggest expected swings over the next 5 trading days. The bar is the 80% likely price range; the line is today's price. Tap a stock for details.</p>
     <div class="sf-pv" id="pv" data-stagger></div>
   </section>
-
-
-
-
 
   <section class="sf-sec sf-brief" id="brief">
     <div class="sf-row">
@@ -77,14 +72,31 @@
     <ul class="sf-brief-list" id="brief-list" data-stagger><li class="sf-sub">Loading today's summary…</li></ul>
   </section>
 
-  <nav class="sf-feats" id="feats" aria-label="What's inside" data-stagger>
-    <a class="sf-feat" href="#/forecasts"><span class="sf-feat-k">Forecasts</span><b>Where prices could be next week</b><span class="sf-feat-stat" id="f-fc">—</span></a>
-    <a class="sf-feat" href="#/why"><span class="sf-feat-k">Why</span><b>The news behind each forecast</b><span class="sf-feat-stat" id="f-why">—</span></a>
-    <a class="sf-feat" href="#/track"><span class="sf-feat-k">Track record</span><b>Every forecast checked, nothing hidden</b><span class="sf-feat-stat" id="f-track">—</span></a>
-    <a class="sf-feat" href="#/news"><span class="sf-feat-k">News</span><b>Headlines for all 40 stocks</b><span class="sf-feat-stat" id="f-news">—</span></a>
-  </nav>
+  <p class="sf-honest-line" id="today-honest">—</p>
+  </div>
 
+  <div class="sf-page" data-page="forecasts" hidden>
+  <section class="sf-sec" id="ranges">
+    <h2 class="sf-h">Where each price could land</h2>
+    <p class="sf-sub">80% likely range after 5 trading days, as a change from today's price. Widest ranges first.</p>
+    <div class="sf-key" aria-hidden="true"><span><i class="sf-sw sf-sw--r"></i>After the news</span><span><i class="sf-sw sf-sw--m"></i>Price model alone</span></div>
+    <div class="sf-chart" id="range-chart"></div>
+  </section>
 
+  <section class="sf-sec" id="all-forecasts">
+    <h2 class="sf-h">All forecasts</h2>
+    <p class="sf-sub">Click any stock for its statistics and advice.</p>
+    <div class="sf-scroll">
+      <table class="sf-table">
+        <thead><tr><th>Stock</th><th class="sf-num">Price</th><th class="sf-num">Up</th><th class="sf-num">Down</th><th class="sf-num">Model up</th><th class="sf-num">Range low</th><th class="sf-num">Range high</th><th>News (3 days)</th><th>Changed by news</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  </div>
+
+  <div class="sf-page" data-page="markets" hidden>
   <section class="sf-sec" id="markets">
     <h2 class="sf-h">The markets</h2>
     <p class="sf-sub">Latest daily closing levels and the change from the day before. Tap one to see its chart.</p>
@@ -116,9 +128,9 @@
     <p class="sf-sub" id="movers-sub">Change on the last trading day, biggest gain first. Tap a stock for its forecast and advice.</p>
     <div class="sf-heat" id="heat" data-stagger></div>
   </section>
+  </div>
 
-
-
+  <div class="sf-page" data-page="track" hidden>
   <section class="sf-sec sf-honest" id="honest">
     <h2 class="sf-h">How good are the forecasts, honestly?</h2>
     <p class="sf-lede" id="edge-line">—</p>
@@ -136,34 +148,9 @@
       <div class="sf-tile"><span class="sf-label">Weeks that went up</span><span class="sf-big" id="t-base">—</span><span class="sf-sub">Share of 5-day windows in which these stocks rose. Most up/down chances sit near this number.</span></div>
       <div class="sf-tile"><span class="sf-label">Live forecasts checked</span><span class="sf-big" id="h-live">—</span><span class="sf-sub" id="h-live-sub">Published forecasts graded against real prices.</span></div>
     </div>
-    <p class="sf-sub">Tested on <span id="p-start">—</span> to <span id="p-end">—</span>, a stretch of history the model never trained on. Live results: <a href="#/track">Track record</a>. New here? <a href="#/guide">How to read the forecasts</a>.</p>
+    <p class="sf-sub">Tested on <span id="p-start">—</span> to <span id="p-end">—</span>, a stretch of history the model never trained on. New here? <a href="#/guide">How to read the forecasts</a>.</p>
   </section>
 
-  <a class="sf-cta" href="#/forecasts">See where prices could go next week <span aria-hidden="true">→</span></a>
-  </div>
-
-  <div class="sf-page" data-page="forecasts" hidden>
-  <section class="sf-sec" id="ranges">
-    <h2 class="sf-h">Where each price could land</h2>
-    <p class="sf-sub">80% likely range after 5 trading days, as a change from today's price. Widest ranges first.</p>
-    <div class="sf-key" aria-hidden="true"><span><i class="sf-sw sf-sw--r"></i>After the news</span><span><i class="sf-sw sf-sw--m"></i>Price model alone</span></div>
-    <div class="sf-chart" id="range-chart"></div>
-  </section>
-
-  <section class="sf-sec" id="all-forecasts">
-    <h2 class="sf-h">All forecasts</h2>
-    <p class="sf-sub">Click any stock for its statistics and advice.</p>
-    <div class="sf-scroll">
-      <table class="sf-table">
-        <thead><tr><th>Stock</th><th class="sf-num">Price</th><th class="sf-num">Up</th><th class="sf-num">Down</th><th class="sf-num">Model up</th><th class="sf-num">Range low</th><th class="sf-num">Range high</th><th>News (3 days)</th><th>Changed by news</th></tr></thead>
-        <tbody id="rows"></tbody>
-      </table>
-    </div>
-  </section>
-
-  </div>
-
-  <div class="sf-page" data-page="track" hidden>
   <section class="sf-sec" id="scorecard">
     <h2 class="sf-h">How our past forecasts did</h2>
     <p class="sf-sub">Every forecast is saved when it's published and checked 5 trading days later against the real price. Nothing is left out.</p>
