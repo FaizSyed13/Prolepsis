@@ -1,0 +1,99 @@
+# Notes for AI coding assistants (OpenCode, Claude Code, etc.)
+
+Read this before changing anything. It explains what Prolepsis is, how it fits together, how to
+test changes honestly, and which ideas were already tested and rejected (so you don't repeat them).
+
+## The owner
+
+- Not a programmer. Explain things in plain language, avoid jargon, keep answers short.
+- Prefers free tools and services. Ask before adding anything that costs money.
+- Ask before big changes (redesigns, new pages, new data sources, new dependencies).
+- The owner edits the README's disclaimer wording themselves ("coin-flip" line). Don't change it.
+- The project is **all rights reserved** (see `LICENSE`). Don't change the license.
+
+## What Prolepsis is
+
+Honest 5-day stock forecasts for 40 large US stocks (list in `stockpred/config.py`), plus a daily
+market recap, news and a public track record. It shows, for each stock:
+
+- **P(up)**: calibrated chance the price is higher in 5 trading days (gradient boosting + isotonic calibration).
+- **80% price range**: quantile regression (10th/90th percentile of the 5-day return) widened by a
+  conformal margin sized to each stock's 21-day volatility, so it holds ~80% for calm and jumpy stocks alike.
+- **News adjustment**: FinBERT scores headlines (last 3 days) and nudges P(up) / widens ranges.
+- **Advice**: short-term and long-term Buy/Hold/Sell rules (`stockpred/advice.py`). Reading only.
+
+Honest current numbers (walk-forward, newest 30% of history never used for calibration):
+up/down accuracy ~54%, which equals always guessing the more common outcome (no real direction skill);
+range coverage ~79.75% vs an 80% target. The site says this openly. Keep it that way.
+
+## How it runs
+
+| Piece | File(s) |
+|---|---|
+| Prices (Yahoo, cached in `data/prices.pkl`) | `stockpred/data.py` |
+| Features (only data up to the close of day t) | `stockpred/features.py` |
+| Models | `stockpred/models.py` |
+| Walk-forward testing | `stockpred/backtest.py` |
+| Calibration, ranges, latest forecast | `stockpred/probability.py` |
+| News fetch + FinBERT (ONNX, no torch) | `stockpred/live_news.py`, `stockpred/sentiment.py`, `stockpred/auto_reason.py` |
+| Market tiles, futures, market news | `stockpred/market.py` |
+| Company facts, analyst view, earnings dates | `stockpred/fundamentals.py` |
+| Forecast log + track record | `stockpred/reasoning.py` |
+| Puts it all together, refresh loop | `stockpred/service.py` |
+| Local website (http://127.0.0.1:8050) | `app.py` + `web/` |
+| Public static site (GitHub Pages) | `build_site.py` -> `_site/` |
+| Research CLI | `run.py backtest`, `run.py backtest --sanity`, `run.py predict` |
+
+- **Public site:** https://faizsyed13.github.io/Prolepsis---Future-of-stock-forecasting/ built by
+  `.github/workflows/daily.yml` (weekdays 23:00 and 10:30 UTC, on push, or manually). The job also
+  commits `reports/forecast_log.csv` ("Daily forecast log [skip ci]"), so **run `git pull` before committing**.
+- **Local app:** `Start Stock Forecast.bat` / `(Mac).command` / `(Linux).sh` set up a private Python with
+  `uv` (pinned) on first start. The app shows the public `state.json` instantly while it builds its own.
+  On a PC the forecast log goes to `reports/forecast_log_pc.csv` (gitignored); only GitHub Actions writes the official log.
+- **Releases:** push a tag `vX.Y.Z` and `.github/workflows/release.yml` builds the zip with
+  `.github/release-notes.md`. Only make a release when the owner asks.
+- **Website:** one page with menu pages (Today, Forecasts, Why, News, Track record, How to read),
+  hash routes `#/today` etc. Dark Catppuccin Mocha theme, Fredoka + Nunito fonts, rounded corners,
+  a cat cursor buddy and hearts. The owner likes this "comfy" look.
+
+Setup for development: `python -m venv .venv` then `.venv\Scripts\python -m pip install -r requirements.txt`.
+
+## Rules for changing the model
+
+1. **No peeking at the future.** Features at date t may only use data up to the close of t.
+   Labels (`fwd_ret`, `up`, `target`) are never features. Never shuffle time series.
+2. **Test with walk-forward** (`stockpred/backtest.py`) on the full history (2010+) and all 40 stocks,
+   comparing against the current model on the **same rows**.
+3. **Keep a never-touched final check:** calibration is fitted on the oldest 70% of out-of-sample
+   history and graded on the newest 30%.
+4. **Count it as better only if** it beats the current model on the honest test, holds in most
+   individual years, and survives a shuffled-label sanity check. Tiny gains within noise don't count.
+5. Report results plainly, including failures. Don't present lucky short tests (e.g. 50 days) as wins.
+6. Changing the stock list invalidates `data/oos_gboost_h5.pkl` (handled automatically).
+
+## Already tested and rejected (don't redo unless the owner asks)
+
+| Idea | Result |
+|---|---|
+| Analyst ratings, target changes, earnings surprise as model features | No gain (AUC 0.514 -> 0.512), worse after 2022 |
+| Training on 99 stocks instead of 40 | No gain in what the page shows, much slower |
+| Longer forecast horizon | Owner said no |
+| Market-wide features (VIX, yields, curve, CPI, Nasdaq) | Worse accuracy, Sharpe and ranges |
+| Nasdaq-only features | Worse |
+| Other model types (logistic, ExtraTrees, averages, stacking, tuned gboost), 3-class labels, abstain rules | No model beat current gboost |
+| Next-day ensemble (LightGBM + RF + Ridge, simple/weighted/stacked) | Didn't beat "tomorrow = today", coin-flip direction |
+| Simple next-day up/down classifier (RSI/MA features) | Same family as above, skipped |
+| Extra volatility features for ranges (short-term, high-low, downside, market vol) | No narrower ranges (quantile models already adapt) |
+| TA-Lib indicators, OpenBB, insider trades | Owner said no |
+| Minimal redesign of the website | Built, owner rejected it, reverted |
+| Showing earnings dates on the page | Owner didn't like it, removed (backend kept) |
+
+Ideas not yet tested: short interest (FINRA, free), and logging options implied volatility daily
+(Yahoo has no free history) to test later for ranges.
+
+## Before you finish a change
+
+- Run the app or `build_site.py` and check the page still works (desktop and phone width).
+- `git pull` first, then commit with a clear message. Don't commit `.venv`, `data/*.pkl`,
+  `data/news.db`, `data/fundamentals.json` or `python/`.
+- Never put passwords or tokens in files or chat.
