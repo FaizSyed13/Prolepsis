@@ -85,10 +85,11 @@ Setup for development: `python -m venv .venv` then `.venv\Scripts\python -m pip 
 | Simple next-day up/down classifier (RSI/MA features) | Same family as above, skipped |
 | Extra volatility features for ranges (short-term, high-low, downside, market vol) | No narrower ranges (quantile models already adapt) |
 | TA-Lib indicators, OpenBB, insider trades | Owner said no |
+| FINRA short data (daily short-sale volume ratio, short interest days-to-cover / change, ranks) | Tested 2020-2026 (data starts 2018): P(up) AUC 0.516 -> 0.512 (better 1/7 yrs), top-5 Sharpe 0.75 -> 0.53, ranges same |
 | Minimal redesign of the website | Built, owner rejected it, reverted |
 | Showing earnings dates on the page | Owner didn't like it, removed (backend kept) |
 
-Ideas not yet tested: short interest (FINRA, free), and logging options implied volatility daily
+Ideas not yet tested: logging options implied volatility daily
 (Yahoo has no free history) to test later for ranges.
 
 ## Before you finish a change
