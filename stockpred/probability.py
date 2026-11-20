@@ -2,7 +2,8 @@
 
 1. Walk-forward: get genuinely out-of-sample (OOS) predictions for every past day.
 2. Calibration: learn how the model's raw numbers map to what actually happened
-   (isotonic regression for P(up); conformal widening for the price range).
+   (isotonic regression for P(up); conformal widening for the price range, sized to each
+   stock's recent volatility so calm and jumpy stocks are both right ~80% of the time).
 3. Honest check: fit the calibration on the first 70% of OOS history and grade it on
    the last 30%, which it has never seen.
 """
@@ -27,7 +28,7 @@ def oos_predictions(panel, feature_cols, model_name, cfg, use_cache=True, max_ag
         cached = pd.read_pickle(path)
         # reuse only if recent AND made for the same list of stocks
         if (last - cached["last"]).days <= max_age_days and cached.get("tickers") == tickers:
-            return cached["oos"]
+            return _with_vol(cached["oos"], panel)
 
     print("Training on history, walk-forward (first run takes a few minutes)...")
     oos = pd.DataFrame({
@@ -36,15 +37,28 @@ def oos_predictions(panel, feature_cols, model_name, cfg, use_cache=True, max_ag
         "q_hi": walk_forward(panel, feature_cols, "q_hi", cfg, target="fwd_ret"),
     }).join(panel[["up", "fwd_ret"]]).dropna(subset=["up"])
     pd.to_pickle({"last": last, "oos": oos, "tickers": tickers}, path)
-    return oos
+    return _with_vol(oos, panel)
+
+
+def _with_vol(oos, panel):
+    """Attach each row's 21-day volatility, used to size the range's safety margin."""
+    return oos.drop(columns="vol_21", errors="ignore").join(panel["vol_21"])
+
+
+def _scale(vol_21):
+    # Recent volatility (annualised). Floor avoids dividing by ~0 for a stock that froze.
+    return vol_21.clip(lower=1e-4)
 
 
 def _fit_calibration(oos):
     iso = IsotonicRegression(out_of_bounds="clip", y_min=0.02, y_max=0.98)
     iso.fit(oos["p_up"], oos["up"])
-    # Conformalized quantile regression: widen (or narrow) the range just enough that
-    # it would have contained the actual outcome COVERAGE of the time.
-    err = np.maximum(oos["q_lo"] - oos["fwd_ret"], oos["fwd_ret"] - oos["q_hi"])
+    # Conformalized quantile regression, scaled by volatility: widen (or narrow) the range
+    # just enough that it would have contained the actual outcome COVERAGE of the time.
+    # The margin is adj x volatility, so jumpy stocks get a bigger margin than calm ones
+    # (a single fixed margin left wild stocks' ranges too tight and calm ones too loose).
+    lo, hi = np.minimum(oos["q_lo"], oos["q_hi"]), np.maximum(oos["q_lo"], oos["q_hi"])
+    err = np.maximum(lo - oos["fwd_ret"], oos["fwd_ret"] - hi) / _scale(oos["vol_21"])
     adj = np.quantile(err, min(1.0, COVERAGE * (1 + 1 / len(err))))
     return iso, adj
 
@@ -60,7 +74,9 @@ def calibration_report(oos, split=0.7):
     p = iso.predict(test["p_up"])
     base = fit["up"].mean()                                   # "always guess the usual rate"
     brier = lambda q: np.mean((q - y) ** 2)
-    lo, hi = test["q_lo"] - adj, test["q_hi"] + adj
+    s = _scale(test["vol_21"])
+    lo = np.minimum(test["q_lo"], test["q_hi"]) - adj * s
+    hi = np.maximum(test["q_lo"], test["q_hi"]) + adj * s
     inside = ((test["fwd_ret"] >= lo) & (test["fwd_ret"] <= hi)).mean()
 
     table = (pd.DataFrame({"pred": p, "actual": y})
@@ -91,8 +107,9 @@ def forecast_latest(panel, feature_cols, model_name, cfg, oos):
     q = {}
     for name in QUANTILES:
         q[name] = make_model(name, cfg.seed).fit(train[feature_cols], train["fwd_ret"]).predict(X)
-    lo = np.minimum(q["q_lo"], q["q_hi"]) - adj
-    hi = np.maximum(q["q_lo"], q["q_hi"]) + adj
+    s = _scale(today["vol_21"]).to_numpy()
+    lo = np.minimum(q["q_lo"], q["q_hi"]) - adj * s
+    hi = np.maximum(q["q_lo"], q["q_hi"]) + adj * s
 
     out = pd.DataFrame({
         "price": today["close"],
