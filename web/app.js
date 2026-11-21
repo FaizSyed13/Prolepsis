@@ -441,7 +441,7 @@
     ["1 month", "D", "1M"], ["6 months", "D", "6M"], ["1y", "D", "12M"], ["5y", "W", "60M"], ["Max", "M", "ALL"]
   ];
   var frame = 4, liveShown = false;
-  function isDark() { return true; }   // the page always uses the dark Catppuccin Mocha palette
+  function isDark() { return false; }   // the page uses the light warm-paper palette
   function renderLive() {
     if (!openTicker || !liveShown) return;
     var box = $("live-chart"), f = FRAMES[frame];
@@ -451,7 +451,7 @@
       interval: f[1], timezone: "America/New_York", theme: isDark() ? "dark" : "light", style: "1",
       locale: "en", autosize: true, allow_symbol_change: false, hide_side_toolbar: true,
       hide_top_toolbar: true, save_image: false, calendar: false, support_host: "https://www.tradingview.com",
-      backgroundColor: "#1e1e2e", gridColor: "rgba(49, 50, 68, 0.6)"
+      backgroundColor: "#fefbf6", gridColor: "rgba(216, 208, 195, 0.6)"
     };
     if (f[2]) cfg.range = f[2];
     var wrap = el("div", "tradingview-widget-container");
@@ -802,17 +802,17 @@
     if (!lwc) {
       lwc = LightweightCharts.createChart($("mk-chart"), {
         autoSize: true,
-        layout: { background: { type: "solid", color: "transparent" }, textColor: "#a6adc8", fontFamily: "Nunito, system-ui, sans-serif" },
-        grid: { vertLines: { visible: false }, horzLines: { color: "rgba(69, 71, 90, 0.45)" } },
+        layout: { background: { type: "solid", color: "transparent" }, textColor: "#5e534a", fontFamily: "Nunito, system-ui, sans-serif" },
+        grid: { vertLines: { visible: false }, horzLines: { color: "rgba(216, 208, 195, 0.7)" } },
         rightPriceScale: { borderVisible: false }, timeScale: { borderVisible: false },
-        crosshair: { mode: 0, vertLine: { color: "#6c7086", labelBackgroundColor: "#45475a" }, horzLine: { color: "#6c7086", labelBackgroundColor: "#45475a" } },
+        crosshair: { mode: 0, vertLine: { color: "#84786f", labelBackgroundColor: "#5e534a" }, horzLine: { color: "#84786f", labelBackgroundColor: "#5e534a" } },
         handleScroll: { vertTouchDrag: false }
       });
       lwcSeries = lwc.addAreaSeries({ lineWidth: 2, priceLineVisible: false });
     }
     var pts = mk.series.slice(-SPANS[mkSpan][1]).map(function (d) { return { time: d[0], value: d[1] }; });
     var rising = pts.length > 1 && pts[pts.length - 1].value >= pts[0].value;
-    var rgb = mk.symbol === "^VIX" ? "203, 166, 247" : rising ? "166, 227, 161" : "243, 139, 168";
+    var rgb = mk.symbol === "^VIX" ? "173, 66, 22" : rising ? "33, 118, 60" : "185, 28, 28";
     lwcSeries.applyOptions({ lineColor: "rgb(" + rgb + ")", topColor: "rgba(" + rgb + ", 0.32)", bottomColor: "rgba(" + rgb + ", 0.02)",
       priceFormat: mk.symbol === "BTC-USD" ? { type: "price", precision: 0, minMove: 1 } : { type: "price", precision: 2, minMove: 0.01 } });
     lwcSeries.setData(pts);
@@ -933,7 +933,7 @@
         sym("BITSTAMP:BTCUSD", "Bitcoin"), sym("OANDA:XAUUSD", "Gold"),
         sym("NASDAQ:NVDA", "Nvidia"), sym("NASDAQ:AAPL", "Apple"), sym("NASDAQ:MSFT", "Microsoft"),
         sym("NASDAQ:AMZN", "Amazon"), sym("NASDAQ:GOOGL", "Alphabet"), sym("NASDAQ:META", "Meta")],
-      showSymbolLogo: true, isTransparent: true, displayMode: "adaptive", colorTheme: "dark", locale: "en"
+      showSymbolLogo: true, isTransparent: true, displayMode: "adaptive", colorTheme: "light", locale: "en"
     });
     wrap.append(el("div", "tradingview-widget-container__widget"), sc);
     $("tape").appendChild(wrap);
@@ -1024,14 +1024,61 @@
 
   function pfRow(h, i, rows) {
     var row = el("div", "sf-pf-row");
-    var sel = document.createElement("select");
-    sel.className = "sf-pf-sel";
-    sel.setAttribute("aria-label", "Stock");
-    sel.appendChild(new Option("Pick a stock", ""));
-    rows.slice().sort(function (a, b) { return a.ticker < b.ticker ? -1 : 1; }).forEach(function (r) {
-      sel.appendChild(new Option(r.ticker + " (" + r.name + ")", r.ticker));
+    // Type-to-search stock picker (ticker or company name)
+    var pick = el("div", "sf-pf-pick");
+    var sel = document.createElement("input");
+    sel.type = "text"; sel.className = "sf-pf-sel"; sel.autocomplete = "off"; sel.spellcheck = false;
+    sel.placeholder = "Search a stock, e.g. Apple";
+    sel.setAttribute("role", "combobox"); sel.setAttribute("aria-expanded", "false"); sel.setAttribute("aria-label", "Stock");
+    var ul = el("ul", "sf-search-list sf-pf-list-pop"); ul.setAttribute("role", "listbox"); ul.hidden = true;
+    var all = rows.slice().sort(function (a, b) { return a.ticker < b.ticker ? -1 : 1; });
+    var label = function (r) { return r.ticker + " (" + r.name + ")"; };
+    var cur = rows.find(function (x) { return x.ticker === h.tk; });
+    sel.value = cur ? label(cur) : "";
+    var hits = [], act = 0;
+    function choose(r) {
+      sel.value = label(r); ul.hidden = true; sel.setAttribute("aria-expanded", "false");
+      pf[i].tk = r.ticker; pfSave(); renderMoney(false); inp.focus();
+    }
+    function paint() {
+      ul.replaceChildren();
+      hits.forEach(function (r, k) {
+        var li = el("li", "sf-search-item"); li.setAttribute("role", "option");
+        li.setAttribute("aria-selected", String(k === act));
+        var who = el("span", "sf-search-who");
+        who.append(el("span", "sf-search-tk", r.ticker), el("span", "sf-search-name", r.name));
+        li.append(who, el("span", "sf-search-price", "$" + money(r.price)));
+        li.addEventListener("mousedown", function (e) { e.preventDefault(); choose(r); });
+        ul.appendChild(li);
+      });
+      ul.hidden = !hits.length; sel.setAttribute("aria-expanded", String(!ul.hidden));
+    }
+    function filter() {
+      var q = sel.value.trim().toLowerCase();
+      if (cur && sel.value === label(cur)) q = "";
+      hits = all.filter(function (r) { return !q || r.ticker.toLowerCase().indexOf(q) === 0 || r.name.toLowerCase().indexOf(q) >= 0; })
+        .sort(function (a, b) {   // exact / starts-with ticker first
+          var sa = a.ticker.toLowerCase().indexOf(q) === 0 ? 0 : 1, sb = b.ticker.toLowerCase().indexOf(q) === 0 ? 0 : 1;
+          return sa - sb;
+        });
+      act = 0; paint();
+    }
+    sel.addEventListener("focus", function () { sel.select(); filter(); });
+    sel.addEventListener("input", filter);
+    sel.addEventListener("blur", function () {
+      ul.hidden = true; sel.setAttribute("aria-expanded", "false");
+      var r = rows.find(function (x) { return x.ticker === pf[i].tk; });
+      sel.value = r ? label(r) : "";      // put back the chosen stock if they typed but didn't pick
     });
-    sel.value = h.tk || "";
+    sel.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault(); if (!hits.length) return;
+        act = (act + (e.key === "ArrowDown" ? 1 : -1) + hits.length) % hits.length; paint();
+        ul.children[act].scrollIntoView({ block: "nearest" });
+      } else if (e.key === "Enter") { e.preventDefault(); if (hits[act]) choose(hits[act]); }
+      else if (e.key === "Escape") { ul.hidden = true; sel.setAttribute("aria-expanded", "false"); }
+    });
+    pick.append(sel, ul);
     var inp = document.createElement("input");
     inp.type = "number"; inp.min = "0"; inp.step = "any"; inp.inputMode = "decimal";
     inp.className = "sf-pf-amt";
@@ -1050,12 +1097,11 @@
     del.type = "button";
     del.setAttribute("aria-label", "Remove this stock");
     del.addEventListener("click", function () { pf.splice(i, 1); pfSave(); renderMoney(true); });
-    sel.addEventListener("change", function () { pf[i].tk = sel.value; pfSave(); renderMoney(false); });
     inp.addEventListener("input", function () { pf[i].amt = inp.value; pfSave(); renderMoney(false); });
     var price = el("span", "sf-pf-price");
     var r = rows.find(function (x) { return x.ticker === h.tk; });
     price.textContent = r ? "$" + money(r.price) + " a share" : "";
-    row.append(sel, inp, seg, price, del);
+    row.append(pick, inp, seg, price, del);
     return row;
   }
 
@@ -1281,6 +1327,7 @@
     var tabs = [].slice.call(document.querySelectorAll(".sf-menu-link"));
     function target() {
       var hash = location.hash || "", m = /^#\/([\w-]+)$/.exec(hash);
+      if (m && m[1] === "home") m[1] = "today";    // Home is the old Today page
       if (m && pages.some(function (p) { return p.dataset.page === m[1]; })) return { page: m[1] };
       var el = hash.length > 1 ? document.getElementById(decodeURIComponent(hash.slice(1))) : null;
       var host = el && el.closest(".sf-page");
@@ -1297,7 +1344,7 @@
       var page = pages.filter(function (p) { return p.dataset.page === t.page; })[0];
       if (state && state.forecast) {
         if (t.page === "forecasts") { lastW = $("range-chart").clientWidth; renderChart(state.forecast, true); }
-        if (t.page === "today" && lwc) lwc.timeScale().fitContent();
+        if (t.page === "recap" && lwc) lwc.timeScale().fitContent();
         if (!booting) animatePage(page);
       }
       booting = false;

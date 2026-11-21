@@ -5,14 +5,14 @@
     </clipPath>
   </defs>
   <g clip-path="url(#above)">
-    <path d="M50 150 L50 96 Q50 80 60 70 L62 34 L92 58 Q100 56 108 58 L138 34 L140 70 Q150 80 150 96 L150 150 Z" fill="#CBA6F7" stroke="#CBA6F7" stroke-width="4" stroke-linejoin="round"/>
-    <polygon points="67,62 68,45 83,57" fill="#F5C2E7"/>
-    <polygon points="133,62 132,45 117,57" fill="#F5C2E7"/>
-    <ellipse cx="86" cy="92" rx="7" ry="9" fill="#1E1E2E"/>
-    <ellipse cx="122" cy="92" rx="7" ry="9" fill="#1E1E2E"/>
-    <circle cx="89" cy="88" r="2.6" fill="#F5E0DC"/>
-    <circle cx="125" cy="88" r="2.6" fill="#F5E0DC"/>
-    <path d="M100 104 L96 100 L104 100 Z" fill="#F5C2E7"/>
+    <path d="M50 150 L50 96 Q50 80 60 70 L62 34 L92 58 Q100 56 108 58 L138 34 L140 70 Q150 80 150 96 L150 150 Z" fill="#AD4216" stroke="#AD4216" stroke-width="4" stroke-linejoin="round"/>
+    <polygon points="67,62 68,45 83,57" fill="#DC855D"/>
+    <polygon points="133,62 132,45 117,57" fill="#DC855D"/>
+    <ellipse cx="86" cy="92" rx="7" ry="9" fill="#1A1512"/>
+    <ellipse cx="122" cy="92" rx="7" ry="9" fill="#1A1512"/>
+    <circle cx="89" cy="88" r="2.6" fill="#F3D9C8"/>
+    <circle cx="125" cy="88" r="2.6" fill="#F3D9C8"/>
+    <path d="M100 104 L96 100 L104 100 Z" fill="#DC855D"/>
   </g>
-  <polyline points="8,142 40,128 62,134 90,116 118,124 150,104 190,90" fill="none" stroke="#A6E3A1" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="8,142 40,128 62,134 90,116 118,124 150,104 190,90" fill="none" stroke="#21763C" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

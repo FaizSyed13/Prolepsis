@@ -14,9 +14,10 @@
   <nav class="sf-nav" aria-label="Pages">
     <div class="sf-menu">
       <span class="sf-menu-glow" aria-hidden="true"></span>
-      <a class="sf-menu-link" data-page="today" href="#/today">Today</a>
-      <a class="sf-menu-link" data-page="forecasts" href="#/forecasts">Forecasts</a>
+      <a class="sf-menu-link" data-page="today" href="#/home">Home</a>
       <a class="sf-menu-link" data-page="money" href="#/money">My money</a>
+      <a class="sf-menu-link" data-page="recap" href="#/recap">Market recap</a>
+      <a class="sf-menu-link" data-page="forecasts" href="#/forecasts">Forecasts</a>
       <a class="sf-menu-link" data-page="why" href="#/why">Why</a>
       <a class="sf-menu-link" data-page="news" href="#/news">News</a>
       <a class="sf-menu-link" data-page="track" href="#/track">Track record</a>
@@ -35,9 +36,8 @@
     <div class="sf-status" id="status" role="status"><span class="sf-dot"></span><span id="status-text">Starting up…</span></div>
     <div class="sf-brand"><img class="sf-logo" src="/static/logo.svg" alt="" width="64" height="54"><span class="sf-wordmark">Prolepsis</span></div>
     <p class="sf-hello" id="hello">Hello</p>
-    <h1 class="sf-title sf-today-title" id="today-title">Here's what's up with the market</h1>
-    <p class="sf-lede" id="market-clock">—</p>
-    <p class="sf-intro">Prolepsis does three things, free: a <b>daily market recap</b> (this page), <b>5-day price forecasts</b> for 40 big US stocks, and an <b>honest scorecard</b> of how every forecast turned out.</p>
+    <h1 class="sf-title sf-today-title">Peeking at the week ahead</h1>
+    <p class="sf-intro">Prolepsis does four things, free: shows <a href="#/money">what could happen to your money</a>, a <a href="#/recap">daily market recap</a>, <b>5-day price forecasts</b> for 40 big US stocks, and an <b>honest scorecard</b> of how every forecast turned out.</p>
   </header>
   <div class="sf-top-right">
   <div class="sf-search" id="search">
@@ -67,58 +67,12 @@
 
 
 
-  <section class="sf-sec sf-brief" id="brief">
-    <div class="sf-row">
-      <h2 class="sf-h">The short version</h2>
-      <div class="sf-seg" role="group" aria-label="How much to read">
-        <button type="button" class="sf-seg-btn" data-len="quick" aria-pressed="true">30-second read</button>
-        <button type="button" class="sf-seg-btn" data-len="full" aria-pressed="false">The full story</button>
-      </div>
-    </div>
-    <ul class="sf-brief-list" id="brief-list" data-stagger><li class="sf-sub">Loading today's summary…</li></ul>
-  </section>
-
   <nav class="sf-feats" id="feats" aria-label="What's inside" data-stagger>
     <a class="sf-feat" href="#/forecasts"><span class="sf-feat-k">Forecasts</span><b>Where prices could be next week</b><span class="sf-feat-stat" id="f-fc">—</span></a>
     <a class="sf-feat" href="#/why"><span class="sf-feat-k">Why</span><b>The news behind each forecast</b><span class="sf-feat-stat" id="f-why">—</span></a>
     <a class="sf-feat" href="#/track"><span class="sf-feat-k">Track record</span><b>Every forecast checked, nothing hidden</b><span class="sf-feat-stat" id="f-track">—</span></a>
     <a class="sf-feat" href="#/news"><span class="sf-feat-k">News</span><b>Headlines for all 40 stocks</b><span class="sf-feat-stat" id="f-news">—</span></a>
   </nav>
-
-
-  <section class="sf-sec" id="markets">
-    <h2 class="sf-h">The markets</h2>
-    <p class="sf-sub">Latest daily closing levels and the change from the day before. Tap one to see its chart.</p>
-    <div class="sf-mk-grid" id="mk-grid" data-stagger></div>
-    <div class="sf-mk-panel">
-      <div class="sf-row">
-        <div><h3 class="sf-h3" id="mk-chart-title">—</h3><p class="sf-sub" id="mk-chart-what">—</p></div>
-        <div class="sf-ranges" id="mk-spans" role="group" aria-label="Time span"></div>
-      </div>
-      <div class="sf-mk-chart" id="mk-chart"></div>
-      <p class="sf-sub">Chart drawn with <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" rel="noopener">TradingView Lightweight Charts</a>, a free open-source charting library. Prices from Yahoo Finance.</p>
-    </div>
-  </section>
-
-  <section class="sf-sec" id="futures" hidden>
-    <h2 class="sf-h">Before the bell</h2>
-    <p class="sf-sub">Futures trade almost around the clock, so while the market is closed they hint at how it might open. They're often wrong by the opening bell.</p>
-    <div class="sf-fut" id="fut-row" data-stagger></div>
-  </section>
-
-  <section class="sf-sec" id="movers">
-    <div class="sf-row">
-      <h2 class="sf-h" id="movers-title">How our 40 stocks did</h2>
-      <div class="sf-seg" role="group" aria-label="Which half to show">
-        <button type="button" class="sf-seg-btn sf-half-btn" data-half="high" aria-pressed="true">High end</button>
-        <button type="button" class="sf-seg-btn sf-half-btn" data-half="low" aria-pressed="false">Low end</button>
-      </div>
-    </div>
-    <p class="sf-sub" id="movers-sub">Change on the last trading day, biggest gain first. Tap a stock for its forecast and advice.</p>
-    <div class="sf-heat" id="heat" data-stagger></div>
-  </section>
-
-
 
   <section class="sf-sec sf-honest" id="honest">
     <h2 class="sf-h">How good are the forecasts, honestly?</h2>
@@ -162,6 +116,57 @@
     </div>
   </section>
 
+  </div>
+
+  <div class="sf-page" data-page="recap" hidden>
+  <header class="sf-today-head sf-recap-head">
+    <h1 class="sf-title sf-today-title" id="today-title">Here's what's up with the market</h1>
+    <p class="sf-lede" id="market-clock">—</p>
+  </header>
+  <section class="sf-sec sf-brief" id="brief">
+    <div class="sf-row">
+      <h2 class="sf-h">The short version</h2>
+      <div class="sf-seg" role="group" aria-label="How much to read">
+        <button type="button" class="sf-seg-btn" data-len="quick" aria-pressed="true">30-second read</button>
+        <button type="button" class="sf-seg-btn" data-len="full" aria-pressed="false">The full story</button>
+      </div>
+    </div>
+    <ul class="sf-brief-list" id="brief-list" data-stagger><li class="sf-sub">Loading today's summary…</li></ul>
+  </section>
+
+
+
+  <section class="sf-sec" id="markets">
+    <h2 class="sf-h">The markets</h2>
+    <p class="sf-sub">Latest daily closing levels and the change from the day before. Tap one to see its chart.</p>
+    <div class="sf-mk-grid" id="mk-grid" data-stagger></div>
+    <div class="sf-mk-panel">
+      <div class="sf-row">
+        <div><h3 class="sf-h3" id="mk-chart-title">—</h3><p class="sf-sub" id="mk-chart-what">—</p></div>
+        <div class="sf-ranges" id="mk-spans" role="group" aria-label="Time span"></div>
+      </div>
+      <div class="sf-mk-chart" id="mk-chart"></div>
+      <p class="sf-sub">Chart drawn with <a href="https://www.tradingview.com/lightweight-charts/" target="_blank" rel="noopener">TradingView Lightweight Charts</a>, a free open-source charting library. Prices from Yahoo Finance.</p>
+    </div>
+  </section>
+
+  <section class="sf-sec" id="futures" hidden>
+    <h2 class="sf-h">Before the bell</h2>
+    <p class="sf-sub">Futures trade almost around the clock, so while the market is closed they hint at how it might open. They're often wrong by the opening bell.</p>
+    <div class="sf-fut" id="fut-row" data-stagger></div>
+  </section>
+
+  <section class="sf-sec" id="movers">
+    <div class="sf-row">
+      <h2 class="sf-h" id="movers-title">How our 40 stocks did</h2>
+      <div class="sf-seg" role="group" aria-label="Which half to show">
+        <button type="button" class="sf-seg-btn sf-half-btn" data-half="high" aria-pressed="true">High end</button>
+        <button type="button" class="sf-seg-btn sf-half-btn" data-half="low" aria-pressed="false">Low end</button>
+      </div>
+    </div>
+    <p class="sf-sub" id="movers-sub">Change on the last trading day, biggest gain first. Tap a stock for its forecast and advice.</p>
+    <div class="sf-heat" id="heat" data-stagger></div>
+  </section>
   </div>
 
   <div class="sf-page" data-page="money" hidden>
