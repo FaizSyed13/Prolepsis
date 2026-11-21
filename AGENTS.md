@@ -86,6 +86,8 @@ Setup for development: `python -m venv .venv` then `.venv\Scripts\python -m pip 
 | Extra volatility features for ranges (short-term, high-low, downside, market vol) | No narrower ranges (quantile models already adapt) |
 | TA-Lib indicators, OpenBB, insider trades | Owner said no |
 | FINRA short data (daily short-sale volume ratio, short interest days-to-cover / change, ranks) | Tested 2020-2026 (data starts 2018): P(up) AUC 0.516 -> 0.512 (better 1/7 yrs), top-5 Sharpe 0.75 -> 0.53, ranges same |
+| Industry / sector ETF features (XLK IGV SMH VOX XLY XLF XLV XLP XLE XLI: sector return, sector vs SPY, stock vs sector at 5/21/63/126 days) | Tested 2014-2026, 40 stocks: P(up) AUC 0.5128 -> 0.5130, calibrated accuracy 54.1% = naive 54.2% both; beat-SPY top10-bottom10 spread +0.229 -> +0.191%/wk (worse 9/13 yrs), t 2.18 -> 1.82 |
+| Stress-aware range margins for crash weeks (market vol tercile, 5d vol jump, falling market) | Tested 2017-2026: coverage 78.6-78.8% vs base, bad weeks 4.2-4.6%, no gain; crashes not foreseeable from prior market stress |
 | Minimal redesign of the website | Built, owner rejected it, reverted |
 | Showing earnings dates on the page | Owner didn't like it, removed (backend kept) |
 
