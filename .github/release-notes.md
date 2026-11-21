@@ -1,9 +1,10 @@
 ## What's new
-- **"What could happen to my money?"** on the Home page: type in the stocks you own (any of our 40, search by name) and how much, and see where your total could realistically be after 5 trading days. Tested on 70,000 made-up portfolios over 2023-2026: the real result landed inside the range 80% of the time. Your list stays on your own computer.
-- **Market recap** now has its own page (the short version, market prices and chart, futures, how our 40 stocks did).
-- **Sharper price ranges**: the safety margin now follows each stock's recent ups and downs, so calm and jumpy stocks are both right about 80% of the time.
-- **Track record** explains early results honestly ("only 1 week checked so far") while few weeks have been graded.
-- New fonts (Newsreader for headlines, IBM Plex Sans for text), same cosy dark colours.
+- **Import my trades** at the top of Home: pick or paste the trade history file from your broker (Schwab, Fidelity, Robinhood, Vanguard, E*TRADE, Interactive Brokers, Questrade and most others). Prolepsis works out which of our 40 stocks you own, what you paid on average, our 5-day forecast for each one, and where your total could realistically be in 5 trading days. Your file is read on your own computer and never uploaded.
+- **Try an example**: one click shows how it works with made-up trades and the real forecasts.
+- **A living sky**: the background follows your time of day (sunrise, daytime, sunset, night with stars and a moon). Click **Show my weather** to see your real weather too (rain, clouds, storms, snow). That one is optional and uses the free Open-Meteo service with your location rounded to about 10 km.
+- **New "Luxe" colours**: gold and rose gold on deep plum-black, with emerald for gains and ruby for losses.
+- The type-in "What could happen to my money?" calculator is gone: importing your trades now gives you the same total range automatically.
+- The "Why" page was removed (each stock's news reasons are still in its pop-up), and "How to read" now lists the ideas we tested and left out, including a head-to-head with Amazon's Chronos AI.
 
 ## Download
 Under **Assets** below, click **Prolepsis-….zip** (not "Source code"), then unzip it.
