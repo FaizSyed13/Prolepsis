@@ -541,3 +541,8 @@ section.sf-guide .sf-guide-grid { margin-top: 4px; }
   .sf-pv-card.is-hint { animation: sf-ring 1.8s ease-out infinite; }
   @keyframes sf-ring { 0% { box-shadow: 0 0 0 0 rgba(245, 194, 231, 0.55); } 70%, 100% { box-shadow: 0 0 0 12px rgba(245, 194, 231, 0); } }
 }
+
+/* "Early days" note on the Track record page (shown while few weeks are graded) */
+.sf-early { margin: 16px 0; padding: 16px 20px; border-radius: var(--radius); background: var(--panel); border-left: 4px solid var(--peach); display: grid; gap: 6px; }
+.sf-early-h { color: var(--peach); font-weight: 700; }
+.sf-early p { line-height: 1.55; margin: 0; }

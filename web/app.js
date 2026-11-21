@@ -554,6 +554,21 @@
     countTo($("sc-n"), String(t.graded));
     $("sc-span").textContent = "From " + t.weeks + " forecast day" + (t.weeks === 1 ? "" : "s") + ", " + day(t.first) +
       (t.first === t.last ? "" : " to " + day(t.last)) + (t.pending ? " · " + t.pending + " still waiting" : "");
+    // Few weeks graded: explain that early numbers swing a lot, with the long-run test numbers for comparison.
+    var early = t.weeks < 8;
+    $("sc-early").hidden = !early;
+    if (early) {
+      var upShare = t.always_up_hit_pct, wk = t.weeks === 1 ? "1 week" : t.weeks + " weeks";
+      var tDir = calVal("direction_accuracy"), tCov = calVal("range_coverage");
+      var fell = Math.round((100 - upShare) / 100 * t.graded);
+      var mood = upShare <= 20 ? " In that time " + (fell === t.graded ? "all " + fell : fell + " of " + t.graded) + " stocks fell, a market-wide drop. That is the hardest kind of week for any forecast: when nearly everything falls together, the up/down calls and ranges miss together."
+        : upShare >= 80 ? " In that time " + upShare.toFixed(0) + "% of the stocks rose, a market-wide jump, so the scores may look better than usual."
+        : "";
+      $("sc-early-h").textContent = "Early days: only " + wk + " checked so far";
+      $("sc-early-text").textContent = "A few weeks can look great or awful by luck alone." + mood +
+        (!isNaN(tDir) && !isNaN(tCov) ? " For comparison, in testing on about 4 years of past weeks the ranges caught " + tCov.toFixed(0) +
+          "% of prices and the up/down calls were right " + tDir.toFixed(0) + "% of the time. Expect these live numbers to move toward that as more weeks get checked." : "");
+    }
     var nn = t.news_changed;
     $("sc-news").textContent = nn < 20
       ? "The news changed " + nn + " of these forecasts, too few yet to tell whether the news adjustments help."
