@@ -36,7 +36,7 @@
     <p class="sf-hello" id="hello">Hello</p>
     <h1 class="sf-title sf-today-title" id="today-title">Here's what's up with the market</h1>
     <p class="sf-lede" id="market-clock">—</p>
-    <p class="sf-intro">Prolepsis does four things, free: shows <a href="#money">what could happen to your money</a>, a <a href="#/recap">daily market recap</a>, <b>5-day price forecasts</b> for 40 big US stocks, and an <b>honest scorecard</b> of how every forecast turned out.</p>
+    <p class="sf-intro">Prolepsis does four things, free: shows <a href="#import">what could happen to your money</a> (import your trades), a <a href="#/recap">daily market recap</a>, <b>5-day price forecasts</b> for 40 big US stocks, and an <b>honest scorecard</b> of how every forecast turned out.</p>
   </header>
   <div class="sf-top-right">
   <div class="sf-search" id="search">
@@ -55,16 +55,21 @@
 
   <section class="sf-sec" id="import">
     <h2 class="sf-h">Import my trades</h2>
-    <p class="sf-sub">Have a trade history file from your broker? We'll work out which of our 40 stocks you own and show our forecast for each one.</p>
+    <p class="sf-sub">Have a trade history file from your broker? We'll work out which of our 40 stocks you own, show our forecast for each one, and where your total could be in 5 trading days. Not sure yet? Try the example.</p>
     <div class="sf-imp-box" id="imp-box">
       <p class="sf-imp-step"><b>1.</b> On your broker's website, download your trade history. It's usually under "Activity", "History" or "Transactions"; choose CSV. Then pick the file here, or copy the table and paste it in.</p>
       <div class="sf-imp-in">
-        <label class="sf-imp-btn sf-imp-file">Choose a file<input type="file" id="imp-file" accept=".csv,.tsv,.txt,text/csv,text/plain"></label>
+        <div class="sf-imp-btns">
+          <label class="sf-imp-btn sf-imp-file">Choose a file<input type="file" id="imp-file" accept=".csv,.tsv,.txt,text/csv,text/plain"></label>
+          <button type="button" class="sf-more sf-imp-ex" id="imp-ex">Try an example</button>
+        </div>
         <textarea id="imp-paste" rows="3" spellcheck="false" placeholder="…or paste your trades here (include the top row with the column names)"></textarea>
       </div>
-      <p class="sf-sub">Your file is read right here in your browser. It is never uploaded or saved anywhere.</p>
+      <p class="sf-sub">Your file is read right here in your browser. It is never uploaded or saved anywhere. No account, no key needed.</p>
+      <p class="sf-imp-demo" id="imp-demo" hidden><span class="sf-imp-pill">Example</span> These are made-up trades so you can see how it works. The forecasts are real. Import your own file to see your stocks.</p>
       <p class="sf-imp-msg" id="imp-msg" hidden></p>
       <div id="imp-map" hidden>
+        <div id="imp-step2">
         <p class="sf-imp-step"><b>2.</b> Check we picked the right columns. Change any that look wrong.</p>
         <div class="sf-imp-cols">
           <label>Stock symbol<select id="imp-c-symbol"></select></label>
@@ -73,10 +78,35 @@
           <label>Price per share<select id="imp-c-price"></select></label>
         </div>
         <div class="sf-scroll"><table class="sf-table sf-table--static sf-imp-prev" id="imp-prev"></table></div>
-        <p class="sf-imp-step"><b>3.</b> Here's what you own now, with our forecast for the next 5 trading days.</p>
+        </div>
+        <p class="sf-imp-step" id="imp-step3"><b>3.</b> Here's what you own now, with our forecast for the next 5 trading days.</p>
         <div id="imp-sum"></div>
+      <div class="sf-pf-result" id="pf-result" hidden>
+        <h3 class="sf-h3">Your total, 5 trading days from now</h3>
+        <div class="sf-tiles">
+          <div class="sf-tile">
+            <span class="sf-label">Your stocks are worth</span>
+            <span class="sf-big" id="pf-now">—</span>
+            <span class="sf-sub" id="pf-now-sub"></span>
+          </div>
+          <div class="sf-tile sf-pf-main">
+            <span class="sf-label">Most likely in 5 trading days</span>
+            <span class="sf-big" id="pf-range">—</span>
+            <span class="sf-sub" id="pf-change"></span>
+          </div>
+        </div>
+        <div class="sf-pf-bar" id="pf-bar" aria-hidden="true">
+          <div class="sf-pf-band" id="pf-band"></div>
+          <div class="sf-pf-mark" id="pf-mark"><span>Now</span></div>
+        </div>
+        <div class="sf-pf-ends" aria-hidden="true"><span id="pf-end-lo"></span><span id="pf-end-hi"></span></div>
+        <p class="sf-sub" id="pf-spread"></p>
+        <div class="sf-early">
+          <b class="sf-early-h">How sure is this?</b>
+          <p id="pf-honest">We tested this on 70,000 made-up portfolios over 2023 to 2026, years the system had never seen. The real result landed inside the range 80% of the time, about 4 weeks out of 5. So 1 week in 5 it will land outside, and in big market drops it misses about half the time. This is not advice: it shows how much your money could swing, not whether to buy or sell.</p>
+        </div>
+      </div>
         <div class="sf-pf-actions">
-          <button type="button" class="sf-imp-btn" id="imp-use">Put these in My money</button>
           <button type="button" class="sf-pf-clear" id="imp-cancel">Start over</button>
         </div>
       </div>
@@ -91,52 +121,6 @@
     <p class="sf-sub" id="preview-sub">Where each stock's price will likely be after 5 trading days (80% likely range), biggest expected swings first. Swipe or scroll sideways, tap a stock for details.</p>
     <div class="sf-pv" id="pv" data-stagger></div>
   </section>
-
-  <section class="sf-sec" id="money">
-    <h2 class="sf-h">What could happen to my money?</h2>
-    <p class="sf-sub">Add the stocks you own (any of our 40) and how much, or use Import my trades at the top. We'll show where your total could realistically be after 5 trading days. Your list is saved only on this device; nothing is sent anywhere.</p>
-    <div class="sf-pf-list" id="pf-list"></div>
-    <div class="sf-pf-actions">
-      <button type="button" class="sf-more" id="pf-add">+ Add a stock</button>
-      <button type="button" class="sf-pf-clear" id="pf-clear" hidden>Clear all</button>
-    </div>
-    <p class="sf-sub" id="pf-empty">Pick a stock above and type how many shares you have (or how many dollars it's worth).</p>
-    <div class="sf-pf-result" id="pf-result" hidden>
-      <div class="sf-tiles">
-        <div class="sf-tile">
-          <span class="sf-label">Worth now</span>
-          <span class="sf-big" id="pf-now">—</span>
-          <span class="sf-sub" id="pf-now-sub"></span>
-        </div>
-        <div class="sf-tile sf-pf-main">
-          <span class="sf-label">Most likely after 5 trading days</span>
-          <span class="sf-big" id="pf-range">—</span>
-          <span class="sf-sub" id="pf-change"></span>
-        </div>
-      </div>
-      <div class="sf-pf-bar" id="pf-bar" aria-hidden="true">
-        <div class="sf-pf-band" id="pf-band"></div>
-        <div class="sf-pf-mark" id="pf-mark"><span>Now</span></div>
-      </div>
-      <div class="sf-pf-ends" aria-hidden="true"><span id="pf-end-lo"></span><span id="pf-end-hi"></span></div>
-      <p class="sf-sub" id="pf-spread"></p>
-      <h3 class="sf-h3">Each stock on its own</h3>
-      <div class="sf-scroll">
-        <table class="sf-table sf-table--static">
-          <thead><tr><th>Stock</th><th class="sf-num">Worth now</th><th class="sf-num">Share of total</th><th class="sf-num">Chance up</th><th class="sf-num">Likely low</th><th class="sf-num">Likely high</th><th class="sf-num" id="pf-paid-h" hidden>vs. what you paid</th></tr></thead>
-          <tbody id="pf-rows"></tbody>
-        </table>
-      </div>
-      <div class="sf-early">
-        <b class="sf-early-h">How sure is this?</b>
-        <p id="pf-honest">We tested this on 70,000 made-up portfolios over 2023 to 2026, years the system had never seen. The real result landed inside the range 80% of the time, about 4 weeks out of 5. So 1 week in 5 it will land outside, and in big market drops it misses about half the time. This is not advice: it shows how much your money could swing, not whether to buy or sell.</p>
-      </div>
-    </div>
-  </section>
-
-
-
-
 
   <nav class="sf-feats" id="feats" aria-label="What's inside" data-stagger>
     <a class="sf-feat" href="#/forecasts"><span class="sf-feat-k">Forecasts</span><b>Where prices could be next week</b><span class="sf-feat-stat" id="f-fc">—</span></a>

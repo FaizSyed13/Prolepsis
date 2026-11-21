@@ -431,7 +431,7 @@
       interval: f[1], timezone: "America/New_York", theme: isDark() ? "dark" : "light", style: "1",
       locale: "en", autosize: true, allow_symbol_change: false, hide_side_toolbar: true,
       hide_top_toolbar: true, save_image: false, calendar: false, support_host: "https://www.tradingview.com",
-      backgroundColor: "#1e1e2e", gridColor: "rgba(49, 50, 68, 0.6)"
+      backgroundColor: "#15121c", gridColor: "rgba(37, 31, 47, 0.6)"
     };
     if (f[2]) cfg.range = f[2];
     var wrap = el("div", "tradingview-widget-container");
@@ -782,10 +782,10 @@
     if (!lwc) {
       lwc = LightweightCharts.createChart($("mk-chart"), {
         autoSize: true,
-        layout: { background: { type: "solid", color: "transparent" }, textColor: "#a6adc8", fontFamily: "IBM Plex Sans, system-ui, sans-serif" },
-        grid: { vertLines: { visible: false }, horzLines: { color: "rgba(69, 71, 90, 0.45)" } },
+        layout: { background: { type: "solid", color: "transparent" }, textColor: "#b9ad9c", fontFamily: "IBM Plex Sans, system-ui, sans-serif" },
+        grid: { vertLines: { visible: false }, horzLines: { color: "rgba(53, 45, 66, 0.45)" } },
         rightPriceScale: { borderVisible: false }, timeScale: { borderVisible: false },
-        crosshair: { mode: 0, vertLine: { color: "#6c7086", labelBackgroundColor: "#45475a" }, horzLine: { color: "#6c7086", labelBackgroundColor: "#45475a" } },
+        crosshair: { mode: 0, vertLine: { color: "#776b86", labelBackgroundColor: "#352d42" }, horzLine: { color: "#776b86", labelBackgroundColor: "#352d42" } },
         handleScroll: { vertTouchDrag: false }
       });
       lwcSeries = lwc.addAreaSeries({ lineWidth: 2, priceLineVisible: false });
@@ -990,140 +990,24 @@
   }
   setInterval(function () { if (state && state.forecast) { renderClock(); renderFutures(); } }, 60000);
 
-  // ---------- My money: likely range for the visitor's own mix of stocks ----------
+  // ---------- Your total: likely range for the imported mix of stocks ----------
   // Each stock's 80% range -> center + spread; combined with how the stocks moved together over
   // the past year (state.corr). Tested on 70,000 random portfolios, 2023-2026: 80.0% inside.
-  var PF_KEY = "sf-money-v1", PF_Z = 1.2815516;
-  var pf = [];
-  try { pf = JSON.parse(localStorage.getItem(PF_KEY) || "[]") || []; } catch (e) { pf = []; }
-  function pfSave() { try { localStorage.setItem(PF_KEY, JSON.stringify(pf)); } catch (e) {} }
+  var PF_Z = 1.2815516;
+  try { localStorage.removeItem("sf-money-v1"); } catch (e) {}   // old type-in calculator (removed)
   var usd = function (v) { return (v < 0 ? "−$" : "$") + d3.format(",.0f")(Math.abs(v)); };
   var usdSigned = function (v) { return (v > 0 ? "+" : "") + usd(v); };
 
-  function pfRow(h, i, rows) {
-    var row = el("div", "sf-pf-row");
-    // Type-to-search stock picker (ticker or company name)
-    var pick = el("div", "sf-pf-pick");
-    var sel = document.createElement("input");
-    sel.type = "text"; sel.className = "sf-pf-sel"; sel.autocomplete = "off"; sel.spellcheck = false;
-    sel.placeholder = "Search a stock, e.g. Apple";
-    sel.setAttribute("role", "combobox"); sel.setAttribute("aria-expanded", "false"); sel.setAttribute("aria-label", "Stock");
-    var ul = el("ul", "sf-search-list sf-pf-list-pop"); ul.setAttribute("role", "listbox"); ul.hidden = true;
-    var all = rows.slice().sort(function (a, b) { return a.ticker < b.ticker ? -1 : 1; });
-    var label = function (r) { return r.ticker + " (" + r.name + ")"; };
-    var cur = rows.find(function (x) { return x.ticker === h.tk; });
-    sel.value = cur ? label(cur) : "";
-    var hits = [], act = 0;
-    function choose(r) {
-      sel.value = label(r); ul.hidden = true; sel.setAttribute("aria-expanded", "false");
-      if (pf[i].tk !== r.ticker) delete pf[i].paid;   // the imported "price paid" belonged to the old stock
-      pf[i].tk = r.ticker; pfSave(); renderMoney(false); inp.focus();
-    }
-    function paint() {
-      ul.replaceChildren();
-      hits.forEach(function (r, k) {
-        var li = el("li", "sf-search-item"); li.setAttribute("role", "option");
-        li.setAttribute("aria-selected", String(k === act));
-        var who = el("span", "sf-search-who");
-        who.append(el("span", "sf-search-tk", r.ticker), el("span", "sf-search-name", r.name));
-        li.append(who, el("span", "sf-search-price", "$" + money(r.price)));
-        li.addEventListener("mousedown", function (e) { e.preventDefault(); choose(r); });
-        ul.appendChild(li);
-      });
-      ul.hidden = !hits.length; sel.setAttribute("aria-expanded", String(!ul.hidden));
-    }
-    function filter() {
-      var q = sel.value.trim().toLowerCase();
-      if (cur && sel.value === label(cur)) q = "";
-      hits = all.filter(function (r) { return !q || r.ticker.toLowerCase().indexOf(q) === 0 || r.name.toLowerCase().indexOf(q) >= 0; })
-        .sort(function (a, b) {   // exact / starts-with ticker first
-          var sa = a.ticker.toLowerCase().indexOf(q) === 0 ? 0 : 1, sb = b.ticker.toLowerCase().indexOf(q) === 0 ? 0 : 1;
-          return sa - sb;
-        });
-      act = 0; paint();
-    }
-    sel.addEventListener("focus", function () { sel.select(); filter(); });
-    sel.addEventListener("input", filter);
-    sel.addEventListener("blur", function () {
-      ul.hidden = true; sel.setAttribute("aria-expanded", "false");
-      var r = rows.find(function (x) { return x.ticker === pf[i].tk; });
-      sel.value = r ? label(r) : "";      // put back the chosen stock if they typed but didn't pick
-    });
-    sel.addEventListener("keydown", function (e) {
-      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-        e.preventDefault(); if (!hits.length) return;
-        act = (act + (e.key === "ArrowDown" ? 1 : -1) + hits.length) % hits.length; paint();
-        ul.children[act].scrollIntoView({ block: "nearest" });
-      } else if (e.key === "Enter") { e.preventDefault(); if (hits[act]) choose(hits[act]); }
-      else if (e.key === "Escape") { ul.hidden = true; sel.setAttribute("aria-expanded", "false"); }
-    });
-    pick.append(sel, ul);
-    var inp = document.createElement("input");
-    inp.type = "number"; inp.min = "0"; inp.step = "any"; inp.inputMode = "decimal";
-    inp.className = "sf-pf-amt";
-    inp.placeholder = h.unit === "usd" ? "Dollars" : "Shares";
-    inp.setAttribute("aria-label", h.unit === "usd" ? "Dollars" : "Number of shares");
-    if (h.amt) inp.value = h.amt;
-    var seg = el("div", "sf-seg");
-    [["shares", "Shares"], ["usd", "$"]].forEach(function (u) {
-      var b = el("button", "sf-seg-btn", u[1]);
-      b.type = "button";
-      b.setAttribute("aria-pressed", String((h.unit || "shares") === u[0]));
-      b.addEventListener("click", function () { pf[i].unit = u[0]; pfSave(); renderMoney(true); });
-      seg.appendChild(b);
-    });
-    var del = el("button", "sf-pf-del", "×");
-    del.type = "button";
-    del.setAttribute("aria-label", "Remove this stock");
-    del.addEventListener("click", function () { pf.splice(i, 1); pfSave(); renderMoney(true); });
-    inp.addEventListener("input", function () { pf[i].amt = inp.value; pfSave(); renderMoney(false); });
-    var price = el("span", "sf-pf-price");
-    var r = rows.find(function (x) { return x.ticker === h.tk; });
-    price.textContent = r ? "$" + money(r.price) + " a share" : "";
-    row.append(pick, inp, seg, price, del);
-    return row;
-  }
-
-  function renderMoney(rebuildList) {
-    var rows = state && state.forecast;
-    if (!rows) return;
-    if (!pf.length) pf.push({ tk: "", amt: "", unit: "shares" });
-    var list = $("pf-list");
-    if (rebuildList || list.children.length !== pf.length) {
-      list.replaceChildren();
-      pf.forEach(function (h, i) { list.appendChild(pfRow(h, i, rows)); });
-    } else {   // just refresh the "$x a share" hints without stealing focus from the input
-      pf.forEach(function (h, i) {
-        var r = rows.find(function (x) { return x.ticker === h.tk; });
-        list.children[i].querySelector(".sf-pf-price").textContent = r ? "$" + money(r.price) + " a share" : "";
-      });
-    }
-    $("pf-clear").hidden = !(pf.length > 1 || pf[0].tk || pf[0].amt);
-
-    // merge holdings by stock, worth in dollars now
-    var by = {};
-    pf.forEach(function (h) {
-      var r = rows.find(function (x) { return x.ticker === h.tk; }), a = parseFloat(h.amt);
-      if (!r || !(a > 0)) return;
-      var v = h.unit === "usd" ? a : a * r.price;
-      by[r.ticker] = by[r.ticker] || { r: r, v: 0 };
-      by[r.ticker].v += v;
-      if (h.paid > 0 && h.unit !== "usd") {   // from an imported trade file: average price paid per share
-        by[r.ticker].paidV = (by[r.ticker].paidV || 0) + a * h.paid;
-        by[r.ticker].paidNowV = (by[r.ticker].paidNowV || 0) + v;
-      }
-    });
-    var hs = Object.keys(by).map(function (k) { return by[k]; });
-    $("pf-empty").hidden = hs.length > 0;
-    $("pf-result").hidden = hs.length === 0;
+  // list: [{ r: forecast row, v: dollars now }]
+  function renderTotal(hs) {
+    $("pf-result").hidden = !hs.length;
     if (!hs.length) return;
-
     var corr = state.corr || { tickers: [], m: [] };
     var ci = function (tk) { return corr.tickers.indexOf(tk); };
     var total = 0, mu = 0, sumLo = 0, sumHi = 0;
     hs.forEach(function (h) {
       var lo = h.r.low / h.r.price - 1, hi = h.r.high / h.r.price - 1;
-      h.c = (lo + hi) / 2; h.sd = (hi - lo) / (2 * PF_Z); h.lo = lo; h.hi = hi;
+      h.c = (lo + hi) / 2; h.sd = (hi - lo) / (2 * PF_Z);
       total += h.v; mu += h.v * h.c; sumLo += h.v * lo; sumHi += h.v * hi;
     });
     var varSum = 0;
@@ -1158,45 +1042,24 @@
     $("pf-spread").textContent = hs.length > 1 && sumW > togW * 1.02
       ? "Adding up each stock's own range would give a swing of " + usd(sumW) + ". Together it's only " + usd(togW) +
         ", because your stocks rarely all hit their best or worst at the same time. That's what spreading your money out does."
-      : hs.length === 1 ? "Tip: add more stocks to see how spreading your money out changes the range." : "";
-
-    var tb = $("pf-rows"), anyPaid = hs.some(function (h) { return h.paidV > 0; });
-    $("pf-paid-h").hidden = !anyPaid;
-    tb.replaceChildren();
-    hs.sort(function (a, b) { return b.v - a.v; }).forEach(function (h) {
-      var tr = document.createElement("tr");
-      tr.className = "sf-pf-click"; tr.tabIndex = 0;
-      tr.setAttribute("aria-label", "Open the forecast for " + h.r.ticker + " (" + h.r.name + ")");
-      tr.addEventListener("click", function () { openAdvice(h.r.ticker); });
-      tr.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openAdvice(h.r.ticker); } });
-      tr.append(el("td", null, h.r.ticker + " (" + h.r.name + ")"), el("td", "sf-num", usd(h.v)),
-        el("td", "sf-num", (h.v / total * 100).toFixed(0) + "%"),
-        el("td", "sf-num", h.r.up_pct + "%"),
-        el("td", "sf-num", usd(h.v * (1 + h.lo))), el("td", "sf-num", usd(h.v * (1 + h.hi))));
-      if (anyPaid) {
-        var g = h.paidV > 0 ? (h.paidNowV / h.paidV - 1) * 100 : null;
-        tr.append(el("td", "sf-num" + (g == null ? " sf-dim" : g >= 0 ? " sf-pf-gain" : " sf-pf-loss"), g == null ? "—" : pct(g)));
-      }
-      tb.appendChild(tr);
-    });
+      : "";
   }
-  $("pf-add").addEventListener("click", function () {
-    pf.push({ tk: "", amt: "", unit: "shares" }); pfSave(); renderMoney(true);
-    var sels = document.querySelectorAll(".sf-pf-sel"); if (sels.length) sels[sels.length - 1].focus();
-  });
-  $("pf-clear").addEventListener("click", function () { pf = []; pfSave(); renderMoney(true); });
 
-  // ---------- Import my trades: broker file -> what you own -> forecast + My money ----------
+  // ---------- Import my trades: broker file -> what you own -> forecast + your total range ----------
   // Everything happens in the browser (web/trades.js); the file is never uploaded.
-  var imp = { table: null, cols: null, res: null };
+  var imp = { table: null, cols: null, res: null, demo: false };
   var IMP_COLS = [["symbol", "imp-c-symbol"], ["action", "imp-c-action"], ["qty", "imp-c-qty"], ["price", "imp-c-price"]];
   function impMsg(text, bad) {
     var m = $("imp-msg");
     m.hidden = !text; m.textContent = text || "";
     m.classList.toggle("sf-imp-msg--bad", !!bad);
   }
-  function impLoad(text) {
+  function impLoad(text, demo) {
     if (!window.PTrades) return;
+    imp.demo = !!demo;
+    $("imp-demo").hidden = !imp.demo;
+    $("imp-step2").hidden = imp.demo;          // the example's columns are right, skip the check step
+    $("imp-step3").firstChild.textContent = imp.demo ? "" : "3.";
     var t = PTrades.parseTable(text);
     if (!t.rows.length || t.header.length < 2) {
       $("imp-map").hidden = true;
@@ -1235,7 +1098,7 @@
   function impRun() {
     var sum = $("imp-sum"), rows = (state && state.forecast) || [];
     sum.replaceChildren();
-    $("imp-use").disabled = true;
+    renderTotal([]);
     if (imp.cols.symbol < 0 && imp.cols.action < 0 || imp.cols.qty < 0) {
       sum.appendChild(el("p", "sf-imp-msg sf-imp-msg--bad", "Please pick which column has the stock symbol and which has the number of shares."));
       return;
@@ -1277,7 +1140,10 @@
       });
       tbl.appendChild(body); wrap.appendChild(tbl); sum.appendChild(wrap);
       sum.appendChild(el("p", "sf-sub", "Tap a stock to see its full forecast and news. \"Chance up\" has been right about as often as always guessing \"up\", so lean on the price range, which held about 4 weeks out of 5 in testing."));
-      $("imp-use").disabled = false;
+      renderTotal(ours.map(function (h) {
+        var r = rows.find(function (x) { return x.ticker === h.ticker; });
+        return { r: r, v: h.shares * r.price };
+      }));
     } else {
       sum.appendChild(el("p", "sf-imp-msg", "None of the stocks you still own are in our 40 yet."));
     }
@@ -1288,20 +1154,46 @@
       sum.appendChild(el("p", "sf-sub", "Your file shows more shares sold than bought for " + res.oversold.join(", ") +
         ", so we left them out. Your file may not go back far enough; try downloading a longer date range."));
     }
-    var hasList = pf.some(function (h) { return h.tk || h.amt; });
-    $("imp-use").textContent = hasList ? "Put these in My money (replaces your list)" : "Put these in My money";
   }
   function impClose() {   // "Start over": empty the box (it always stays open on Home)
     $("imp-file").value = ""; $("imp-paste").value = "";
-    $("imp-map").hidden = true; impMsg(""); imp = { table: null, cols: null, res: null };
+    $("imp-map").hidden = true; $("imp-demo").hidden = true; $("pf-result").hidden = true;
+    impMsg(""); imp = { table: null, cols: null, res: null, demo: false };
   }
+  // "Try an example": made-up trades in a broker-style file, priced around today's prices so the
+  // gains look realistic. The forecasts shown are the real ones.
+  function demoTrades() {
+    var rows = (state && state.forecast) || [], px = {};
+    rows.forEach(function (r) { px[r.ticker] = r.price; });
+    var plan = [
+      ["03/04/2025", "Buy", "AAPL", 10, 0.78], ["05/12/2025", "Buy", "NVDA", 25, 0.70], ["06/02/2025", "Buy", "KO", 30, 1.04],
+      ["08/19/2025", "Sell", "NVDA", 10, 0.92], ["09/15/2025", "Qualified Dividend", "KO", 0, 0], ["10/01/2025", "Buy", "MSFT", 6, 0.88],
+      ["01/20/2026", "Buy", "AMZN", 12, 1.06], ["03/03/2026", "Buy", "PLTR", 15, 0], ["06/10/2026", "Buy", "AAPL", 5, 0.95],
+      ["09/08/2026", "Buy", "JPM", 8, 0.90]
+    ];
+    var out = ['"Date","Action","Symbol","Quantity","Price","Amount"'];
+    plan.forEach(function (t) {
+      var p = t[2] === "PLTR" ? 120 : px[t[2]] ? px[t[2]] * t[4] : 0;
+      if (t[2] !== "PLTR" && !px[t[2]] && t[3]) return;                    // stock not on the list any more
+      if (!t[3]) { out.push('"' + t[0] + '","' + t[1] + '","' + t[2] + '","","","$12.40"'); return; }
+      var amt = (t[1] === "Buy" ? -1 : 1) * t[3] * p;
+      out.push(['"' + t[0] + '"', '"' + t[1] + '"', '"' + t[2] + '"', '"' + t[3] + '"', '"$' + p.toFixed(2) + '"', '"' + (amt < 0 ? "-$" : "$") + Math.abs(amt).toFixed(2) + '"'].join(","));
+    });
+    return out.join(String.fromCharCode(10));
+  }
+  $("imp-ex").addEventListener("click", function () {
+    if (!state || !state.forecast) return;
+    $("imp-file").value = ""; $("imp-paste").value = "";
+    impLoad(demoTrades(), true);
+    $("imp-step3").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
   $("imp-cancel").addEventListener("click", impClose);
   $("imp-file").addEventListener("change", function () {
     var f = this.files && this.files[0];
     if (!f) return;
     if (f.size > 5 * 1024 * 1024) { impMsg("That file is over 5 MB. Try downloading a shorter date range.", true); return; }
     var rd = new FileReader();
-    rd.onload = function () { $("imp-paste").value = ""; impLoad(String(rd.result || "")); };
+    rd.onload = function () { $("imp-paste").value = ""; impLoad(String(rd.result || ""), false); };
     rd.onerror = function () { impMsg("We couldn't read that file.", true); };
     rd.readAsText(f);
   });
@@ -1309,7 +1201,7 @@
   $("imp-paste").addEventListener("input", function () {
     clearTimeout(pasteT);
     var v = this.value;
-    pasteT = setTimeout(function () { if (v.trim()) impLoad(v); else { $("imp-map").hidden = true; impMsg(""); } }, 300);
+    pasteT = setTimeout(function () { if (v.trim()) impLoad(v, false); else impClose(); }, 300);
   });
   IMP_COLS.forEach(function (c) {
     $(c[1]).addEventListener("change", function () {
@@ -1317,20 +1209,6 @@
       impPreview(); impRun();
     });
   });
-  $("imp-use").addEventListener("click", function () {
-    if (!imp.res) return;
-    var ours = imp.res.owned.filter(function (h) { return h.known; });
-    if (!ours.length) return;
-    pf = ours.map(function (h) {
-      var o = { tk: h.ticker, amt: String(Math.round(h.shares * 1e4) / 1e4), unit: "shares" };
-      if (h.avgPaid) o.paid = Math.round(h.avgPaid * 1e4) / 1e4;
-      return o;
-    });
-    pfSave(); impClose(); renderMoney(true);
-    var res = $("pf-result");
-    if (res && !res.hidden) res.scrollIntoView({ behavior: "smooth", block: "start" });
-  });
-
   function render() {
     if (!state) return;
     renderStatus(state.status || {});
@@ -1345,7 +1223,7 @@
     renderTable(state.forecast);
     renderNews(state.news || [], state.forecast);
     renderScorecard(state.track);
-    renderMoney(first);
+    if (imp.table) impRun();   // new prices / forecasts: refresh the imported view
     renderAdvice();
     if (first) animatePage(document.querySelector(".sf-page:not([hidden])"));
   }
@@ -1465,7 +1343,7 @@
     function target() {
       var hash = location.hash || "", m = /^#\/([\w-]+)$/.exec(hash);
       if (m && m[1] === "home") m[1] = "today";    // Home is the old Today page
-      if (m && m[1] === "money") return { page: "today", el: $("money") };   // My money lives on Home
+      if (m && (m[1] === "money" || m[1] === "import")) return { page: "today", el: $("import") };   // old My money link -> Import my trades
       if (m && pages.some(function (p) { return p.dataset.page === m[1]; })) return { page: m[1] };
       var el = hash.length > 1 ? document.getElementById(decodeURIComponent(hash.slice(1))) : null;
       var host = el && el.closest(".sf-page");

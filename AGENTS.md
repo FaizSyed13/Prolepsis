@@ -21,14 +21,14 @@ market recap, news and a public track record. It shows, for each stock:
   conformal margin sized to each stock's 21-day volatility, so it holds ~80% for calm and jumpy stocks alike.
 - **News adjustment**: FinBERT scores headlines (last 3 days) and nudges P(up) / widens ranges.
 - **Advice**: short-term and long-term Buy/Hold/Sell rules (`stockpred/advice.py`). Reading only.
-- **My money** (`#/money`): visitor enters holdings (saved in their browser only, key `sf-money-v1`); the page
-  combines each stock's 80% range with the past-year daily-return correlation (`stockpred/portfolio.py`,
-  `state.corr`) into a portfolio 80% range (normal approx, no extra widening). Tested on 70,000 random
-  1-40 stock portfolios 2023-2026 (unseen): 80.0% inside (1 stock 79%, 40 stocks 82%); crash weeks ~46%.
-- **Import my trades** (own section at the top of Home, above Next week at a glance; My money is below it): visitor picks or pastes a broker trade-history CSV. `web/trades.js` (pure, also
-  runs in Node) finds the header row, guesses columns (symbol / buy-sell / shares / price; the visitor can change them) and works out
-  shares owned = bought - sold, average price paid = buy cost / shares bought. Fills My money (`paid` field per row).
-  Runs only in the browser; the file is never uploaded. Tested on Schwab, Fidelity, Robinhood, IBKR, Vanguard, E*TRADE, Questrade-style files.
+- **Import my trades** (top of Home, above Next week at a glance): visitor picks or pastes a broker trade-history CSV,
+  or clicks "Try an example" (made-up trades built in app.js `demoTrades()`, priced around today's prices; real forecasts).
+  `web/trades.js` (pure, also runs in Node) finds the header row, guesses columns (symbol / buy-sell / shares / price; the
+  visitor can change them) and works out shares owned = bought - sold, average price paid = buy cost / shares bought.
+  Shows each owned stock's forecast, then the total 80% range: each stock's range combined with the past-year daily-return
+  correlation (`stockpred/portfolio.py`, `state.corr`), normal approx. Tested on 70,000 random 1-40 stock portfolios
+  2023-2026 (unseen): 80.0% inside (1 stock 79%, 40 stocks 82%); crash weeks ~46%. The old type-in "My money" calculator
+  was removed (owner's choice). Runs only in the browser; nothing is uploaded or saved. No Alpha Vantage / API keys.
 
 Honest current numbers (walk-forward, newest 30% of history never used for calibration):
 up/down accuracy ~54%, which equals always guessing the more common outcome (no real direction skill);
@@ -61,7 +61,7 @@ range coverage ~79.75% vs an 80% target. The site says this openly. Keep it that
 - **Releases:** push a tag `vX.Y.Z` and `.github/workflows/release.yml` builds the zip with
   `.github/release-notes.md`. Only make a release when the owner asks.
 - **Website:** one page with menu pages (Home with the My money section at the top, Market recap, Forecasts, Why, News, Track record,
-  How to read), hash routes `#/home` (data-page "today"), `#/money` (jumps to the Home section), `#/recap` etc. Dark Catppuccin Mocha palette (owner tried the light Beat & Drop colours and rejected them), Newsreader (headings) + IBM Plex Sans (text) fonts like Beat & Drop, rounded corners, a cat cursor buddy and hearts.
+  How to read), hash routes `#/home` (data-page "today"), `#/money` (jumps to the Home section), `#/recap` etc. Dark "Luxe" palette: gold + rose-gold accents on plum-black, emerald/ruby/sapphire (owner's choice 2026-11-21; earlier Catppuccin Mocha, light Beat & Drop rejected), Newsreader (headings) + IBM Plex Sans (text) fonts like Beat & Drop, rounded corners, a cat cursor buddy and hearts.
 
 Setup for development: `python -m venv .venv` then `.venv\Scripts\python -m pip install -r requirements.txt`.
 
