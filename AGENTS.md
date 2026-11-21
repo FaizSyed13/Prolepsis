@@ -60,8 +60,8 @@ range coverage ~79.75% vs an 80% target. The site says this openly. Keep it that
   On a PC the forecast log goes to `reports/forecast_log_pc.csv` (gitignored); only GitHub Actions writes the official log.
 - **Releases:** push a tag `vX.Y.Z` and `.github/workflows/release.yml` builds the zip with
   `.github/release-notes.md`. Only make a release when the owner asks.
-- **Website:** one page with menu pages (Home with the My money section at the top, Market recap, Forecasts, Why, News, Track record,
-  How to read), hash routes `#/home` (data-page "today"), `#/money` (jumps to the Home section), `#/recap` etc. Dark "Luxe" palette: gold + rose-gold accents on plum-black, emerald/ruby/sapphire (owner's choice 2026-11-21; earlier Catppuccin Mocha, light Beat & Drop rejected), Newsreader (headings) + IBM Plex Sans (text) fonts like Beat & Drop, rounded corners, a cat cursor buddy and hearts.
+- **Website:** one page with menu pages (Home with Import my trades at the top, Market recap, Forecasts, News, Track record,
+  How to read), hash routes `#/home` (data-page "today"), `#/money` and `#/import` (jump to Import my trades), `#/recap` etc. Dark "Luxe" palette: gold + rose-gold accents on plum-black, emerald/ruby/sapphire (owner's choice 2026-11-21; earlier Catppuccin Mocha, light Beat & Drop rejected), Newsreader (headings) + IBM Plex Sans (text) fonts like Beat & Drop, rounded corners, a cat cursor buddy and hearts.
 
 Setup for development: `python -m venv .venv` then `.venv\Scripts\python -m pip install -r requirements.txt`.
 
