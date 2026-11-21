@@ -1328,6 +1328,7 @@
     function target() {
       var hash = location.hash || "", m = /^#\/([\w-]+)$/.exec(hash);
       if (m && m[1] === "home") m[1] = "today";    // Home is the old Today page
+      if (m && m[1] === "money") return { page: "today", el: $("money") };   // My money lives on Home
       if (m && pages.some(function (p) { return p.dataset.page === m[1]; })) return { page: m[1] };
       var el = hash.length > 1 ? document.getElementById(decodeURIComponent(hash.slice(1))) : null;
       var host = el && el.closest(".sf-page");
