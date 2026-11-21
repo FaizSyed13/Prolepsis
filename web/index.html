@@ -10,6 +10,20 @@
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+<div class="sf-sky" id="sky" aria-hidden="true">
+  <div class="sf-sky-glow"></div>
+  <div class="sf-sky-moon"></div>
+  <canvas class="sf-sky-fx" id="sky-fx"></canvas>
+  <div class="sf-sky-clouds" id="sky-clouds"></div>
+  <div class="sf-sky-scrim"></div>
+  <svg width="0" height="0" style="position:absolute">
+    <filter id="sky-cloud-filter" x="-50%" y="-50%" width="200%" height="200%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.011" numOctaves="5" seed="7"/>
+      <feDisplacementMap in="SourceGraphic" scale="120"/>
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+  </svg>
+</div>
 <main class="sf">
   <nav class="sf-nav" aria-label="Pages">
     <div class="sf-menu">
@@ -33,7 +47,9 @@
   <header class="sf-today-head">
     <div class="sf-status" id="status" role="status"><span class="sf-dot"></span><span id="status-text">Starting up…</span></div>
     <div class="sf-brand"><img class="sf-logo" src="/static/logo.svg" alt="" width="64" height="54"><span class="sf-wordmark">Prolepsis</span></div>
-    <p class="sf-hello" id="hello">Hello</p>
+    <p class="sf-hello-row"><span class="sf-hello" id="hello">Hello</span>
+      <span class="sf-sky-chip" id="sky-chip"><span id="sky-text"></span>
+        <button type="button" class="sf-sky-wx" id="sky-wx" title="Uses your browser location (rounded to about 10 km) and the free Open-Meteo weather service. Nothing else is shared.">Show my weather</button></span></p>
     <h1 class="sf-title sf-today-title" id="today-title">Here's what's up with the market</h1>
     <p class="sf-lede" id="market-clock">—</p>
     <p class="sf-intro">Prolepsis does four things, free: shows <a href="#import">what could happen to your money</a> (import your trades), a <a href="#/recap">daily market recap</a>, <b>5-day price forecasts</b> for 40 big US stocks, and an <b>honest scorecard</b> of how every forecast turned out.</p>
@@ -410,6 +426,7 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
 <script src="/static/trades.js"></script>
+<script src="/static/sky.js"></script>
 <script src="/static/app.js"></script>
 </body>
 </html>

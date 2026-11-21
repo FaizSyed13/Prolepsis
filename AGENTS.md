@@ -61,7 +61,7 @@ range coverage ~79.75% vs an 80% target. The site says this openly. Keep it that
 - **Releases:** push a tag `vX.Y.Z` and `.github/workflows/release.yml` builds the zip with
   `.github/release-notes.md`. Only make a release when the owner asks.
 - **Website:** one page with menu pages (Home with Import my trades at the top, Market recap, Forecasts, News, Track record,
-  How to read), hash routes `#/home` (data-page "today"), `#/money` and `#/import` (jump to Import my trades), `#/recap` etc. Dark "Luxe" palette: gold + rose-gold accents on plum-black, emerald/ruby/sapphire (owner's choice 2026-11-21; earlier Catppuccin Mocha, light Beat & Drop rejected), Newsreader (headings) + IBM Plex Sans (text) fonts like Beat & Drop, rounded corners, a cat cursor buddy and hearts.
+  How to read), hash routes `#/home` (data-page "today"), `#/money` and `#/import` (jump to Import my trades), `#/recap` etc. Living sky background (`web/sky.js`: visitor's time of day from their clock = dawn/day/dusk/night; optional "Show my weather" = browser location rounded to ~10 km -> Open-Meteo, free, no key, cached 30 min; clear/cloudy/rain/storm/snow; test with `?sky=night-rain`; still when reduced motion). Dark "Luxe" palette: gold + rose-gold accents on plum-black, emerald/ruby/sapphire (owner's choice 2026-11-21; earlier Catppuccin Mocha, light Beat & Drop rejected), Newsreader (headings) + IBM Plex Sans (text) fonts like Beat & Drop, rounded corners, a cat cursor buddy and hearts.
 
 Setup for development: `python -m venv .venv` then `.venv\Scripts\python -m pip install -r requirements.txt`.
 
