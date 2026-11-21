@@ -802,7 +802,7 @@
     if (!lwc) {
       lwc = LightweightCharts.createChart($("mk-chart"), {
         autoSize: true,
-        layout: { background: { type: "solid", color: "transparent" }, textColor: "#5e534a", fontFamily: "Nunito, system-ui, sans-serif" },
+        layout: { background: { type: "solid", color: "transparent" }, textColor: "#5e534a", fontFamily: "IBM Plex Sans, system-ui, sans-serif" },
         grid: { vertLines: { visible: false }, horzLines: { color: "rgba(216, 208, 195, 0.7)" } },
         rightPriceScale: { borderVisible: false }, timeScale: { borderVisible: false },
         crosshair: { mode: 0, vertLine: { color: "#84786f", labelBackgroundColor: "#5e534a" }, horzLine: { color: "#84786f", labelBackgroundColor: "#5e534a" } },

@@ -9,8 +9,8 @@
   --ok: #21763c; --warn: #a15c07; --bad: #b91c1c; --series: #104e64;
   --grid: var(--surface1); --ref: var(--surface2); --chart-muted: var(--overlay0);
   --pop: #fefbf6; --shadow: 0 10px 30px rgba(26, 21, 18, 0.12);
-  --sans: "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --serif: "Fredoka", "Nunito", system-ui, sans-serif;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --serif: "Newsreader", Georgia, serif;   /* same fonts as Beat & Drop */
   --radius: 18px;
   color-scheme: light;
 }
@@ -59,7 +59,7 @@ a { color: inherit; }
   .sf-status[data-state="busy"] .sf-dot { animation: sf-pulse 1.2s ease-in-out infinite; }
   @keyframes sf-pulse { 50% { opacity: 0.3; } }
 }
-.sf-title { width: fit-content; font-family: var(--serif); font-weight: 500; letter-spacing: -0.01em;
+.sf-title { width: fit-content; font-family: var(--serif); font-weight: 600; letter-spacing: -0.02em;
   background: linear-gradient(90deg, var(--fg) 35%, var(--mauve)); -webkit-background-clip: text; background-clip: text; color: transparent; font-size: clamp(30px, 5vw, 40px); line-height: 1.15; text-wrap: balance; }
 .sf-brand { display: flex; align-items: center; gap: 14px; }
 .sf-logo { width: clamp(48px, 8vw, 64px); height: auto; flex: none; }
@@ -71,13 +71,13 @@ a { color: inherit; }
 .sf-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; }
 .sf-tile { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; display: grid; gap: 6px; align-content: start; min-width: 0; }
 .sf-label { font-size: 12px; font-weight: 700; color: var(--mauve); text-transform: uppercase; letter-spacing: 0.06em; }
-.sf-big { font-family: var(--serif); font-weight: 500; color: var(--lavender); font-size: 36px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.sf-big { font-family: var(--serif); font-weight: 600; color: var(--lavender); font-size: 36px; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .sf-sub { font-size: 13px; color: var(--muted); line-height: 1.45; }
 .sf-sub b { color: var(--fg); font-weight: 500; }
 
 .sf-sec { display: grid; gap: 10px; min-width: 0; }
 .sf-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
-.sf-h { font-family: var(--serif); font-size: 21px; font-weight: 500; color: var(--fg); text-wrap: balance; }
+.sf-h { font-family: var(--serif); font-size: 21px; font-weight: 600; color: var(--fg); text-wrap: balance; }
 .sf-key { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--muted); }
 .sf-key span { display: inline-flex; align-items: center; gap: 6px; }
 .sf-sw { width: 18px; height: 8px; border-radius: 2px; display: inline-block; }
@@ -152,12 +152,12 @@ a { color: inherit; }
 .sf-dialog::backdrop { background: rgba(26, 21, 18, 0.15); backdrop-filter: blur(3px); }
 .sf-adv { padding: 24px; display: grid; gap: 22px; }
 .sf-adv-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
-.sf-adv-title { font-family: var(--serif); font-weight: 500; color: var(--mauve); font-size: 28px; line-height: 1.2; margin: 0; }
+.sf-adv-title { font-family: var(--serif); font-weight: 600; color: var(--mauve); font-size: 28px; line-height: 1.2; margin: 0; }
 .sf-close { font: 24px/1 var(--sans); background: none; border: 1px solid var(--line); color: var(--fg); border-radius: 50%; width: 36px; height: 36px; cursor: pointer; flex: none; }
 .sf-verdicts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
 .sf-verdict { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: grid; gap: 10px; align-content: start; min-width: 0; }
 .sf-vline { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.sf-vpill { font-family: var(--serif); font-weight: 500; font-size: 30px; line-height: 1; padding: 6px 18px; border-radius: 999px; border: 1.5px solid currentColor; }
+.sf-vpill { font-family: var(--serif); font-weight: 600; font-size: 30px; line-height: 1; padding: 6px 18px; border-radius: 999px; border: 1.5px solid currentColor; }
 .sf-vpill[data-v="Buy"] { color: var(--ok); }
 .sf-vpill[data-v="Sell"] { color: var(--bad); }
 .sf-vpill[data-v="Hold"] { color: var(--muted); }
@@ -298,9 +298,9 @@ a { color: inherit; }
 
 /* ---------- Today page ---------- */
 .sf-today-head { display: grid; gap: 8px; }
-.sf-wordmark { font-family: var(--serif); font-weight: 500; font-size: 22px; color: var(--fg); letter-spacing: -0.01em; }
+.sf-wordmark { font-family: var(--serif); font-weight: 600; font-size: 22px; color: var(--fg); letter-spacing: -0.01em; }
 .sf-today-head .sf-logo { width: 44px; }
-.sf-hello { font-family: var(--serif); font-size: 18px; color: var(--mauve); margin-top: 6px; }
+.sf-hello { font-family: var(--serif); font-style: italic; font-size: 19px; color: var(--mauve); margin-top: 6px; }
 .sf-today-title { font-size: clamp(28px, 5vw, 42px); }
 .sf-tape iframe { color-scheme: normal; }
 .sf-tape { min-height: 46px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); overflow: hidden; }
@@ -327,7 +327,7 @@ a { color: inherit; }
   border-radius: var(--radius); padding: 14px 14px 10px; cursor: pointer; min-width: 0; }
 .sf-mk[aria-pressed="true"] { border-color: var(--mauve); box-shadow: 0 0 0 3px rgba(173, 66, 22, 0.144); }
 .sf-mk-name { font-size: 12px; font-weight: 700; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sf-mk-val { font-family: var(--serif); font-size: 21px; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sf-mk-val { font-family: var(--serif); font-size: 21px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sf-mk-chg { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .sf-mk-chg--up { color: var(--ok); } .sf-mk-chg--down { color: var(--bad); } .sf-mk-chg--flat { color: var(--muted); }
 .sf-spark { width: 100%; height: 30px; margin-top: 6px; overflow: visible; }
@@ -455,7 +455,7 @@ a { color: inherit; }
 .sf-w--in { background: linear-gradient(135deg, var(--mauve), var(--blue)); border-color: transparent; }
 .sf-range-text { display: grid; gap: 8px; min-width: 0; }
 .sf-range-big { font-size: 18px; line-height: 1.4; }
-.sf-range-big b { font-family: var(--serif); font-size: 40px; font-weight: 500; color: var(--lavender); line-height: 1; margin-right: 6px; font-variant-numeric: tabular-nums; }
+.sf-range-big b { font-family: var(--serif); font-size: 40px; font-weight: 600; color: var(--lavender); line-height: 1; margin-right: 6px; font-variant-numeric: tabular-nums; }
 .sf-key-in, .sf-key-out { font-weight: 700; color: var(--fg); }
 .sf-key-in::before, .sf-key-out::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
 .sf-key-in::before { background: var(--mauve); }
@@ -483,7 +483,7 @@ section.sf-guide .sf-guide-grid { margin-top: 4px; }
 .sf-wl { display: grid; gap: 14px; padding: 28px 28px 24px; justify-items: start;
   background: radial-gradient(420px 200px at 50% -40px, rgba(173, 66, 22, 0.128), transparent 70%); }
 .sf-wl-logo { width: 64px; height: auto; justify-self: center; }
-.sf-wl-title { margin: 0; justify-self: center; text-align: center; font-family: var(--serif); font-weight: 500; font-size: 28px; line-height: 1.15;
+.sf-wl-title { margin: 0; justify-self: center; text-align: center; font-family: var(--serif); font-weight: 600; font-size: 28px; line-height: 1.15;
   background: linear-gradient(90deg, var(--fg) 35%, var(--mauve)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .sf-wl-lede { margin: -8px 0 0; justify-self: center; color: var(--muted); }
 .sf-wl-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; font-size: 15px; line-height: 1.45; }
