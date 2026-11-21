@@ -1291,15 +1291,10 @@
     var hasList = pf.some(function (h) { return h.tk || h.amt; });
     $("imp-use").textContent = hasList ? "Put these in My money (replaces your list)" : "Put these in My money";
   }
-  function impClose() {
-    $("imp-box").hidden = true; $("imp-open").setAttribute("aria-expanded", "false");
+  function impClose() {   // "Start over": empty the box (it always stays open on Home)
     $("imp-file").value = ""; $("imp-paste").value = "";
     $("imp-map").hidden = true; impMsg(""); imp = { table: null, cols: null, res: null };
   }
-  $("imp-open").addEventListener("click", function () {
-    if (!$("imp-box").hidden) { impClose(); return; }
-    $("imp-box").hidden = false; $("imp-open").setAttribute("aria-expanded", "true");
-  });
   $("imp-cancel").addEventListener("click", impClose);
   $("imp-file").addEventListener("change", function () {
     var f = this.files && this.files[0];

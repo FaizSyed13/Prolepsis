@@ -53,14 +53,10 @@
   </div>
   </div>
 
-  <section class="sf-sec" id="money">
-    <h2 class="sf-h">What could happen to my money?</h2>
-    <p class="sf-sub">Add the stocks you own (any of our 40) and how much. We'll show where your total could realistically be after 5 trading days. Your list is saved only on this device; nothing is sent anywhere.</p>
-    <div class="sf-imp-start">
-      <button type="button" class="sf-imp-btn" id="imp-open" aria-expanded="false" aria-controls="imp-box">Import my trades</button>
-      <span class="sf-sub">Have a trade history file from your broker? We'll work out what you own and show a forecast for each stock.</span>
-    </div>
-    <div class="sf-imp-box" id="imp-box" hidden>
+  <section class="sf-sec" id="import">
+    <h2 class="sf-h">Import my trades</h2>
+    <p class="sf-sub">Have a trade history file from your broker? We'll work out which of our 40 stocks you own and show our forecast for each one.</p>
+    <div class="sf-imp-box" id="imp-box">
       <p class="sf-imp-step"><b>1.</b> On your broker's website, download your trade history. It's usually under "Activity", "History" or "Transactions"; choose CSV. Then pick the file here, or copy the table and paste it in.</p>
       <div class="sf-imp-in">
         <label class="sf-imp-btn sf-imp-file">Choose a file<input type="file" id="imp-file" accept=".csv,.tsv,.txt,text/csv,text/plain"></label>
@@ -81,10 +77,24 @@
         <div id="imp-sum"></div>
         <div class="sf-pf-actions">
           <button type="button" class="sf-imp-btn" id="imp-use">Put these in My money</button>
-          <button type="button" class="sf-pf-clear" id="imp-cancel">Cancel</button>
+          <button type="button" class="sf-pf-clear" id="imp-cancel">Start over</button>
         </div>
       </div>
     </div>
+  </section>
+
+  <section class="sf-sec" id="preview">
+    <div class="sf-row">
+      <h2 class="sf-h">Next week at a glance</h2>
+      <a class="sf-link" href="#/forecasts">See all forecasts <span aria-hidden="true">→</span></a>
+    </div>
+    <p class="sf-sub" id="preview-sub">Where each stock's price will likely be after 5 trading days (80% likely range), biggest expected swings first. Swipe or scroll sideways, tap a stock for details.</p>
+    <div class="sf-pv" id="pv" data-stagger></div>
+  </section>
+
+  <section class="sf-sec" id="money">
+    <h2 class="sf-h">What could happen to my money?</h2>
+    <p class="sf-sub">Add the stocks you own (any of our 40) and how much, or use Import my trades at the top. We'll show where your total could realistically be after 5 trading days. Your list is saved only on this device; nothing is sent anywhere.</p>
     <div class="sf-pf-list" id="pf-list"></div>
     <div class="sf-pf-actions">
       <button type="button" class="sf-more" id="pf-add">+ Add a stock</button>
@@ -122,15 +132,6 @@
         <p id="pf-honest">We tested this on 70,000 made-up portfolios over 2023 to 2026, years the system had never seen. The real result landed inside the range 80% of the time, about 4 weeks out of 5. So 1 week in 5 it will land outside, and in big market drops it misses about half the time. This is not advice: it shows how much your money could swing, not whether to buy or sell.</p>
       </div>
     </div>
-  </section>
-
-  <section class="sf-sec" id="preview">
-    <div class="sf-row">
-      <h2 class="sf-h">Next week at a glance</h2>
-      <a class="sf-link" href="#/forecasts">See all forecasts <span aria-hidden="true">→</span></a>
-    </div>
-    <p class="sf-sub" id="preview-sub">Where each stock's price will likely be after 5 trading days (80% likely range), biggest expected swings first. Swipe or scroll sideways, tap a stock for details.</p>
-    <div class="sf-pv" id="pv" data-stagger></div>
   </section>
 
 
