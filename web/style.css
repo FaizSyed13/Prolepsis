@@ -77,6 +77,8 @@ a { color: inherit; }
 .sf-big { font-family: var(--serif); font-weight: 600; color: var(--lavender); font-size: 36px; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .sf-sub { font-size: 13px; color: var(--muted); line-height: 1.45; }
 .sf-sub b { color: var(--fg); font-weight: 500; }
+.sf-beat { margin: 14px 0 6px; padding: 12px 16px; background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--ok); border-radius: var(--radius); font-size: 14px; line-height: 1.55; color: var(--muted); }
+.sf-beat b { color: var(--ok); font-weight: 600; }
 
 .sf-sec { display: grid; gap: 10px; min-width: 0; }
 .sf-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
