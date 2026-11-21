@@ -441,7 +441,7 @@
     ["1 month", "D", "1M"], ["6 months", "D", "6M"], ["1y", "D", "12M"], ["5y", "W", "60M"], ["Max", "M", "ALL"]
   ];
   var frame = 4, liveShown = false;
-  function isDark() { return false; }   // the page uses the light warm-paper palette
+  function isDark() { return true; }   // the page always uses the dark Catppuccin Mocha palette
   function renderLive() {
     if (!openTicker || !liveShown) return;
     var box = $("live-chart"), f = FRAMES[frame];
@@ -451,7 +451,7 @@
       interval: f[1], timezone: "America/New_York", theme: isDark() ? "dark" : "light", style: "1",
       locale: "en", autosize: true, allow_symbol_change: false, hide_side_toolbar: true,
       hide_top_toolbar: true, save_image: false, calendar: false, support_host: "https://www.tradingview.com",
-      backgroundColor: "#fefbf6", gridColor: "rgba(216, 208, 195, 0.6)"
+      backgroundColor: "#1e1e2e", gridColor: "rgba(49, 50, 68, 0.6)"
     };
     if (f[2]) cfg.range = f[2];
     var wrap = el("div", "tradingview-widget-container");
@@ -802,17 +802,17 @@
     if (!lwc) {
       lwc = LightweightCharts.createChart($("mk-chart"), {
         autoSize: true,
-        layout: { background: { type: "solid", color: "transparent" }, textColor: "#5e534a", fontFamily: "IBM Plex Sans, system-ui, sans-serif" },
-        grid: { vertLines: { visible: false }, horzLines: { color: "rgba(216, 208, 195, 0.7)" } },
+        layout: { background: { type: "solid", color: "transparent" }, textColor: "#a6adc8", fontFamily: "IBM Plex Sans, system-ui, sans-serif" },
+        grid: { vertLines: { visible: false }, horzLines: { color: "rgba(69, 71, 90, 0.45)" } },
         rightPriceScale: { borderVisible: false }, timeScale: { borderVisible: false },
-        crosshair: { mode: 0, vertLine: { color: "#84786f", labelBackgroundColor: "#5e534a" }, horzLine: { color: "#84786f", labelBackgroundColor: "#5e534a" } },
+        crosshair: { mode: 0, vertLine: { color: "#6c7086", labelBackgroundColor: "#45475a" }, horzLine: { color: "#6c7086", labelBackgroundColor: "#45475a" } },
         handleScroll: { vertTouchDrag: false }
       });
       lwcSeries = lwc.addAreaSeries({ lineWidth: 2, priceLineVisible: false });
     }
     var pts = mk.series.slice(-SPANS[mkSpan][1]).map(function (d) { return { time: d[0], value: d[1] }; });
     var rising = pts.length > 1 && pts[pts.length - 1].value >= pts[0].value;
-    var rgb = mk.symbol === "^VIX" ? "173, 66, 22" : rising ? "33, 118, 60" : "185, 28, 28";
+    var rgb = mk.symbol === "^VIX" ? "203, 166, 247" : rising ? "166, 227, 161" : "243, 139, 168";
     lwcSeries.applyOptions({ lineColor: "rgb(" + rgb + ")", topColor: "rgba(" + rgb + ", 0.32)", bottomColor: "rgba(" + rgb + ", 0.02)",
       priceFormat: mk.symbol === "BTC-USD" ? { type: "price", precision: 0, minMove: 1 } : { type: "price", precision: 2, minMove: 0.01 } });
     lwcSeries.setData(pts);
@@ -933,7 +933,7 @@
         sym("BITSTAMP:BTCUSD", "Bitcoin"), sym("OANDA:XAUUSD", "Gold"),
         sym("NASDAQ:NVDA", "Nvidia"), sym("NASDAQ:AAPL", "Apple"), sym("NASDAQ:MSFT", "Microsoft"),
         sym("NASDAQ:AMZN", "Amazon"), sym("NASDAQ:GOOGL", "Alphabet"), sym("NASDAQ:META", "Meta")],
-      showSymbolLogo: true, isTransparent: true, displayMode: "adaptive", colorTheme: "light", locale: "en"
+      showSymbolLogo: true, isTransparent: true, displayMode: "adaptive", colorTheme: "dark", locale: "en"
     });
     wrap.append(el("div", "tradingview-widget-container__widget"), sc);
     $("tape").appendChild(wrap);

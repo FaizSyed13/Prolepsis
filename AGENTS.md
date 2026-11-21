@@ -57,9 +57,7 @@ range coverage ~79.75% vs an 80% target. The site says this openly. Keep it that
 - **Releases:** push a tag `vX.Y.Z` and `.github/workflows/release.yml` builds the zip with
   `.github/release-notes.md`. Only make a release when the owner asks.
 - **Website:** one page with menu pages (Home with the My money section at the top, Market recap, Forecasts, Why, News, Track record,
-  How to read), hash routes `#/home` (data-page "today"), `#/money` (jumps to the Home section), `#/recap` etc. Light warm-paper palette
-  copied from the owner's Beat & Drop site (cream #f9f5ed, ink #1a1512, burnt-orange accent #ad4216; old
-  Catppuccin token names kept in style.css), Newsreader (headings) + IBM Plex Sans (text) fonts like Beat & Drop, rounded corners, a cat cursor buddy and hearts.
+  How to read), hash routes `#/home` (data-page "today"), `#/money` (jumps to the Home section), `#/recap` etc. Dark Catppuccin Mocha palette (owner tried the light Beat & Drop colours and rejected them), Newsreader (headings) + IBM Plex Sans (text) fonts like Beat & Drop, rounded corners, a cat cursor buddy and hearts.
 
 Setup for development: `python -m venv .venv` then `.venv\Scripts\python -m pip install -r requirements.txt`.
 
