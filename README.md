@@ -7,7 +7,7 @@
 <a href="https://faizsyed13.github.io/Prolepsis---Future-of-stock-forecasting/">Open the live page</a> · <a href="https://github.com/FaizSyed13/Prolepsis---Future-of-stock-forecasting/releases/latest">Download</a></p>
 
 <p align="center">
-  <img src="docs/screenshot-home.png" alt="Prolepsis Today page: greeting, stock search, next week at a glance and the market summary" width="49%">
+  <img src="docs/screenshot-home.png" alt="Prolepsis Home page: greeting, stock search and the What could happen to my money? section" width="49%">
   <img src="docs/screenshot-forecast.png" alt="Chart of where each of the 40 stocks could land after 5 trading days" width="49%">
 </p>
 

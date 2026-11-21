@@ -1,7 +1,9 @@
 ## What's new
-- **License added**: Prolepsis is free to download and use for yourself; copying, sharing or selling it isn't allowed without permission. See the LICENSE file.
-- Same design as before (v1.1.2 tried a new look; it's been rolled back and removed).
-- Still included from v1.1.1: much faster setup (about 1 minute instead of 4 on a test laptop) and forecasts within seconds of starting, while your computer builds its own in the background.
+- **"What could happen to my money?"** on the Home page: type in the stocks you own (any of our 40, search by name) and how much, and see where your total could realistically be after 5 trading days. Tested on 70,000 made-up portfolios over 2023-2026: the real result landed inside the range 80% of the time. Your list stays on your own computer.
+- **Market recap** now has its own page (the short version, market prices and chart, futures, how our 40 stocks did).
+- **Sharper price ranges**: the safety margin now follows each stock's recent ups and downs, so calm and jumpy stocks are both right about 80% of the time.
+- **Track record** explains early results honestly ("only 1 week checked so far") while few weeks have been graded.
+- New fonts (Newsreader for headlines, IBM Plex Sans for text), same cosy dark colours.
 
 ## Download
 Under **Assets** below, click **Prolepsis-….zip** (not "Source code"), then unzip it.
