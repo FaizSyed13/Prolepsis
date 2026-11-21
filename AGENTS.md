@@ -91,6 +91,7 @@ Setup for development: `python -m venv .venv` then `.venv\Scripts\python -m pip 
 | FINRA short data (daily short-sale volume ratio, short interest days-to-cover / change, ranks) | Tested 2020-2026 (data starts 2018): P(up) AUC 0.516 -> 0.512 (better 1/7 yrs), top-5 Sharpe 0.75 -> 0.53, ranges same |
 | Industry / sector ETF features (XLK IGV SMH VOX XLY XLF XLV XLP XLE XLI: sector return, sector vs SPY, stock vs sector at 5/21/63/126 days) | Tested 2014-2026, 40 stocks: P(up) AUC 0.5128 -> 0.5130, calibrated accuracy 54.1% = naive 54.2% both; beat-SPY top10-bottom10 spread +0.229 -> +0.191%/wk (worse 9/13 yrs), t 2.18 -> 1.82 |
 | Stress-aware range margins for crash weeks (market vol tercile, 5d vol jump, falling market) | Tested 2017-2026: coverage 78.6-78.8% vs base, bad weeks 4.2-4.6%, no gain; crashes not foreseeable from prior market stress |
+| Deep learning: Chronos-Bolt-small (Amazon's pretrained time-series model, zero-shot on 512 daily closes) and 50/50 average with gboost | Tested 2020-2026, 40 stocks, every 5th day, same calibration: P(up) AUC 0.517 (gboost) vs 0.502 (Chronos) vs 0.510 (avg); 2025+ (after Chronos release, no leakage) 0.557 vs 0.502 vs 0.520; Chronos worse in 6/7 years; calibrated acc = naive for all; range coverage 79.2 / 78.6 / 78.6%, widths about equal. Would also add PyTorch (~1 GB installed). Not adopted |
 | Minimal redesign of the website | Built, owner rejected it, reverted |
 | Showing earnings dates on the page | Owner didn't like it, removed (backend kept) |
 

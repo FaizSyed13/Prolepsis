@@ -17,7 +17,6 @@
       <a class="sf-menu-link" data-page="today" href="#/home">Home</a>
       <a class="sf-menu-link" data-page="recap" href="#/recap">Market recap</a>
       <a class="sf-menu-link" data-page="forecasts" href="#/forecasts">Forecasts</a>
-      <a class="sf-menu-link" data-page="why" href="#/why">Why</a>
       <a class="sf-menu-link" data-page="news" href="#/news">News</a>
       <a class="sf-menu-link" data-page="track" href="#/track">Track record</a>
       <a class="sf-menu-link" data-page="guide" href="#/guide">How to read</a>
@@ -111,7 +110,6 @@
 
   <nav class="sf-feats" id="feats" aria-label="What's inside" data-stagger>
     <a class="sf-feat" href="#/forecasts"><span class="sf-feat-k">Forecasts</span><b>Where prices could be next week</b><span class="sf-feat-stat" id="f-fc">—</span></a>
-    <a class="sf-feat" href="#/why"><span class="sf-feat-k">Why</span><b>The news behind each forecast</b><span class="sf-feat-stat" id="f-why">—</span></a>
     <a class="sf-feat" href="#/track"><span class="sf-feat-k">Track record</span><b>Every forecast checked, nothing hidden</b><span class="sf-feat-stat" id="f-track">—</span></a>
     <a class="sf-feat" href="#/news"><span class="sf-feat-k">News</span><b>Headlines for all 40 stocks</b><span class="sf-feat-stat" id="f-news">—</span></a>
   </nav>
@@ -248,14 +246,6 @@
 
   </div>
 
-  <div class="sf-page" data-page="why" hidden>
-  <section class="sf-sec" id="reasoning">
-    <h2 class="sf-h">Why these stocks changed</h2>
-    <div class="sf-notes" id="notes" data-stagger></div>
-  </section>
-
-  </div>
-
   <div class="sf-page" data-page="news" hidden>
   <section class="sf-sec" id="news">
     <div class="sf-row">
@@ -296,6 +286,10 @@
       <section>
         <h3 class="sf-h3">How good is it, honestly?</h3>
         <p>In testing, the up/down calls were right about as often as simply guessing "up" every week, so treat them as a weak hint. The price ranges have been the most reliable part. Every forecast is saved and graded in <a href="#/track">Track record</a>, with nothing left out.</p>
+      </section>
+      <section>
+        <h3 class="sf-h3">What we tested and left out</h3>
+        <p>We only add an idea if it makes the forecasts better on years the model never saw. These didn't, so they're not used: analyst ratings, market-wide signals (the VIX, interest rates, inflation), short-selling data, sector trends and training on 99 stocks. We also tested <b>Chronos</b>, a big deep-learning forecasting AI from Amazon, against our model on 2025 and 2026 data neither had seen. Its up/down calls were no better than a coin flip and ours did better, so we kept ours.</p>
       </section>
     </div>
     <p class="sf-guide-warn">This is a research project, not financial advice. Nobody can reliably predict next week's stock prices. Never invest money you can't afford to lose.</p>

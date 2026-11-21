@@ -448,7 +448,7 @@ a { color: inherit; }
   .sf-pv-fill { transform-origin: 50% 50%; }
 }
 .sf a.sf-feat:not(.sf-tk):not(.sf-gh) { color: var(--fg); }
-@media (max-width: 560px) { .sf-feats { grid-template-columns: 1fr 1fr; gap: 10px; } .sf a.sf-feat { padding: 12px 14px; } .sf-feat b { font-size: 14px; } .sf-feat-stat { display: none; } }
+@media (max-width: 560px) { .sf-feats { grid-template-columns: 1fr 1fr; gap: 10px; } .sf a.sf-feat { padding: 12px 14px; } .sf-feat b { font-size: 14px; } .sf-feat-stat { display: none; } .sf-feats > .sf-feat:last-child:nth-child(odd) { grid-column: 1 / -1; } }
 
 /* 80% range explained: 100 squares, one per test week */
 .sf-range-explain { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 24px; align-items: center;

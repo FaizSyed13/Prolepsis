@@ -168,26 +168,6 @@
     });
   }
 
-  function renderNotes(rows) {
-    var box = $("notes");
-    box.replaceChildren();
-    var list = rows.filter(changed).sort(function (a, b) { return d3.ascending(a.ticker, b.ticker); });
-    if (!list.length) { box.appendChild(el("p", "sf-sub", "The news didn't change any forecast right now.")); return; }
-    list.forEach(function (r) {
-      var card = el("article", "sf-note");
-      card.tabIndex = 0;
-      card.addEventListener("click", function () { openAdvice(r.ticker); });
-      card.addEventListener("keydown", function (e) { if (e.key === "Enter") openAdvice(r.ticker); });
-      card.appendChild(el("h3", null, r.ticker + " (" + r.name + ")"));
-      if (r.event) card.appendChild(el("span", "sf-event", r.event));
-      card.appendChild(el("p", null, r.reason));
-      var c = el("div");
-      r.changed.split(", ").forEach(function (part) { c.appendChild(pill(part)); });
-      card.appendChild(c);
-      box.appendChild(card);
-    });
-  }
-
   var newsLimit = 12;   // headlines shown before "Show more"
   function renderNews(news, rows) {
     var sel = $("news-filter"), keep = sel.value;
@@ -945,8 +925,6 @@
     var rows = state.forecast || [];
     var wide = rows.slice().sort(function (a, b) { return (b.high - b.low) / b.price - (a.high - a.low) / a.price; })[0];
     $("f-fc").textContent = wide ? "Biggest expected swing: " + wide.name + " (" + pct((wide.low / wide.price - 1) * 100) + " to " + pct((wide.high / wide.price - 1) * 100) + ")" : "—";
-    var n = rows.filter(changed).length;
-    $("f-why").textContent = "The news changed " + n + " of " + rows.length + " forecasts";
     var t = state.track || {}, cov = calVal("range_coverage");
     $("f-track").textContent = t.graded ? t.graded + " live forecasts checked so far" : !isNaN(cov) ? "Ranges hit " + cov.toFixed(0) + "% in testing" : "—";
     $("f-news").textContent = (state.news || []).length + " stock headlines, " + (state.market_news || []).length + " market stories";
@@ -1205,7 +1183,6 @@
     renderSummary(state.forecast, state.calibration || []);
     renderChart(state.forecast, first);
     renderTable(state.forecast);
-    renderNotes(state.forecast);
     renderNews(state.news || [], state.forecast);
     renderScorecard(state.track);
     renderMoney(first);
