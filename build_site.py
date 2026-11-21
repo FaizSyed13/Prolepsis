@@ -37,9 +37,10 @@ def main():
     if OUT.exists():
         shutil.rmtree(OUT)
     OUT.mkdir()
-    for f in ("app.js", "style.css", "logo.svg"):
+    for f in ("app.js", "trades.js", "style.css", "logo.svg"):
         shutil.copy(WEB / f, OUT / f)
     html = (WEB / "index.html").read_text(encoding="utf-8")
+    html = html.replace('<script src="/static/trades.js"></script>', '<script src="trades.js"></script>')
     html = html.replace('href="/static/style.css"', 'href="style.css"')
     html = html.replace('/static/logo.svg', 'logo.svg')
     html = html.replace('<script src="/static/app.js"></script>',

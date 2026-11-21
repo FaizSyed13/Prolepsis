@@ -25,6 +25,10 @@ market recap, news and a public track record. It shows, for each stock:
   combines each stock's 80% range with the past-year daily-return correlation (`stockpred/portfolio.py`,
   `state.corr`) into a portfolio 80% range (normal approx, no extra widening). Tested on 70,000 random
   1-40 stock portfolios 2023-2026 (unseen): 80.0% inside (1 stock 79%, 40 stocks 82%); crash weeks ~46%.
+- **Import my trades** (in My money): visitor picks or pastes a broker trade-history CSV. `web/trades.js` (pure, also
+  runs in Node) finds the header row, guesses columns (symbol / buy-sell / shares / price; the visitor can change them) and works out
+  shares owned = bought - sold, average price paid = buy cost / shares bought. Fills My money (`paid` field per row).
+  Runs only in the browser; the file is never uploaded. Tested on Schwab, Fidelity, Robinhood, IBKR, Vanguard, E*TRADE, Questrade-style files.
 
 Honest current numbers (walk-forward, newest 30% of history never used for calibration):
 up/down accuracy ~54%, which equals always guessing the more common outcome (no real direction skill);

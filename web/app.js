@@ -1016,6 +1016,7 @@
     var hits = [], act = 0;
     function choose(r) {
       sel.value = label(r); ul.hidden = true; sel.setAttribute("aria-expanded", "false");
+      if (pf[i].tk !== r.ticker) delete pf[i].paid;   // the imported "price paid" belonged to the old stock
       pf[i].tk = r.ticker; pfSave(); renderMoney(false); inp.focus();
     }
     function paint() {
@@ -1107,6 +1108,10 @@
       var v = h.unit === "usd" ? a : a * r.price;
       by[r.ticker] = by[r.ticker] || { r: r, v: 0 };
       by[r.ticker].v += v;
+      if (h.paid > 0 && h.unit !== "usd") {   // from an imported trade file: average price paid per share
+        by[r.ticker].paidV = (by[r.ticker].paidV || 0) + a * h.paid;
+        by[r.ticker].paidNowV = (by[r.ticker].paidNowV || 0) + v;
+      }
     });
     var hs = Object.keys(by).map(function (k) { return by[k]; });
     $("pf-empty").hidden = hs.length > 0;
@@ -1155,13 +1160,23 @@
         ", because your stocks rarely all hit their best or worst at the same time. That's what spreading your money out does."
       : hs.length === 1 ? "Tip: add more stocks to see how spreading your money out changes the range." : "";
 
-    var tb = $("pf-rows");
+    var tb = $("pf-rows"), anyPaid = hs.some(function (h) { return h.paidV > 0; });
+    $("pf-paid-h").hidden = !anyPaid;
     tb.replaceChildren();
     hs.sort(function (a, b) { return b.v - a.v; }).forEach(function (h) {
       var tr = document.createElement("tr");
+      tr.className = "sf-pf-click"; tr.tabIndex = 0;
+      tr.setAttribute("aria-label", "Open the forecast for " + h.r.ticker + " (" + h.r.name + ")");
+      tr.addEventListener("click", function () { openAdvice(h.r.ticker); });
+      tr.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openAdvice(h.r.ticker); } });
       tr.append(el("td", null, h.r.ticker + " (" + h.r.name + ")"), el("td", "sf-num", usd(h.v)),
         el("td", "sf-num", (h.v / total * 100).toFixed(0) + "%"),
+        el("td", "sf-num", h.r.up_pct + "%"),
         el("td", "sf-num", usd(h.v * (1 + h.lo))), el("td", "sf-num", usd(h.v * (1 + h.hi))));
+      if (anyPaid) {
+        var g = h.paidV > 0 ? (h.paidNowV / h.paidV - 1) * 100 : null;
+        tr.append(el("td", "sf-num" + (g == null ? " sf-dim" : g >= 0 ? " sf-pf-gain" : " sf-pf-loss"), g == null ? "—" : pct(g)));
+      }
       tb.appendChild(tr);
     });
   }
@@ -1170,6 +1185,156 @@
     var sels = document.querySelectorAll(".sf-pf-sel"); if (sels.length) sels[sels.length - 1].focus();
   });
   $("pf-clear").addEventListener("click", function () { pf = []; pfSave(); renderMoney(true); });
+
+  // ---------- Import my trades: broker file -> what you own -> forecast + My money ----------
+  // Everything happens in the browser (web/trades.js); the file is never uploaded.
+  var imp = { table: null, cols: null, res: null };
+  var IMP_COLS = [["symbol", "imp-c-symbol"], ["action", "imp-c-action"], ["qty", "imp-c-qty"], ["price", "imp-c-price"]];
+  function impMsg(text, bad) {
+    var m = $("imp-msg");
+    m.hidden = !text; m.textContent = text || "";
+    m.classList.toggle("sf-imp-msg--bad", !!bad);
+  }
+  function impLoad(text) {
+    if (!window.PTrades) return;
+    var t = PTrades.parseTable(text);
+    if (!t.rows.length || t.header.length < 2) {
+      $("imp-map").hidden = true;
+      impMsg("We couldn't find a table of trades in that. Make sure it's the CSV download and includes the top row with the column names.", true);
+      return;
+    }
+    imp.table = t; imp.cols = PTrades.guessColumns(t.header);
+    IMP_COLS.forEach(function (c) {
+      var s = $(c[1]);
+      s.replaceChildren();
+      var none = el("option", null, c[0] === "symbol" || c[0] === "qty" ? "— pick a column —" : "— none —"); none.value = "-1";
+      s.appendChild(none);
+      t.header.forEach(function (h, i) { var o = el("option", null, h); o.value = String(i); s.appendChild(o); });
+      s.value = String(imp.cols[c[0]]);
+    });
+    $("imp-map").hidden = false;
+    impMsg("");
+    impPreview(); impRun();
+  }
+  function impPreview() {
+    var t = imp.table, tb = $("imp-prev");
+    tb.replaceChildren();
+    var mark = {};
+    IMP_COLS.forEach(function (c) { if (imp.cols[c[0]] >= 0) mark[imp.cols[c[0]]] = true; });
+    var thead = el("thead"), hr = el("tr");
+    t.header.forEach(function (h, i) { hr.appendChild(el("th", mark[i] ? "sf-imp-on" : null, h)); });
+    thead.appendChild(hr); tb.appendChild(thead);
+    var body = el("tbody");
+    t.rows.slice(0, 4).forEach(function (r) {
+      var tr = el("tr");
+      t.header.forEach(function (h, i) { tr.appendChild(el("td", mark[i] ? "sf-imp-on" : null, r[i] || "")); });
+      body.appendChild(tr);
+    });
+    tb.appendChild(body);
+  }
+  function impRun() {
+    var sum = $("imp-sum"), rows = (state && state.forecast) || [];
+    sum.replaceChildren();
+    $("imp-use").disabled = true;
+    if (imp.cols.symbol < 0 && imp.cols.action < 0 || imp.cols.qty < 0) {
+      sum.appendChild(el("p", "sf-imp-msg sf-imp-msg--bad", "Please pick which column has the stock symbol and which has the number of shares."));
+      return;
+    }
+    var known = rows.map(function (r) { return r.ticker; });
+    var res = imp.res = PTrades.holdings(imp.table, imp.cols, known);
+    if (!res.used) {
+      sum.appendChild(el("p", "sf-imp-msg sf-imp-msg--bad", "We didn't find any buys or sells with those columns. Try changing them above."));
+      return;
+    }
+    var ours = res.owned.filter(function (h) { return h.known; }), other = res.owned.filter(function (h) { return !h.known; });
+    sum.appendChild(el("p", "sf-sub", "Read " + res.used + " buy and sell trade" + (res.used === 1 ? "" : "s") +
+      (res.skipped ? " (skipped " + res.skipped + " other row" + (res.skipped === 1 ? "" : "s") + ", like dividends or deposits)" : "") + "." +
+      (res.signOnly ? " There was no buy/sell column, so we treated minus numbers of shares as sells." : "")));
+    if (ours.length) {
+      var wrap = el("div", "sf-scroll"), tbl = el("table", "sf-table sf-table--static");
+      var th = el("tr");
+      ["Stock", "Shares you own", "Average you paid", "Price now", "Chance up in 5 days", "Likely price in 5 days"].forEach(function (h, i) {
+        th.appendChild(el("th", i ? "sf-num" : null, h));
+      });
+      var head = el("thead"); head.appendChild(th); tbl.appendChild(head);
+      var body = el("tbody");
+      ours.forEach(function (h) {
+        var r = rows.find(function (x) { return x.ticker === h.ticker; });
+        var tr = el("tr", "sf-pf-click"); tr.tabIndex = 0;
+        tr.setAttribute("aria-label", "Open the forecast for " + r.ticker + " (" + r.name + ")");
+        tr.addEventListener("click", function () { openAdvice(r.ticker); });
+        tr.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openAdvice(r.ticker); } });
+        var paid = h.avgPaid ? "$" + money(h.avgPaid) : "—";
+        var now = el("td", "sf-num", "$" + money(r.price));
+        if (h.avgPaid) {
+          var g = (r.price / h.avgPaid - 1) * 100;
+          now.appendChild(el("span", "sf-imp-g " + (g >= 0 ? "sf-pf-gain" : "sf-pf-loss"), " " + pct(g)));
+        }
+        tr.append(el("td", null, r.ticker + " (" + r.name + ")"), el("td", "sf-num", d3.format(",.4~f")(h.shares)),
+          el("td", "sf-num", paid), now, el("td", "sf-num", r.up_pct + "%"),
+          el("td", "sf-num", "$" + money(r.low) + " – $" + money(r.high)));
+        body.appendChild(tr);
+      });
+      tbl.appendChild(body); wrap.appendChild(tbl); sum.appendChild(wrap);
+      sum.appendChild(el("p", "sf-sub", "Tap a stock to see its full forecast and news. \"Chance up\" has been right about as often as always guessing \"up\", so lean on the price range, which held about 4 weeks out of 5 in testing."));
+      $("imp-use").disabled = false;
+    } else {
+      sum.appendChild(el("p", "sf-imp-msg", "None of the stocks you still own are in our 40 yet."));
+    }
+    if (other.length) {
+      sum.appendChild(el("p", "sf-sub", "We don't forecast these yet: " + other.map(function (h) { return h.ticker; }).join(", ") + "."));
+    }
+    if (res.oversold.length) {
+      sum.appendChild(el("p", "sf-sub", "Your file shows more shares sold than bought for " + res.oversold.join(", ") +
+        ", so we left them out. Your file may not go back far enough; try downloading a longer date range."));
+    }
+    var hasList = pf.some(function (h) { return h.tk || h.amt; });
+    $("imp-use").textContent = hasList ? "Put these in My money (replaces your list)" : "Put these in My money";
+  }
+  function impClose() {
+    $("imp-box").hidden = true; $("imp-open").setAttribute("aria-expanded", "false");
+    $("imp-file").value = ""; $("imp-paste").value = "";
+    $("imp-map").hidden = true; impMsg(""); imp = { table: null, cols: null, res: null };
+  }
+  $("imp-open").addEventListener("click", function () {
+    if (!$("imp-box").hidden) { impClose(); return; }
+    $("imp-box").hidden = false; $("imp-open").setAttribute("aria-expanded", "true");
+  });
+  $("imp-cancel").addEventListener("click", impClose);
+  $("imp-file").addEventListener("change", function () {
+    var f = this.files && this.files[0];
+    if (!f) return;
+    if (f.size > 5 * 1024 * 1024) { impMsg("That file is over 5 MB. Try downloading a shorter date range.", true); return; }
+    var rd = new FileReader();
+    rd.onload = function () { $("imp-paste").value = ""; impLoad(String(rd.result || "")); };
+    rd.onerror = function () { impMsg("We couldn't read that file.", true); };
+    rd.readAsText(f);
+  });
+  var pasteT = null;
+  $("imp-paste").addEventListener("input", function () {
+    clearTimeout(pasteT);
+    var v = this.value;
+    pasteT = setTimeout(function () { if (v.trim()) impLoad(v); else { $("imp-map").hidden = true; impMsg(""); } }, 300);
+  });
+  IMP_COLS.forEach(function (c) {
+    $(c[1]).addEventListener("change", function () {
+      imp.cols[c[0]] = parseInt(this.value, 10);
+      impPreview(); impRun();
+    });
+  });
+  $("imp-use").addEventListener("click", function () {
+    if (!imp.res) return;
+    var ours = imp.res.owned.filter(function (h) { return h.known; });
+    if (!ours.length) return;
+    pf = ours.map(function (h) {
+      var o = { tk: h.ticker, amt: String(Math.round(h.shares * 1e4) / 1e4), unit: "shares" };
+      if (h.avgPaid) o.paid = Math.round(h.avgPaid * 1e4) / 1e4;
+      return o;
+    });
+    pfSave(); impClose(); renderMoney(true);
+    var res = $("pf-result");
+    if (res && !res.hidden) res.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
 
   function render() {
     if (!state) return;

@@ -583,3 +583,43 @@ section.sf-guide .sf-guide-grid { margin-top: 4px; }
 }
 .sf-pf-pick { position: relative; min-width: 0; }
 .sf-pf-list-pop { z-index: 20; }
+
+/* Import my trades */
+.sf-imp-start { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin: 4px 0 14px; }
+.sf-imp-start .sf-sub { margin: 0; flex: 1 1 260px; }
+.sf-imp-btn { font: 600 14px var(--sans); color: var(--crust); background: linear-gradient(90deg, var(--mauve), var(--pink)); border: 0;
+  border-radius: 999px; padding: 9px 20px; cursor: pointer; transition: transform .2s cubic-bezier(.3, 1.6, .5, 1), box-shadow .2s; }
+.sf-imp-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(203, 166, 247, 0.3); }
+.sf-imp-btn:disabled { color: var(--overlay0); background: var(--surface0); box-shadow: none; transform: none; cursor: not-allowed; }
+.sf-imp-btn[aria-expanded="true"] { background: var(--surface1); color: var(--fg); }
+.sf-imp-box { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 16px; display: grid; gap: 10px; }
+.sf-imp-box .sf-sub { margin: 0; }
+.sf-imp-step { margin: 4px 0 0; line-height: 1.5; }
+.sf-imp-step b { color: var(--mauve); }
+.sf-imp-in { display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; }
+.sf-imp-file { position: relative; display: inline-flex; align-items: center; overflow: hidden; }
+.sf-imp-file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.sf-imp-file:focus-within { box-shadow: 0 0 0 4px rgba(203, 166, 247, 0.3); }
+#imp-paste { flex: 1 1 280px; min-height: 64px; font: 13px ui-monospace, Consolas, monospace; color: var(--fg); background: var(--base);
+  border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; resize: vertical; box-sizing: border-box; }
+#imp-paste:focus, .sf-imp-cols select:focus { outline: none; border-color: var(--mauve); box-shadow: 0 0 0 4px rgba(203, 166, 247, 0.18); }
+#imp-paste::placeholder { color: var(--muted); }
+.sf-imp-msg { margin: 0; color: var(--fg); }
+.sf-imp-msg--bad { color: var(--bad); }
+#imp-map { display: grid; gap: 10px; }
+.sf-imp-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.sf-imp-cols label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+.sf-imp-cols select { font: 14px var(--sans); color: var(--fg); background: var(--base); border: 1px solid var(--line); border-radius: 999px;
+  padding: 7px 12px; min-height: 38px; width: 100%; }
+.sf-imp-cols select option { background: var(--base); color: var(--fg); }
+.sf-imp-prev { font-size: 12px; }
+.sf-imp-prev td, .sf-imp-prev th { max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+.sf-imp-prev .sf-imp-on { color: var(--fg); background: rgba(203, 166, 247, 0.12); }
+.sf-imp-prev td:not(.sf-imp-on), .sf-imp-prev th:not(.sf-imp-on) { color: var(--overlay0); }
+.sf-pf-gain { color: var(--ok); }
+.sf-pf-loss { color: var(--bad); }
+.sf-imp-g { font-size: 12px; }
+.sf-table tbody tr.sf-pf-click { cursor: pointer; }
+.sf-table tbody tr.sf-pf-click:hover td { background: var(--grid); }
+#imp-sum { display: grid; gap: 8px; }
+#imp-sum p { margin: 0; line-height: 1.5; }

@@ -56,6 +56,35 @@
   <section class="sf-sec" id="money">
     <h2 class="sf-h">What could happen to my money?</h2>
     <p class="sf-sub">Add the stocks you own (any of our 40) and how much. We'll show where your total could realistically be after 5 trading days. Your list is saved only on this device; nothing is sent anywhere.</p>
+    <div class="sf-imp-start">
+      <button type="button" class="sf-imp-btn" id="imp-open" aria-expanded="false" aria-controls="imp-box">Import my trades</button>
+      <span class="sf-sub">Have a trade history file from your broker? We'll work out what you own and show a forecast for each stock.</span>
+    </div>
+    <div class="sf-imp-box" id="imp-box" hidden>
+      <p class="sf-imp-step"><b>1.</b> On your broker's website, download your trade history. It's usually under "Activity", "History" or "Transactions"; choose CSV. Then pick the file here, or copy the table and paste it in.</p>
+      <div class="sf-imp-in">
+        <label class="sf-imp-btn sf-imp-file">Choose a file<input type="file" id="imp-file" accept=".csv,.tsv,.txt,text/csv,text/plain"></label>
+        <textarea id="imp-paste" rows="3" spellcheck="false" placeholder="…or paste your trades here (include the top row with the column names)"></textarea>
+      </div>
+      <p class="sf-sub">Your file is read right here in your browser. It is never uploaded or saved anywhere.</p>
+      <p class="sf-imp-msg" id="imp-msg" hidden></p>
+      <div id="imp-map" hidden>
+        <p class="sf-imp-step"><b>2.</b> Check we picked the right columns. Change any that look wrong.</p>
+        <div class="sf-imp-cols">
+          <label>Stock symbol<select id="imp-c-symbol"></select></label>
+          <label>Buy or sell<select id="imp-c-action"></select></label>
+          <label>Number of shares<select id="imp-c-qty"></select></label>
+          <label>Price per share<select id="imp-c-price"></select></label>
+        </div>
+        <div class="sf-scroll"><table class="sf-table sf-table--static sf-imp-prev" id="imp-prev"></table></div>
+        <p class="sf-imp-step"><b>3.</b> Here's what you own now, with our forecast for the next 5 trading days.</p>
+        <div id="imp-sum"></div>
+        <div class="sf-pf-actions">
+          <button type="button" class="sf-imp-btn" id="imp-use">Put these in My money</button>
+          <button type="button" class="sf-pf-clear" id="imp-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
     <div class="sf-pf-list" id="pf-list"></div>
     <div class="sf-pf-actions">
       <button type="button" class="sf-more" id="pf-add">+ Add a stock</button>
@@ -84,7 +113,7 @@
       <h3 class="sf-h3">Each stock on its own</h3>
       <div class="sf-scroll">
         <table class="sf-table sf-table--static">
-          <thead><tr><th>Stock</th><th class="sf-num">Worth now</th><th class="sf-num">Share of total</th><th class="sf-num">Likely low</th><th class="sf-num">Likely high</th></tr></thead>
+          <thead><tr><th>Stock</th><th class="sf-num">Worth now</th><th class="sf-num">Share of total</th><th class="sf-num">Chance up</th><th class="sf-num">Likely low</th><th class="sf-num">Likely high</th><th class="sf-num" id="pf-paid-h" hidden>vs. what you paid</th></tr></thead>
           <tbody id="pf-rows"></tbody>
         </table>
       </div>
@@ -395,6 +424,7 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
+<script src="/static/trades.js"></script>
 <script src="/static/app.js"></script>
 </body>
 </html>
