@@ -15,6 +15,7 @@ from .export import calibration_rows, forecast_rows
 from .features import build_panel
 from .fundamentals import load_fundamentals
 from .live_news import NewsStore, fetch_ticker
+from .portfolio import correlation
 from .market import MARKET, day_moves, fetch_market_news, load_market, mentions
 from .probability import calibration_report, forecast_latest, oos_predictions
 from .reasoning import apply_reasoning, load_outlook, log_forecast, track_record
@@ -48,6 +49,7 @@ class ForecastService:
         self.base = self.rep = self.as_of = None
         self.stats, self.fund, self.candles, self.track = {}, {}, {}, None
         self.market, self.moves = {}, {}
+        self.corr = None
         self.payload = None
         self.status = {"phase": "starting", "base_at": None, "news_at": None,
                        "news_new": 0, "news_errors": [], "error": None}
@@ -86,6 +88,11 @@ class ForecastService:
         candles = candle_rows(self.cfg)
         moves = day_moves(close, list(self.cfg.tickers) + [self.cfg.benchmark])
         try:
+            corr = correlation(close, self.cfg.tickers)
+        except Exception as e:
+            print(f"Correlation failed: {type(e).__name__}: {e}")
+            corr = None
+        try:
             track = track_record(close, self.cfg)
         except Exception as e:
             print(f"Track record failed: {type(e).__name__}: {e}")
@@ -100,6 +107,7 @@ class ForecastService:
             self.base, self.rep, self.as_of, self.stats, self.fund = fc, rep, last, stats, fund
             self.candles, self.track = candles, track
             self.moves = moves
+            self.corr = corr
         self._set(base_at=_iso(_now()))
 
     # ---- fast: headlines + FinBERT ----
@@ -172,7 +180,7 @@ class ForecastService:
                  "source": h["source"], "url": h["url"], "published": h["published"], "tone": tone(h),
                  "score": round(headline_score(h), 3)} for h in headlines[:300]]
         payload = {"forecast": rows, "calibration": calibration_rows(rep), "news": news, "candles": self.candles, "track": self.track,
-                   "market": self.market, "moves": self.moves, "market_news": market_news,
+                   "market": self.market, "moves": self.moves, "corr": self.corr, "market_news": market_news,
                    "base_rate_pct": round(base_pct, 1),
                    "status": dict(self.status, phase="live", built_at=_iso(_now()))}
         with self.lock:

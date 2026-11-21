@@ -546,3 +546,36 @@ section.sf-guide .sf-guide-grid { margin-top: 4px; }
 .sf-early { margin: 16px 0; padding: 16px 20px; border-radius: var(--radius); background: var(--panel); border-left: 4px solid var(--peach); display: grid; gap: 6px; }
 .sf-early-h { color: var(--peach); font-weight: 700; }
 .sf-early p { line-height: 1.55; margin: 0; }
+
+/* My money page */
+.sf-pf-list { display: grid; gap: 10px; margin: 16px 0 10px; }
+.sf-pf-row { display: grid; grid-template-columns: minmax(180px, 1.6fr) minmax(110px, 1fr) auto minmax(110px, auto) auto; gap: 10px; align-items: center;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; }
+.sf-pf-sel, .sf-pf-amt { font: 15px var(--sans); color: var(--fg); background: var(--base); border: 1px solid var(--line); border-radius: 999px;
+  padding: 8px 14px; min-height: 40px; min-width: 0; width: 100%; box-sizing: border-box; }
+.sf-pf-sel:focus, .sf-pf-amt:focus { outline: none; border-color: var(--mauve); box-shadow: 0 0 0 4px rgba(203, 166, 247, 0.18); }
+.sf-pf-sel option { background: var(--base); color: var(--fg); }
+.sf-pf-amt::placeholder { color: var(--muted); }
+.sf-pf-price { color: var(--muted); font-size: 13px; white-space: nowrap; }
+.sf-pf-del { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--surface0); color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer; }
+.sf-pf-del:hover { background: var(--bad); color: var(--crust); }
+.sf-pf-actions { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
+.sf-pf-actions .sf-more { justify-self: start; margin-top: 0; }
+.sf-pf-clear { font: 600 13px var(--sans); color: var(--muted); background: none; border: 0; cursor: pointer; text-decoration: underline; }
+.sf-pf-clear:hover { color: var(--bad); }
+.sf-pf-result { margin-top: 18px; }
+.sf-pf-main .sf-big { color: var(--mauve); }
+.sf-pf-bar { position: relative; height: 18px; margin: 30px 4px 6px; border-radius: 999px; background: var(--surface0); }
+.sf-pf-band { position: absolute; top: 0; bottom: 0; border-radius: 999px; background: linear-gradient(90deg, var(--pink), var(--mauve), var(--lavender)); }
+.sf-pf-mark { position: absolute; top: -8px; bottom: -8px; width: 3px; margin-left: -1.5px; background: var(--fg); border-radius: 2px; }
+.sf-pf-mark span { position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: 700; color: var(--fg); white-space: nowrap; }
+.sf-pf-ends { position: relative; height: 20px; color: var(--muted); font-size: 13px; margin: 0 4px 14px; }
+.sf-pf-ends span { position: absolute; top: 0; white-space: nowrap; }
+#pf-end-lo { transform: translateX(-100%); padding-right: 2px; }
+#pf-end-hi { padding-left: 2px; }
+#pf-spread + .sf-h3 { margin-top: 18px; }
+@media (max-width: 700px) {
+  .sf-pf-row { grid-template-columns: 1fr 1fr auto; }
+  .sf-pf-sel { grid-column: 1 / -1; }
+  .sf-pf-price { grid-column: 1 / 3; }
+}

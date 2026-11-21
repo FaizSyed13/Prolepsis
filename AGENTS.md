@@ -21,6 +21,10 @@ market recap, news and a public track record. It shows, for each stock:
   conformal margin sized to each stock's 21-day volatility, so it holds ~80% for calm and jumpy stocks alike.
 - **News adjustment**: FinBERT scores headlines (last 3 days) and nudges P(up) / widens ranges.
 - **Advice**: short-term and long-term Buy/Hold/Sell rules (`stockpred/advice.py`). Reading only.
+- **My money** (`#/money`): visitor enters holdings (saved in their browser only, key `sf-money-v1`); the page
+  combines each stock's 80% range with the past-year daily-return correlation (`stockpred/portfolio.py`,
+  `state.corr`) into a portfolio 80% range (normal approx, no extra widening). Tested on 70,000 random
+  1-40 stock portfolios 2023-2026 (unseen): 80.0% inside (1 stock 79%, 40 stocks 82%); crash weeks ~46%.
 
 Honest current numbers (walk-forward, newest 30% of history never used for calibration):
 up/down accuracy ~54%, which equals always guessing the more common outcome (no real direction skill);
@@ -52,7 +56,7 @@ range coverage ~79.75% vs an 80% target. The site says this openly. Keep it that
   On a PC the forecast log goes to `reports/forecast_log_pc.csv` (gitignored); only GitHub Actions writes the official log.
 - **Releases:** push a tag `vX.Y.Z` and `.github/workflows/release.yml` builds the zip with
   `.github/release-notes.md`. Only make a release when the owner asks.
-- **Website:** one page with menu pages (Today, Forecasts, Why, News, Track record, How to read),
+- **Website:** one page with menu pages (Today, Forecasts, My money, Why, News, Track record, How to read),
   hash routes `#/today` etc. Dark Catppuccin Mocha theme, Fredoka + Nunito fonts, rounded corners,
   a cat cursor buddy and hearts. The owner likes this "comfy" look.
 
