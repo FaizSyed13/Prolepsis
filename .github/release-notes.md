@@ -1,10 +1,7 @@
 ## What's new
-- **Import my trades** at the top of Home: pick or paste the trade history file from your broker (Schwab, Fidelity, Robinhood, Vanguard, E*TRADE, Interactive Brokers, Questrade and most others). Prolepsis works out which of our 40 stocks you own, what you paid on average, our 5-day forecast for each one, and where your total could realistically be in 5 trading days. Your file is read on your own computer and never uploaded.
-- **Try an example**: one click shows how it works with made-up trades and the real forecasts.
-- **A living sky**: the background follows your time of day (sunrise, daytime, sunset, night with stars and a moon). Click **Show my weather** to see your real weather too (rain, clouds, storms, snow). That one is optional and uses the free Open-Meteo service with your location rounded to about 10 km.
-- **New "Luxe" colours**: gold and rose gold on deep plum-black, with emerald for gains and ruby for losses.
-- The type-in "What could happen to my money?" calculator is gone: importing your trades now gives you the same total range automatically.
-- The "Why" page was removed (each stock's news reasons are still in its pop-up), and "How to read" now lists the ideas we tested and left out, including a head-to-head with Amazon's Chronos AI.
+- **Fixed the address of the live page.** The project moved to github.com/FaizSyed13/Prolepsis, so the live page is now https://faizsyed13.github.io/Prolepsis/. This version uses the new address, so the app shows the public forecast within seconds of starting again (older downloads point to the old, now-missing address and start slower).
+- "How to read" now also lists one more idea we tested and left out: extra detail about past price moves, taken from a 2021 research paper. It didn't make the forecasts better.
+- Everything from v1.3.0 is included: Import my trades, Try an example, the living sky and the Luxe colours.
 
 ## Download
 Under **Assets** below, click **Prolepsis-….zip** (not "Source code"), then unzip it.
