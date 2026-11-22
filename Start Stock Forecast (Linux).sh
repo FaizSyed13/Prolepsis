@@ -52,7 +52,7 @@ elif [ ! -f "python/ready.txt" ]; then
     if [ -z "$ARCH" ] || ! ldd --version 2>&1 | grep -qiE "glibc|gnu libc"; then
         echo "Sorry, this needs 64-bit Linux (Intel/AMD or ARM) with standard glibc,"
         echo "for example Ubuntu, Debian, Fedora, Mint or Arch."
-        echo "You can still see the forecasts here: https://faizsyed13.github.io/Prolepsis---Future-of-stock-forecasting/"
+        echo "You can still see the forecasts here: https://faizsyed13.github.io/Prolepsis/"
         exit 1
     fi
     URL="https://github.com/astral-sh/python-build-standalone/releases/download/${TAG}/cpython-${VER}%2B${TAG}-${ARCH}-unknown-linux-gnu-install_only.tar.gz"

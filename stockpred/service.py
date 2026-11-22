@@ -23,7 +23,7 @@ from .reasoning import apply_reasoning, load_outlook, log_forecast, track_record
 
 # The public daily copy of the site. Shown right away when the program starts, so nobody has
 # to stare at "loading" while this computer builds its own forecast (15-30 minutes the first time).
-PUBLIC_STATE_URL = "https://faizsyed13.github.io/Prolepsis---Future-of-stock-forecasting/state.json"
+PUBLIC_STATE_URL = "https://faizsyed13.github.io/Prolepsis/state.json"
 
 
 def _now():

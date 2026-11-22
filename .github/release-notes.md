@@ -17,6 +17,6 @@ Under **Assets** below, click **Prolepsis-….zip** (not "Source code"), then un
 The first start sets itself up (usually 1-5 minutes, about 0.5 GB, nothing installed on your computer).
 Forecasts show up within seconds after that.
 
-Don't want to download anything? Open the live page: https://faizsyed13.github.io/Prolepsis---Future-of-stock-forecasting/
+Don't want to download anything? Open the live page: https://faizsyed13.github.io/Prolepsis/
 
 Research project, not financial advice.
