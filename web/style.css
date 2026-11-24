@@ -713,3 +713,24 @@ section.sf-guide .sf-guide-grid { margin-top: 4px; }
   .sf-status.sf-upd[data-state="live"] .sf-dot { animation: sf-breathe 3s ease-in-out infinite; }
   @keyframes sf-breathe { 50% { box-shadow: 0 0 0 5px rgba(76, 195, 138, 0.05); } }
 }
+
+/* the countdown moves every minute: old number slides up and out, new one slides in, a gold sheen sweeps the chip, the dot pings */
+.sf-upd-cd { position: relative; display: inline-grid; overflow: hidden; vertical-align: bottom; color: var(--lavender); font-weight: 600; font-variant-numeric: tabular-nums; }
+.sf-upd-cd > span { grid-area: 1 / 1; white-space: nowrap; }
+.sf-status.sf-upd::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(241, 213, 143, 0.28) 50%, transparent 70%); transform: translateX(-100%); }
+@media (prefers-reduced-motion: no-preference) {
+  .sf-upd-cd .sf-cd-in { animation: sf-cd-in 0.55s cubic-bezier(.2, .8, .2, 1) both; }
+  .sf-upd-cd .sf-cd-out { animation: sf-cd-out 0.55s cubic-bezier(.4, 0, .6, 1) both; }
+  @keyframes sf-cd-in { from { transform: translateY(100%); opacity: 0; filter: blur(2px); } to { transform: none; opacity: 1; filter: none; } }
+  @keyframes sf-cd-out { to { transform: translateY(-100%); opacity: 0; filter: blur(2px); } }
+  .sf-status.sf-upd.sf-tick::before { animation: sf-sheen 1.1s ease-out; }
+  @keyframes sf-sheen { from { opacity: 1; transform: translateX(-100%); } to { opacity: 1; transform: translateX(100%); } }
+  .sf-status.sf-upd.sf-tick .sf-dot { animation: sf-ping 1s ease-out; }
+  @keyframes sf-ping { 0% { box-shadow: 0 0 0 0 rgba(76, 195, 138, 0.7); } 100% { box-shadow: 0 0 0 9px rgba(76, 195, 138, 0); } }
+  .sf-status.sf-upd::after { background-size: 200% 100%; background-image: linear-gradient(90deg, var(--mauve), var(--lavender), var(--mauve));
+    animation: sf-line 4s linear infinite; }
+  @keyframes sf-line { to { background-position: -200% 0; } }
+}
+.sf-upd-cd .sf-cd-out { pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .sf-upd-cd .sf-cd-out { display: none; } }

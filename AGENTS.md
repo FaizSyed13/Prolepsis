@@ -53,7 +53,7 @@ range coverage ~79.75% vs an 80% target. The site says this openly. Keep it that
 | Research CLI | `run.py backtest`, `run.py backtest --sanity`, `run.py predict` |
 
 - **Public site:** https://faizsyed13.github.io/Prolepsis/ built by
-  `.github/workflows/daily.yml` (weekdays 23:00 and 10:30 UTC, on push, or manually). The job also
+  `.github/workflows/daily.yml` (weekdays 10:30, 15:00, 18:30 and 23:00 UTC, on push, or manually; keep UPDATE_SLOTS_UTC in web/app.js the same). The job also
   commits `reports/forecast_log.csv` ("Daily forecast log [skip ci]"), so **run `git pull` before committing**.
 - **Local app:** `Start Stock Forecast.bat` / `(Mac).command` / `(Linux).sh` set up a private Python with
   `uv` (pinned) on first start. The app shows the public `state.json` instantly while it builds its own.

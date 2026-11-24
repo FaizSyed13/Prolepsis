@@ -38,7 +38,7 @@
     return out;
   }
   function untilText(ms) {
-    var m = Math.max(1, Math.round(ms / 60000)), d = Math.floor(m / 1440), h = Math.floor(m % 1440 / 60);
+    var m = Math.max(1, Math.ceil(ms / 60000)), d = Math.floor(m / 1440), h = Math.floor(m % 1440 / 60);
     if (d) return d + " d " + h + " h";
     return h ? h + " h " + (m % 60) + " min" : m + " min";
   }
@@ -59,9 +59,30 @@
       var when = next.toDateString() === now.toDateString() ? "" : next.toDateString() === tmr ? "tomorrow " : d3.timeFormat("%A ")(next);
       nextText = "next " + when + d3.timeFormat("%-I:%M %p")(next) + ", in " + untilText(next - now);
     }
-    $("status-text").innerHTML = "<b>" + updated + "</b><span class=\"sf-upd-sep\" aria-hidden=\"true\">·</span>" + nextText;
+    var txt = $("status-text");
+    if (!txt.querySelector(".sf-upd-cd")) {   // build once, then only swap text so the animations can play
+      txt.innerHTML = "<b class=\"sf-upd-at\"></b><span class=\"sf-upd-sep\" aria-hidden=\"true\">·</span>" +
+        "<span class=\"sf-upd-lead\"></span><span class=\"sf-upd-cd\"><span></span></span>";
+    }
+    txt.querySelector(".sf-upd-at").textContent = updated;
+    var m = nextText.match(/^(.*in )(.+)$/), lead = m ? m[1] : nextText, cd = m ? m[2] : "";
+    txt.querySelector(".sf-upd-lead").textContent = lead;
+    var cdBox = txt.querySelector(".sf-upd-cd"), cur = cdBox.firstChild;
+    if (cur.textContent !== cd) {   // the countdown changed: slide the old number up and out, the new one in
+      if (cur.textContent && cd) {
+        var old = cur;
+        cur = document.createElement("span");
+        cur.className = "sf-cd-in";
+        cdBox.appendChild(cur);
+        old.className = "sf-cd-out";
+        setTimeout(function () { old.remove(); }, 600);
+        box.classList.remove("sf-tick"); void box.offsetWidth; box.classList.add("sf-tick");   // dot pings once
+      }
+      cur.textContent = cd;
+    }
     var from = builtAt && last && builtAt > last ? builtAt : last || now;   // progress bar: time between updates
-    box.style.setProperty("--p", pending ? 1 : Math.min(1, Math.max(0, (now - from) / (next - from))).toFixed(3));
+    var p = pending ? 1 : Math.min(1, Math.max(0, (now - from) / (next - from)));
+    box.style.setProperty("--p", p.toFixed(4));
     box.title = "The public page updates 4 times every weekday: around " +
       slots.slice(-4).map(function (t) { return d3.timeFormat("%-I:%M %p")(t); }).join(", ").replace(/, ([^,]*)$/, " and $1") +
       " (your time). Each update takes a few minutes to build. Weekends have no updates.";
@@ -1038,7 +1059,8 @@
   function renderToday() {
     renderClock(); renderTape(); renderBrief(); renderFeats(); renderPreview(); renderHonest(); renderMarkets(); renderMkChart(); renderFutures(); renderHeat();
   }
-  setInterval(function () { if (state && state.forecast) { renderClock(); renderFutures(); } renderUpdateChip(); }, 60000);
+  setInterval(function () { if (state && state.forecast) { renderClock(); renderFutures(); } }, 60000);
+  setInterval(renderUpdateChip, 1000);   // cheap; the countdown animates only when its minute changes
 
   // ---------- Your total: likely range for the imported mix of stocks ----------
   // Each stock's 80% range -> center + spread; combined with how the stocks moved together over
