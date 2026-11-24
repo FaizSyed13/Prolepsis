@@ -47,7 +47,7 @@ def main():
     html = html.replace('<script src="/static/app.js"></script>',
                         '<script>window.STATE_URL = "state.json";</script>\n<script src="app.js"></script>')
     html = html.replace("Checked every 15 minutes. Each headline is rated by FinBERT, a finance news model running on this PC.",
-                        "Checked twice each weekday (early morning and evening). Each headline is rated by FinBERT, a free finance news model.")
+                        "Checked 4 times each weekday (early morning, after the open, midday and evening). Each headline is rated by FinBERT, a free finance news model.")
     (OUT / "index.html").write_text(html, encoding="utf-8")
     (OUT / "state.json").write_text(json.dumps(svc.payload, default=str), encoding="utf-8")
     (OUT / ".nojekyll").write_text("", encoding="utf-8")

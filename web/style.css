@@ -698,3 +698,18 @@ section.sf-guide .sf-guide-grid { margin-top: 4px; }
 .sf-sky-wx { font: 600 12px var(--sans); color: var(--crust); background: linear-gradient(90deg, var(--mauve), var(--lavender)); border: 0; border-radius: 999px;
   padding: 3px 10px; cursor: pointer; }
 .sf-sky-wx:hover { filter: brightness(1.08); }
+
+/* public page: "Updated 12:30 PM · next in 2 h 15 min" chip, styled like the sky chip, gold line = time until the next update */
+.sf-status.sf-upd { width: fit-content; max-width: 100%; align-self: flex-start; position: relative; overflow: hidden; gap: 8px; padding: 4px 13px 5px 11px; border-radius: 999px; font: 500 12px var(--sans);
+  color: var(--subtext, var(--muted)); text-shadow: none; background: rgba(15, 13, 21, 0.55); border: 1px solid rgba(244, 237, 224, 0.16); backdrop-filter: blur(6px); }
+.sf-status.sf-upd b { color: var(--fg); font-weight: 600; }
+.sf-upd-sep { margin: 0 6px; color: var(--mauve); }
+.sf-status.sf-upd::after { content: ""; position: absolute; left: 0; bottom: 0; height: 2px; width: calc(var(--p, 0) * 100%);
+  background: linear-gradient(90deg, var(--mauve), var(--lavender)); border-radius: 2px; transition: width 1s ease; }
+.sf-status.sf-upd[data-state="live"] .sf-dot { box-shadow: 0 0 0 3px rgba(76, 195, 138, 0.18); }
+.sf-status.sf-upd[data-state="busy"] .sf-dot { background: var(--mauve); }
+.sf-status.sf-upd[data-state="busy"]::after { width: 100%; opacity: 0.6; }
+@media (prefers-reduced-motion: no-preference) {
+  .sf-status.sf-upd[data-state="live"] .sf-dot { animation: sf-breathe 3s ease-in-out infinite; }
+  @keyframes sf-breathe { 50% { box-shadow: 0 0 0 5px rgba(76, 195, 138, 0.05); } }
+}

@@ -25,13 +25,63 @@
   var STATIC = !!window.STATE_URL;   // public daily copy (GitHub Pages) instead of the PC program
 
 
+  // The public page rebuilds on GitHub at these UTC times, Monday-Friday (same as .github/workflows/daily.yml).
+  var UPDATE_SLOTS_UTC = [[10, 30], [15, 0], [18, 30], [23, 0]];
+  var BUILD_MIN = 25;   // GitHub often starts a few minutes late and the build takes ~15 minutes
+  function slotsAround(now) {   // every update time from 4 days back to 4 days ahead, oldest first
+    var out = [], d0 = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    for (var k = -4; k <= 4; k++) {
+      var day = new Date(d0 + k * 86400000), wd = day.getUTCDay();
+      if (wd === 0 || wd === 6) continue;
+      UPDATE_SLOTS_UTC.forEach(function (t) { out.push(new Date(day.getTime() + (t[0] * 60 + t[1]) * 60000)); });
+    }
+    return out;
+  }
+  function untilText(ms) {
+    var m = Math.max(1, Math.round(ms / 60000)), d = Math.floor(m / 1440), h = Math.floor(m % 1440 / 60);
+    if (d) return d + " d " + h + " h";
+    return h ? h + " h " + (m % 60) + " min" : m + " min";
+  }
+  var builtAt = null;
+  function renderUpdateChip() {   // "Updated 12:30 PM · next update in 2 h 15 min"
+    if (!STATIC || !builtAt) return;
+    var box = $("status"), now = new Date(), slots = slotsAround(now);
+    var last = slots.filter(function (t) { return t <= now; }).pop();
+    var next = slots.find(function (t) { return t > now; });
+    var fmt = d3.timeFormat(builtAt && now - builtAt > 20 * 3600000 ? "%a %-I:%M %p" : "%-I:%M %p");
+    var updated = "Updated " + (builtAt ? fmt(builtAt) : "—");
+    var pending = last && builtAt && builtAt < last && now - last < 75 * 60000;   // GitHub is building it right now
+    box.dataset.state = pending ? "busy" : "live";
+    var nextText;
+    if (pending) nextText = "new update on its way, it appears by itself";
+    else {
+      var tmr = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toDateString();
+      var when = next.toDateString() === now.toDateString() ? "" : next.toDateString() === tmr ? "tomorrow " : d3.timeFormat("%A ")(next);
+      nextText = "next " + when + d3.timeFormat("%-I:%M %p")(next) + ", in " + untilText(next - now);
+    }
+    $("status-text").innerHTML = "<b>" + updated + "</b><span class=\"sf-upd-sep\" aria-hidden=\"true\">·</span>" + nextText;
+    var from = builtAt && last && builtAt > last ? builtAt : last || now;   // progress bar: time between updates
+    box.style.setProperty("--p", pending ? 1 : Math.min(1, Math.max(0, (now - from) / (next - from))).toFixed(3));
+    box.title = "The public page updates 4 times every weekday: around " +
+      slots.slice(-4).map(function (t) { return d3.timeFormat("%-I:%M %p")(t); }).join(", ").replace(/, ([^,]*)$/, " and $1") +
+      " (your time). Each update takes a few minutes to build. Weekends have no updates.";
+  }
+  function nextPollMs() {   // fetch again soon after the next update should be ready, at most every 30 min
+    var now = new Date(), slots = slotsAround(now);
+    var last = slots.filter(function (t) { return t <= now; }).pop();
+    if (last && builtAt && builtAt < last && now - last < 75 * 60000) return 5 * 60000;   // waiting on a build
+    var ready = slots.find(function (t) { return t > now; }).getTime() + BUILD_MIN * 60000 - now;
+    return Math.max(60000, Math.min(ready, 1800000));
+  }
+
   function renderStatus(s) {
     var box = $("status"), phase = s.phase || "";
     if (STATIC) {
-      box.dataset.state = "live";
+      box.classList.add("sf-upd");
       var at = s.built_at || s.news_at || s.base_at;
-      $("status-text").textContent = "Updated every weekday morning and evening · last update " +
-        (at ? d3.timeFormat("%b %-d, %-I:%M %p")(new Date(at)) : "—");
+      builtAt = at ? new Date(at) : null;
+      if (builtAt && isNaN(builtAt)) builtAt = null;
+      renderUpdateChip();
       return;
     }
     if (s.public_at && phase !== "live") {   // borrowed public copy while this computer builds its own
@@ -988,7 +1038,7 @@
   function renderToday() {
     renderClock(); renderTape(); renderBrief(); renderFeats(); renderPreview(); renderHonest(); renderMarkets(); renderMkChart(); renderFutures(); renderHeat();
   }
-  setInterval(function () { if (state && state.forecast) { renderClock(); renderFutures(); } }, 60000);
+  setInterval(function () { if (state && state.forecast) { renderClock(); renderFutures(); } renderUpdateChip(); }, 60000);
 
   // ---------- Your total: likely range for the imported mix of stocks ----------
   // Each stock's 80% range -> center + spread; combined with how the stocks moved together over
@@ -1238,7 +1288,7 @@
         $("status-text").textContent = STATIC ? "Couldn't load today's forecast. Try refreshing the page."
           : "Can't reach the forecast program. Is its window still open?";
       })
-      .finally(function () { setTimeout(poll, STATIC ? 1800000 : state && state.forecast ? 60000 : 5000); });
+      .finally(function () { setTimeout(poll, STATIC ? nextPollMs() : state && state.forecast ? 60000 : 5000); });
   }
 
   // Search bar: click to see every stock, type to narrow the list, pick one to open its details.

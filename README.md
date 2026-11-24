@@ -17,7 +17,7 @@ Predicts whether each of 40 large US stocks will **beat SPY over the next 5 trad
 and tests that prediction honestly with a walk-forward backtest.
 
 ## Just want to see the forecasts?
-Open **https://faizsyed13.github.io/Prolepsis/** in any browser. Nothing to download. Updated every weekday morning and evening.
+Open **https://faizsyed13.github.io/Prolepsis/** in any browser. Nothing to download. Updated 4 times every weekday (before the open, after the open, midday and after the close).
 
 ## Run it on your own Windows PC (no Python install needed)
 1. Go to the [latest release](https://github.com/FaizSyed13/Prolepsis/releases/latest) and click **Prolepsis-….zip** under **Assets** to download it.
