@@ -71,7 +71,7 @@
 
   <section class="sf-sec" id="import">
     <h2 class="sf-h">Import my trades</h2>
-    <p class="sf-sub">Have a trade history file from your broker? We'll work out which of our 40 stocks you own, show our forecast for each one, and where your total could be in 5 trading days. Not sure yet? Try the example.</p>
+    <p class="sf-sub">Have a trade history file from your broker? We'll work out which of our 40 stocks you own and make you a report: where your total could be in 5 days, 15 days or 1 month. Not sure yet? Try the example.</p>
     <div class="sf-imp-box" id="imp-box">
       <p class="sf-imp-step"><b>1.</b> On your broker's website, download your trade history. It's usually under "Activity", "History" or "Transactions"; choose CSV. Then pick the file here, or copy the table and paste it in.</p>
       <div class="sf-imp-in">
@@ -95,35 +95,10 @@
         </div>
         <div class="sf-scroll"><table class="sf-table sf-table--static sf-imp-prev" id="imp-prev"></table></div>
         </div>
-        <p class="sf-imp-step" id="imp-step3"><b>3.</b> Here's what you own now, with our forecast for the next 5 trading days.</p>
+        <p class="sf-imp-step" id="imp-step3"><b>3.</b> Your report is ready. It opens by itself, and you can open it again here any time.</p>
         <div id="imp-sum"></div>
-      <div class="sf-pf-result" id="pf-result" hidden>
-        <h3 class="sf-h3">Your total, 5 trading days from now</h3>
-        <div class="sf-tiles">
-          <div class="sf-tile">
-            <span class="sf-label">Your stocks are worth</span>
-            <span class="sf-big" id="pf-now">—</span>
-            <span class="sf-sub" id="pf-now-sub"></span>
-          </div>
-          <div class="sf-tile sf-pf-main">
-            <span class="sf-label">Most likely in 5 trading days</span>
-            <span class="sf-big" id="pf-range">—</span>
-            <span class="sf-sub" id="pf-change"></span>
-          </div>
-        </div>
-        <div class="sf-pf-bar" id="pf-bar" aria-hidden="true">
-          <div class="sf-pf-band" id="pf-band"></div>
-          <div class="sf-pf-mark" id="pf-mark"><span>Now</span></div>
-        </div>
-        <div class="sf-pf-ends" aria-hidden="true"><span id="pf-end-lo"></span><span id="pf-end-hi"></span></div>
-        <p class="sf-sub" id="pf-spread"></p>
-        <div class="sf-early">
-          <b class="sf-early-h">How sure is this?</b>
-          <p id="pf-honest">We tested this on 70,000 made-up portfolios over 2023 to 2026, years the system had never seen. The real result landed inside the range 80% of the time, about 4 weeks out of 5. So 1 week in 5 it will land outside, and in big market drops it misses about half the time. This is not advice: it shows how much your money could swing, not whether to buy or sell.</p>
-        </div>
-      </div>
         <div class="sf-pf-actions">
-          <button type="button" class="sf-imp-btn" id="imp-plan">See my next-month report</button>
+          <button type="button" class="sf-imp-btn" id="imp-plan">Open my report</button>
           <button type="button" class="sf-pf-clear" id="imp-cancel">Start over</button>
         </div>
       </div>

@@ -1062,60 +1062,13 @@
   setInterval(function () { if (state && state.forecast) { renderClock(); renderFutures(); } }, 60000);
   setInterval(renderUpdateChip, 1000);   // cheap; the countdown animates only when its minute changes
 
-  // ---------- Your total: likely range for the imported mix of stocks ----------
-  // Each stock's 80% range -> center + spread; combined with how the stocks moved together over
-  // the past year (state.corr). Tested on 70,000 random portfolios, 2023-2026: 80.0% inside.
+  // ---------- Money helpers for the import report ----------
+  // A total's range: each stock's 80% range -> center + spread, combined with how the stocks moved
+  // together over the past year (state.corr). Tested on 70,000 random portfolios, 2023-2026: 80.0% inside.
   var PF_Z = 1.2815516;
   try { localStorage.removeItem("sf-money-v1"); } catch (e) {}   // old type-in calculator (removed)
   var usd = function (v) { return (v < 0 ? "−$" : "$") + d3.format(",.0f")(Math.abs(v)); };
   var usdSigned = function (v) { return (v > 0 ? "+" : "") + usd(v); };
-
-  // list: [{ r: forecast row, v: dollars now }]
-  function renderTotal(hs) {
-    $("pf-result").hidden = !hs.length;
-    if (!hs.length) return;
-    var corr = state.corr || { tickers: [], m: [] };
-    var ci = function (tk) { return corr.tickers.indexOf(tk); };
-    var total = 0, mu = 0, sumLo = 0, sumHi = 0;
-    hs.forEach(function (h) {
-      var lo = h.r.low / h.r.price - 1, hi = h.r.high / h.r.price - 1;
-      h.c = (lo + hi) / 2; h.sd = (hi - lo) / (2 * PF_Z);
-      total += h.v; mu += h.v * h.c; sumLo += h.v * lo; sumHi += h.v * hi;
-    });
-    var varSum = 0;
-    hs.forEach(function (a) {
-      hs.forEach(function (b) {
-        var ia = ci(a.r.ticker), ib = ci(b.r.ticker);
-        var rho = a === b ? 1 : (ia >= 0 && ib >= 0 ? corr.m[ia][ib] : 1);   // unknown pair: assume they move together (safer, wider)
-        varSum += a.v * b.v * a.sd * b.sd * rho;
-      });
-    });
-    var sd = Math.sqrt(Math.max(varSum, 0));
-    var lowV = total + mu - PF_Z * sd, highV = total + mu + PF_Z * sd;
-
-    $("pf-now").textContent = usd(total);
-    $("pf-now-sub").textContent = hs.length + " stock" + (hs.length === 1 ? "" : "s") + ", at the latest prices";
-    $("pf-range").textContent = usd(lowV) + " to " + usd(highV);
-    $("pf-change").textContent = "That's " + usdSigned(lowV - total) + " to " + usdSigned(highV - total) +
-      " (" + pct((lowV / total - 1) * 100) + " to " + pct((highV / total - 1) * 100) + ")";
-
-    // bar: band = likely range, mark = today's worth; scale covers both with some room
-    var span = Math.max(highV - lowV, 1), a0 = Math.min(lowV, total) - span * 0.25, a1 = Math.max(highV, total) + span * 0.25;
-    var x = function (v) { return ((v - a0) / (a1 - a0) * 100) + "%"; };
-    $("pf-band").style.left = x(lowV);
-    $("pf-band").style.width = ((highV - lowV) / (a1 - a0) * 100) + "%";
-    $("pf-mark").style.left = x(total);
-    $("pf-end-lo").textContent = usd(lowV);
-    $("pf-end-hi").textContent = usd(highV);
-    $("pf-end-lo").style.left = x(lowV);
-    $("pf-end-hi").style.left = x(highV);
-
-    var sumW = sumHi - sumLo, togW = highV - lowV;
-    $("pf-spread").textContent = hs.length > 1 && sumW > togW * 1.02
-      ? "Adding up each stock's own range would give a swing of " + usd(sumW) + ". Together it's only " + usd(togW) +
-        ", because your stocks rarely all hit their best or worst at the same time. That's what spreading your money out does."
-      : "";
-  }
 
   // ---------- Import my trades: broker file -> what you own -> forecast + your total range ----------
   // Everything happens in the browser (web/trades.js); the file is never uploaded.
@@ -1171,7 +1124,7 @@
   function impRun() {
     var sum = $("imp-sum"), rows = (state && state.forecast) || [];
     sum.replaceChildren();
-    renderTotal([]);
+    $("imp-plan").hidden = true; $("imp-step3").hidden = true;
     if (imp.cols.symbol < 0 && imp.cols.action < 0 || imp.cols.qty < 0) {
       sum.appendChild(el("p", "sf-imp-msg sf-imp-msg--bad", "Please pick which column has the stock symbol and which has the number of shares."));
       return;
@@ -1186,38 +1139,10 @@
     sum.appendChild(el("p", "sf-sub", "Read " + res.used + " buy and sell trade" + (res.used === 1 ? "" : "s") +
       (res.skipped ? " (skipped " + res.skipped + " other row" + (res.skipped === 1 ? "" : "s") + ", like dividends or deposits)" : "") + "." +
       (res.signOnly ? " There was no buy/sell column, so we treated minus numbers of shares as sells." : "")));
+    $("imp-plan").hidden = !ours.length;
+    $("imp-step3").hidden = !ours.length;
     if (ours.length) {
-      var wrap = el("div", "sf-scroll"), tbl = el("table", "sf-table sf-table--static");
-      var th = el("tr");
-      ["Stock", "Shares you own", "Average you paid", "Price now", "Chance up in 5 days", "Likely price in 5 days"].forEach(function (h, i) {
-        th.appendChild(el("th", i ? "sf-num" : null, h));
-      });
-      var head = el("thead"); head.appendChild(th); tbl.appendChild(head);
-      var body = el("tbody");
-      ours.forEach(function (h) {
-        var r = rows.find(function (x) { return x.ticker === h.ticker; });
-        var tr = el("tr", "sf-pf-click"); tr.tabIndex = 0;
-        tr.setAttribute("aria-label", "Open the forecast for " + r.ticker + " (" + r.name + ")");
-        tr.addEventListener("click", function () { openAdvice(r.ticker); });
-        tr.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openAdvice(r.ticker); } });
-        var paid = h.avgPaid ? "$" + money(h.avgPaid) : "—";
-        var now = el("td", "sf-num", "$" + money(r.price));
-        if (h.avgPaid) {
-          var g = (r.price / h.avgPaid - 1) * 100;
-          now.appendChild(el("span", "sf-imp-g " + (g >= 0 ? "sf-pf-gain" : "sf-pf-loss"), " " + pct(g)));
-        }
-        tr.append(el("td", null, r.ticker + " (" + r.name + ")"), el("td", "sf-num", d3.format(",.4~f")(h.shares)),
-          el("td", "sf-num", paid), now, el("td", "sf-num", r.up_pct + "%"),
-          el("td", "sf-num", "$" + money(r.low) + " – $" + money(r.high)));
-        body.appendChild(tr);
-      });
-      tbl.appendChild(body); wrap.appendChild(tbl); sum.appendChild(wrap);
-      sum.appendChild(el("p", "sf-sub", "Tap a stock to see its full forecast and news. \"Chance up\" has been right about as often as always guessing \"up\", so lean on the price range, which held about 4 weeks out of 5 in testing."));
       if ($("plan").open) renderPlan();   // keep the report in step with column changes / new prices
-      renderTotal(ours.map(function (h) {
-        var r = rows.find(function (x) { return x.ticker === h.ticker; });
-        return { r: r, v: h.shares * r.price };
-      }));
     } else {
       sum.appendChild(el("p", "sf-imp-msg", "None of the stocks you still own are in our 40 yet."));
     }
@@ -1231,7 +1156,7 @@
   }
   function impClose() {   // "Start over": empty the box (it always stays open on Home)
     $("imp-file").value = ""; $("imp-paste").value = "";
-    $("imp-map").hidden = true; $("imp-demo").hidden = true; $("pf-result").hidden = true;
+    $("imp-map").hidden = true; $("imp-demo").hidden = true;
     impMsg(""); imp = { table: null, cols: null, res: null, demo: false };
   }
   // ---------- Report pop-up: your stocks over the next 5 days / 15 days / 1 month ----------
@@ -1349,7 +1274,10 @@
     var thead = el("thead"); thead.appendChild(hr); tb.appendChild(thead);
     var body = el("tbody");
     byV.forEach(function (a) {
-      var tr = el("tr");
+      var tr = el("tr", "sf-pf-click"); tr.tabIndex = 0;
+      tr.setAttribute("aria-label", "Open the forecast for " + nm(a));
+      tr.addEventListener("click", function () { openAdvice(a.r.ticker); });
+      tr.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openAdvice(a.r.ticker); } });
       tr.append(el("td", null, nm(a)), el("td", "sf-num", usd(a.v)),
         el("td", "sf-num", "$" + money(a.r.price * (1 + a.lo)) + " – $" + money(a.r.price * (1 + a.hi))),
         el("td", "sf-num", usdSigned(a.v * a.lo) + " to " + usdSigned(a.v * a.hi)));

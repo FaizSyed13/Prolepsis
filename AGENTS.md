@@ -25,7 +25,7 @@ market recap, news and a public track record. It shows, for each stock:
   or clicks "Try an example" (made-up trades built in app.js `demoTrades()`, priced around today's prices; real forecasts).
   `web/trades.js` (pure, also runs in Node) finds the header row, guesses columns (symbol / buy-sell / shares / price; the
   visitor can change them) and works out shares owned = bought - sold, average price paid = buy cost / shares bought.
-  Shows each owned stock's forecast, then the total 80% range: each stock's range combined with the past-year daily-return
+  Results show only in the report pop-up below (the old inline table + "Your total" box were removed, owner's choice); the total 80% range: each stock's range combined with the past-year daily-return
   correlation (`stockpred/portfolio.py`, `state.corr`), normal approx. Tested on 70,000 random 1-40 stock portfolios
   2023-2026 (unseen): 80.0% inside (1 stock 79%, 40 stocks 82%); crash weeks ~46%. The old type-in "My money" calculator
   was removed (owner's choice). Runs only in the browser; nothing is uploaded or saved. No Alpha Vantage / API keys.
