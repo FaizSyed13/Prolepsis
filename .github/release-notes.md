@@ -1,7 +1,13 @@
 ## What's new
-- **Fixed the address of the live page.** The project moved to github.com/FaizSyed13/Prolepsis, so the live page is now https://faizsyed13.github.io/Prolepsis/. This version uses the new address, so the app shows the public forecast within seconds of starting again (older downloads point to the old, now-missing address and start slower).
-- "How to read" now also lists one more idea we tested and left out: extra detail about past price moves, taken from a 2021 research paper. It didn't make the forecasts better.
-- Everything from v1.3.0 is included: Import my trades, Try an example, the living sky and the Luxe colours.
+- **Your report, after Import my trades.** Once you import your trades (or try the example), a report pops up with:
+  where your total could be, your biggest risk, your wildest and calmest stock, dates to check in (like earnings days),
+  and a likely price for each stock. Switch between **5 days**, **15 days** and **1 month** (it starts on 1 month).
+- **Download my report (PDF).** Save a clean, printer-friendly copy of the report. In the print window, choose "Save as PDF".
+- **Tested first, like everything else.** On 2022-2026 history the system had never seen, the 15-day and 1-month ranges
+  held the real price about 79% of the time (whole portfolios 82-83%), close to the 80% target. The report shows
+  ranges and risk, not buy/sell calls, because guessing up or down that far ahead was no better than always guessing "up".
+- **The live page now updates 4 times every weekday** (before the open, after the open, midday and after the close),
+  with an "Updated ... next in ..." countdown at the top of Home.
 
 ## Download
 Under **Assets** below, click **Prolepsis-….zip** (not "Source code"), then unzip it.
