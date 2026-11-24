@@ -2,8 +2,11 @@ name: Daily forecast
 
 on:
   schedule:
-    - cron: "0 23 * * 1-5"   # weekdays 23:00 UTC = 5 PM Saskatchewan, after US market close
     - cron: "30 10 * * 1-5"  # weekdays 10:30 UTC = 5:30 AM New York: overnight news + futures for early risers
+    - cron: "0 15 * * 1-5"   # weekdays 15:00 UTC = 10 AM New York: first half hour of trading
+    - cron: "30 18 * * 1-5"  # weekdays 18:30 UTC = 1:30 PM New York: midday prices + news
+    - cron: "0 23 * * 1-5"   # weekdays 23:00 UTC = 5 PM Saskatchewan, after US market close
+    # Daytime runs log a forecast with the price so far; the 5 PM run replaces it with the closing price.
   workflow_dispatch:          # "Run workflow" button for a manual update
   push:
     branches: [main]          # also rebuild whenever new code is uploaded
