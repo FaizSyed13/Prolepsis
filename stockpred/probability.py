@@ -119,3 +119,31 @@ def forecast_latest(panel, feature_cols, model_name, cfg, oos):
         "high": today["close"] * (1 + hi),
     }, index=today.index).sort_values("p_up", ascending=False)
     return out, last
+
+
+# Longer ranges for the "Next month at a glance" report (15 and 21 trading days).
+# Method "B": stretch the calibrated 5-day model range by sqrt(H/5), then widen by m_H x 21-day
+# volatility, with m_H fitted (conformal) so the H-day range held the real outcome 80% of the time.
+# Tested 2022-12..2026-10 on history never used for fitting (scratchpad exp_month.py / exp_h.py):
+#   15 days: 79.0% inside, median width 16.1%; random 1-40 stock portfolios 82.6%
+#   21 days: 79.5% inside, median width 19.3%; random 1-40 stock portfolios 81.7%
+# (a model trained directly on H-day returns scored the same, so the simpler stretch was kept).
+LONGER = (15, 21)
+
+
+def longer_margins(oos, close, horizons=LONGER):
+    """{H: m_H} margins for the stretched H-day ranges, fitted on all walk-forward history."""
+    _, adj = _fit_calibration(oos)
+    s = _scale(oos["vol_21"])
+    lo5 = np.minimum(oos["q_lo"], oos["q_hi"]) - adj * s
+    hi5 = np.maximum(oos["q_lo"], oos["q_hi"]) + adj * s
+    out = {}
+    for h in horizons:
+        fwd = (close.shift(-h) / close - 1).stack()
+        fwd.index.names = oos.index.names
+        y = fwd.reindex(oos.index)
+        ok = y.notna().to_numpy()
+        k = np.sqrt(h / 5)
+        err = (np.maximum(lo5 * k - y, y - hi5 * k) / s)[ok]
+        out[h] = float(np.quantile(err, min(1.0, COVERAGE * (1 + 1 / len(err)))))
+    return out

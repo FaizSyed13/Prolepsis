@@ -123,6 +123,7 @@
         </div>
       </div>
         <div class="sf-pf-actions">
+          <button type="button" class="sf-imp-btn" id="imp-plan">See my next-month report</button>
           <button type="button" class="sf-pf-clear" id="imp-cancel">Start over</button>
         </div>
       </div>
@@ -356,6 +357,61 @@
     <button type="button" class="sf-wl-go" id="wl-go" disabled>I Understand</button>
   </div>
 </dialog>
+<dialog class="sf-dialog sf-plan" id="plan" aria-labelledby="plan-title">
+  <div class="sf-adv sf-plan-in" id="plan-doc">
+    <header class="sf-adv-head">
+      <div>
+        <p class="sf-plan-brand"><img src="/static/logo.svg" alt="" width="30" height="25"><span>Prolepsis report</span></p>
+        <h2 class="sf-adv-title" id="plan-title">Your next month at a glance</h2>
+        <p class="sf-sub" id="plan-sub">—</p>
+      </div>
+      <button class="sf-close sf-noprint" id="plan-close" type="button" aria-label="Close">×</button>
+    </header>
+    <div class="sf-seg sf-noprint" role="group" aria-label="How far ahead" id="plan-seg">
+      <button type="button" class="sf-seg-btn" data-h="5" aria-pressed="false">5 days</button>
+      <button type="button" class="sf-seg-btn" data-h="15" aria-pressed="false">15 days</button>
+      <button type="button" class="sf-seg-btn" data-h="21" aria-pressed="true">1 month</button>
+    </div>
+    <div class="sf-tiles">
+      <div class="sf-tile">
+        <span class="sf-label">Your stocks are worth</span>
+        <span class="sf-big" id="plan-now">—</span>
+        <span class="sf-sub" id="plan-now-sub"></span>
+      </div>
+      <div class="sf-tile sf-pf-main">
+        <span class="sf-label" id="plan-range-label">Most likely in 1 month</span>
+        <span class="sf-big" id="plan-range">—</span>
+        <span class="sf-sub" id="plan-change"></span>
+      </div>
+    </div>
+    <div>
+      <div class="sf-pf-bar" aria-hidden="true">
+        <div class="sf-pf-band" id="plan-band"></div>
+        <div class="sf-pf-mark" id="plan-mark"><span>Now</span></div>
+      </div>
+      <div class="sf-pf-ends" aria-hidden="true"><span id="plan-end-lo"></span><span id="plan-end-hi"></span></div>
+    </div>
+    <div class="sf-plan-cards">
+      <section class="sf-plan-card"><span class="sf-label">Your biggest risk</span><p id="plan-risk"></p></section>
+      <section class="sf-plan-card"><span class="sf-label">Wildest and calmest</span><p id="plan-wild"></p></section>
+      <section class="sf-plan-card sf-plan-card--wide"><span class="sf-label">Dates to check in</span><ul class="sf-plan-dates" id="plan-dates"></ul></section>
+    </div>
+    <section>
+      <h3 class="sf-h3">Each of your stocks</h3>
+      <div class="sf-scroll"><table class="sf-table sf-table--static" id="plan-table"></table></div>
+    </section>
+    <div class="sf-early">
+      <b class="sf-early-h">How sure is this?</b>
+      <p id="plan-honest"></p>
+    </div>
+    <div class="sf-plan-actions sf-noprint">
+      <button type="button" class="sf-imp-btn" id="plan-pdf">Download my report (PDF)</button>
+      <button type="button" class="sf-pf-clear" id="plan-done">Close</button>
+    </div>
+    <p class="sf-plan-foot">Made with Prolepsis · faizsyed13.github.io/Prolepsis · Not financial advice: it shows how much your money could swing, not what to buy or sell.</p>
+  </div>
+</dialog>
+
 <dialog class="sf-dialog" id="advice" aria-labelledby="adv-title">
   <div class="sf-adv">
     <header class="sf-adv-head">
@@ -423,6 +479,7 @@
     <path class="sf-b-mouth" d="M16 21.2q-.9 1.4-2.2.7M16 21.2q.9 1.4 2.2.7"/>
   </svg>
 </div>
+<div id="print-root" aria-hidden="true"></div>
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
 <script src="/static/trades.js"></script>

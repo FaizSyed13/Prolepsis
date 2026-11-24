@@ -29,6 +29,14 @@ market recap, news and a public track record. It shows, for each stock:
   correlation (`stockpred/portfolio.py`, `state.corr`), normal approx. Tested on 70,000 random 1-40 stock portfolios
   2023-2026 (unseen): 80.0% inside (1 stock 79%, 40 stocks 82%); crash weeks ~46%. The old type-in "My money" calculator
   was removed (owner's choice). Runs only in the browser; nothing is uploaded or saved. No Alpha Vantage / API keys.
+- **Report pop-up** (`#plan`, opens after an import or the example; "See my next-month report" reopens it): switch
+  5 days / 15 days / 1 month (default 1 month): total likely range, biggest risk (concentration, biggest dollar swing),
+  wildest/calmest stock, dates to check in (earnings inside the window), per-stock table, "Download my report (PDF)" =
+  copy into `#print-root` + `window.print()` with a light print stylesheet. 15/21-day ranges = method "B":
+  the calibrated 5-day model range x sqrt(H/5) +/- m_H x vol_21 (`probability.longer_margins`, `state.longer`).
+  Tested 2022-12..2026-10 (unseen): 15 days 79.0% inside (portfolios 82.6%), 1 month 79.5% (portfolios 81.7%);
+  a model trained directly on H-day returns scored the same (interval score tie) so the simpler stretch was kept.
+  Up/down at 15 days / 1 month: calibrated accuracy = naive (55.9% / 56.8%), so the report shows ranges, not calls.
 
 Honest current numbers (walk-forward, newest 30% of history never used for calibration):
 up/down accuracy ~54%, which equals always guessing the more common outcome (no real direction skill);

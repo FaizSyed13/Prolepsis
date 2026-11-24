@@ -17,7 +17,7 @@ from .fundamentals import load_fundamentals
 from .live_news import NewsStore, fetch_ticker
 from .portfolio import correlation
 from .market import MARKET, day_moves, fetch_market_news, load_market, mentions
-from .probability import calibration_report, forecast_latest, oos_predictions
+from .probability import calibration_report, forecast_latest, longer_margins, oos_predictions
 from .reasoning import apply_reasoning, load_outlook, log_forecast, track_record
 
 
@@ -87,6 +87,13 @@ class ForecastService:
         stats = {tk: price_stats(close, tk, self.cfg.benchmark) for tk in self.cfg.tickers}
         candles = candle_rows(self.cfg)
         moves = day_moves(close, list(self.cfg.tickers) + [self.cfg.benchmark])
+        try:   # 15-day and 1-month ranges for the import report (reading only)
+            last_vol = panel.xs(last, level="date")["vol_21"]
+            longer = {"m": {str(h): round(m, 4) for h, m in longer_margins(oos, close).items()},
+                      "vol": {tk: round(float(v), 4) for tk, v in last_vol.items()}}
+        except Exception as e:
+            print(f"Longer ranges failed: {type(e).__name__}: {e}")
+            longer = None
         try:
             corr = correlation(close, self.cfg.tickers)
         except Exception as e:
@@ -108,6 +115,7 @@ class ForecastService:
             self.candles, self.track = candles, track
             self.moves = moves
             self.corr = corr
+            self.longer = longer
         self._set(base_at=_iso(_now()))
 
     # ---- fast: headlines + FinBERT ----
@@ -180,7 +188,7 @@ class ForecastService:
                  "source": h["source"], "url": h["url"], "published": h["published"], "tone": tone(h),
                  "score": round(headline_score(h), 3)} for h in headlines[:300]]
         payload = {"forecast": rows, "calibration": calibration_rows(rep), "news": news, "candles": self.candles, "track": self.track,
-                   "market": self.market, "moves": self.moves, "corr": self.corr, "market_news": market_news,
+                   "market": self.market, "moves": self.moves, "corr": self.corr, "longer": getattr(self, "longer", None), "market_news": market_news,
                    "base_rate_pct": round(base_pct, 1),
                    "status": dict(self.status, phase="live", built_at=_iso(_now()))}
         with self.lock:

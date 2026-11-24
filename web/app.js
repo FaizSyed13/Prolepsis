@@ -1150,6 +1150,7 @@
     $("imp-map").hidden = false;
     impMsg("");
     impPreview(); impRun();
+    if (planOwned().length) setTimeout(openPlan, imp.demo ? 700 : 300);   // pop the report up once per new file or example
   }
   function impPreview() {
     var t = imp.table, tb = $("imp-prev");
@@ -1212,6 +1213,7 @@
       });
       tbl.appendChild(body); wrap.appendChild(tbl); sum.appendChild(wrap);
       sum.appendChild(el("p", "sf-sub", "Tap a stock to see its full forecast and news. \"Chance up\" has been right about as often as always guessing \"up\", so lean on the price range, which held about 4 weeks out of 5 in testing."));
+      if ($("plan").open) renderPlan();   // keep the report in step with column changes / new prices
       renderTotal(ours.map(function (h) {
         var r = rows.find(function (x) { return x.ticker === h.ticker; });
         return { r: r, v: h.shares * r.price };
@@ -1232,6 +1234,156 @@
     $("imp-map").hidden = true; $("imp-demo").hidden = true; $("pf-result").hidden = true;
     impMsg(""); imp = { table: null, cols: null, res: null, demo: false };
   }
+  // ---------- Report pop-up: your stocks over the next 5 days / 15 days / 1 month ----------
+  // 5 days = the page's own ranges. 15 and 21 trading days = the calibrated 5-day model range
+  // stretched by sqrt(H/5) and widened by m_H x 21-day volatility (state.longer, see
+  // stockpred/probability.py longer_margins). Tested on 2022-2026 history it never saw.
+  var PLAN = { h: 21 };
+  var PLAN_TXT = {
+    5: { label: "5 days", title: "Your next 5 trading days at a glance", when: "week",
+         honest: "Tested on 2023 to 2026, years the system had never seen: a single stock's real price landed inside its range 79.75% of the time, and whole portfolios 80% of the time. So about 1 time in 5 it lands outside, and in big market drops about half the time." },
+    15: { label: "15 days", title: "Your next 3 weeks at a glance", when: "3 weeks",
+         honest: "Tested on December 2022 to October 2026, years the system had never seen: a single stock's real price 15 trading days later landed inside its range 79% of the time, and made-up portfolios of 1 to 40 stocks 83% of the time. In big market drops it held only about 57% of the time." },
+    21: { label: "1 month", title: "Your next month at a glance", when: "month",
+         honest: "Tested on December 2022 to October 2026, years the system had never seen: a single stock's real price 1 month (21 trading days) later landed inside its range 79.5% of the time, and made-up portfolios of 1 to 40 stocks 82% of the time. In big market drops it held only about 62% of the time." }
+  };
+  function planRange(r, h) {   // [low, high] as returns, or null if this build has no longer ranges
+    if (h === 5) return [r.low / r.price - 1, r.high / r.price - 1];
+    var L = state.longer, m = L && L.m && L.m[String(h)], v = L && L.vol && L.vol[r.ticker];
+    if (m == null || v == null) return null;
+    var k = Math.sqrt(h / 5), lo5 = r.model_low / r.price - 1, hi5 = r.model_high / r.price - 1;
+    return [Math.min(lo5, hi5) * k - m * v, Math.max(lo5, hi5) * k + m * v];
+  }
+  function addTradingDays(iso, n) {   // weekends skipped; holidays aren't counted
+    var d = new Date(iso + "T12:00:00Z");
+    while (n > 0) { d.setUTCDate(d.getUTCDate() + 1); var w = d.getUTCDay(); if (w && w !== 6) n--; }
+    return d;
+  }
+  function planCombine(items) {   // same method as "Your total": centre + spread per stock, joined by correlation
+    var corr = state.corr || { tickers: [], m: [] }, total = 0, mu = 0, varSum = 0;
+    items.forEach(function (a) { a.c = (a.lo + a.hi) / 2; a.sd = (a.hi - a.lo) / (2 * PF_Z); total += a.v; mu += a.v * a.c; });
+    items.forEach(function (a) {
+      items.forEach(function (b) {
+        var ia = corr.tickers.indexOf(a.r.ticker), ib = corr.tickers.indexOf(b.r.ticker);
+        var rho = a === b ? 1 : (ia >= 0 && ib >= 0 ? corr.m[ia][ib] : 1);
+        varSum += a.v * b.v * a.sd * b.sd * rho;
+      });
+    });
+    var sd = Math.sqrt(Math.max(varSum, 0));
+    return { total: total, low: total + mu - PF_Z * sd, high: total + mu + PF_Z * sd };
+  }
+  function planOwned() {
+    var rows = (state && state.forecast) || [];
+    if (!imp.res) return [];
+    return imp.res.owned.filter(function (h) { return h.known; }).map(function (h) {
+      var r = rows.find(function (x) { return x.ticker === h.ticker; });
+      return r ? { r: r, v: h.shares * r.price, shares: h.shares } : null;
+    }).filter(Boolean);
+  }
+  function renderPlan() {
+    var hs = planOwned(), h = PLAN.h, T = PLAN_TXT[h];
+    if (!hs.length) return false;
+    if (h !== 5 && !planRange(hs[0].r, h)) { PLAN.h = h = 5; T = PLAN_TXT[5]; }   // older data: only 5 days
+    document.querySelectorAll("#plan-seg .sf-seg-btn").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(Number(b.dataset.h) === h));
+      b.disabled = Number(b.dataset.h) !== 5 && !planRange(hs[0].r, Number(b.dataset.h));
+    });
+    var asOf = hs[0].r.as_of, end = addTradingDays(asOf, h);
+    var endTxt = d3.utcFormat("%a %b %-d")(end);
+    hs.forEach(function (a) { var g = planRange(a.r, h); a.lo = g[0]; a.hi = g[1]; });
+    var t = planCombine(hs);
+
+    $("plan-title").textContent = T.title;
+    $("plan-sub").textContent = (imp.demo ? "Example trades · " : "") + "Made " + d3.timeFormat("%b %-d, %Y")(new Date()) +
+      " · prices from " + day(asOf) + " · " + hs.length + " stock" + (hs.length === 1 ? "" : "s");
+    $("plan-now").textContent = usd(t.total);
+    $("plan-now-sub").textContent = "at the latest prices";
+    $("plan-range-label").textContent = "Most likely by " + endTxt + " (" + T.label + ")";
+    $("plan-range").textContent = usd(t.low) + " to " + usd(t.high);
+    $("plan-change").textContent = "That's " + usdSigned(t.low - t.total) + " to " + usdSigned(t.high - t.total) +
+      " (" + pct((t.low / t.total - 1) * 100) + " to " + pct((t.high / t.total - 1) * 100) + ")";
+    var span = Math.max(t.high - t.low, 1), a0 = Math.min(t.low, t.total) - span * 0.25, a1 = Math.max(t.high, t.total) + span * 0.25;
+    var x = function (v) { return ((v - a0) / (a1 - a0) * 100) + "%"; };
+    $("plan-band").style.left = x(t.low); $("plan-band").style.width = ((t.high - t.low) / (a1 - a0) * 100) + "%";
+    $("plan-mark").style.left = x(t.total);
+    $("plan-end-lo").textContent = usd(t.low); $("plan-end-hi").textContent = usd(t.high);
+    $("plan-end-lo").style.left = x(t.low); $("plan-end-hi").style.left = x(t.high);
+
+    // biggest risk: how concentrated, and which stock could move the total most in dollars
+    var byV = hs.slice().sort(function (a, b) { return b.v - a.v; }), top = byV[0], share = top.v / t.total * 100;
+    var swing = hs.slice().sort(function (a, b) { return b.v * (b.hi - b.lo) - a.v * (a.hi - a.lo); })[0];
+    var nm = function (a) { return a.r.ticker + " (" + a.r.name + ")"; };
+    var risk = hs.length === 1 ? "All your money is in one stock, " + nm(top) + ". Whatever it does, your total does too."
+      : share >= 40 ? Math.round(share) + "% of your money is in " + nm(top) + ". If it has a bad " + T.when + ", your total moves a lot with it."
+      : "Your money is spread out: the biggest one, " + nm(top) + ", is " + Math.round(share) + "% of it.";
+    if (hs.length > 1) {
+      risk += " " + (swing.r.ticker === top.r.ticker ? "It's also" : nm(swing) + " is") +
+        " the stock that could move your total the most, about ±" + usd(swing.v * (swing.hi - swing.lo) / 2) + ".";
+    }
+    $("plan-risk").textContent = risk;
+
+    var byW = hs.slice().sort(function (a, b) { return (b.hi - b.lo) - (a.hi - a.lo); });
+    var half = function (a) { return "about ±" + ((a.hi - a.lo) / 2 * 100).toFixed(0) + "%"; };
+    $("plan-wild").textContent = hs.length === 1 ? nm(top) + " could swing " + half(top) + " in this time."
+      : "Wildest: " + nm(byW[0]) + ", could swing " + half(byW[0]) + ". Calmest: " + nm(byW[byW.length - 1]) + ", " + half(byW[byW.length - 1]) + ".";
+
+    var ul = $("plan-dates"); ul.replaceChildren();
+    var startD = new Date(asOf + "T12:00:00Z");
+    hs.filter(function (a) {
+      var e = a.r.fund && a.r.fund.next_earnings; if (!e) return false;
+      var d = new Date(e + "T12:00:00Z"); return d > startD && d <= end;
+    }).sort(function (a, b) { return a.r.fund.next_earnings < b.r.fund.next_earnings ? -1 : 1; }).forEach(function (a) {
+      var f = a.r.fund, when = f.earnings_time === "before" ? " before the market opens" : f.earnings_time === "after" ? " after the market closes" : "";
+      var li = el("li");
+      li.append(el("b", null, d3.utcFormat("%a %b %-d")(new Date(f.next_earnings + "T12:00:00Z")) + ": "),
+        document.createTextNode(nm(a) + " reports earnings" + when + (f.earnings_estimated ? " (date not confirmed yet)" : "") + ". Prices often jump on these days."));
+      ul.appendChild(li);
+    });
+    if (!ul.children.length) ul.appendChild(el("li", null, "None of your stocks report earnings in this time, as far as we know."));
+    var last = el("li"); last.append(el("b", null, endTxt + ": "), document.createTextNode("this range ends. Come back for a fresh one; the site updates 4 times every weekday."));
+    ul.appendChild(last);
+
+    var tb = $("plan-table"); tb.replaceChildren();
+    var hr = el("tr");
+    ["Stock", "Worth now", "Likely price by " + endTxt, "Could change by"].forEach(function (c, i) { hr.appendChild(el("th", i ? "sf-num" : null, c)); });
+    var thead = el("thead"); thead.appendChild(hr); tb.appendChild(thead);
+    var body = el("tbody");
+    byV.forEach(function (a) {
+      var tr = el("tr");
+      tr.append(el("td", null, nm(a)), el("td", "sf-num", usd(a.v)),
+        el("td", "sf-num", "$" + money(a.r.price * (1 + a.lo)) + " – $" + money(a.r.price * (1 + a.hi))),
+        el("td", "sf-num", usdSigned(a.v * a.lo) + " to " + usdSigned(a.v * a.hi)));
+      body.appendChild(tr);
+    });
+    tb.appendChild(body);
+    $("plan-honest").textContent = T.honest + " This is not advice: it shows how much your money could swing, not whether to buy or sell.";
+    return true;
+  }
+  function openPlan() {
+    if (!renderPlan()) return;
+    var d = $("plan");
+    if (!d.open) { d.showModal(); d.appendChild($("buddy")); d.scrollTop = 0; }
+  }
+  function closePlan() { $("plan").close(); }
+  $("plan").addEventListener("close", function () { var b = $("buddy"); if (b) document.body.appendChild(b); });
+  $("plan-close").addEventListener("click", closePlan);
+  $("plan-done").addEventListener("click", closePlan);
+  $("plan").addEventListener("click", function (e) { if (e.target === e.currentTarget) closePlan(); });
+  $("imp-plan").addEventListener("click", openPlan);
+  document.querySelectorAll("#plan-seg .sf-seg-btn").forEach(function (b) {
+    b.addEventListener("click", function () { PLAN.h = Number(b.dataset.h); renderPlan(); });
+  });
+  // PDF: copy the report into a print-only box and open the browser's print window ("Save as PDF")
+  $("plan-pdf").addEventListener("click", function () {
+    var root = $("print-root"), title = document.title;
+    root.replaceChildren($("plan-doc").cloneNode(true));
+    root.querySelectorAll("[id]").forEach(function (n) { n.removeAttribute("id"); });
+    document.title = "Prolepsis report " + d3.timeFormat("%Y-%m-%d")(new Date());
+    var done = function () { document.title = title; root.replaceChildren(); window.removeEventListener("afterprint", done); };
+    window.addEventListener("afterprint", done);
+    window.print();
+  });
+
   // "Try an example": made-up trades in a broker-style file, priced around today's prices so the
   // gains look realistic. The forecasts shown are the real ones.
   function demoTrades() {
