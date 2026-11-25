@@ -123,13 +123,17 @@ class ForecastService:
         from .sentiment import score   # heavy import, loaded on first use
         self._set(phase="Checking the news")
         items, errors = [], []
-        for tk in self.cfg.tickers:
-            got, errs = fetch_ticker(tk)
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(8) as ex:        # 5 feeds x 40 stocks: fetch a few at a time
+            fetched = list(ex.map(fetch_ticker, self.cfg.tickers))
+        for tk, (got, errs) in zip(self.cfg.tickers, fetched):
             items += got
             errors += [f"{tk}: {e}" for e in errs]
         got, errs = fetch_market_news()
         items += got
         errors += [f"Market: {e}" for e in errs]
+        cutoff = window_start()                  # older stories are never used: don't spend time scoring them
+        items = [h for h in items if h["published"] >= cutoff]
         new = self.store.add_new(items)
         pending = self.store.unscored()
         if pending:

@@ -785,3 +785,14 @@ section.sf-guide .sf-guide-grid { margin-top: 4px; }
   #print-root .sf-h3 { color: #1d1a22; }
   #print-root section, #print-root table { break-inside: avoid; }
 }
+
+/* Hover help: "?" next to tricky words + one shared bubble (web/help.js) */
+.sf-help { display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 5px; padding: 0; vertical-align: 1px;
+  border: 1px solid var(--surface2); border-radius: 50%; background: transparent; color: var(--muted);
+  font: 700 10px/1 var(--sans); letter-spacing: 0; text-transform: none; cursor: help; transition: color 0.15s, border-color 0.15s, background 0.15s; }
+.sf-help:hover, .sf-help:focus-visible, .sf-help[aria-describedby] { color: var(--bg); background: var(--mauve); border-color: var(--mauve); outline: none; }
+.sf-h .sf-help, .sf-h3 .sf-help { vertical-align: 3px; }
+.sf-help-bubble { position: fixed; z-index: 1000; max-width: 280px; padding: 9px 12px; background: var(--pop); color: var(--fg);
+  border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); font: 400 13px/1.45 var(--sans);
+  letter-spacing: 0; text-transform: none; pointer-events: none; }
+@media (hover: none) { .sf-help { width: 20px; height: 20px; font-size: 11px; } }

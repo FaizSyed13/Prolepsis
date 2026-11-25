@@ -55,7 +55,7 @@ Or, if you use git: `git clone https://github.com/FaizSyed13/Prolepsis && cd Pro
 
 ## Website (live news + advice)
 Double-click **`Start Stock Forecast.bat`**. It opens http://127.0.0.1:8050 (this PC only) and keeps
-running while its window is open: news every 15 minutes (Google News + Yahoo Finance, scored by
+running while its window is open: news every 15 minutes (Google News, Bing News, Yahoo Finance, Seeking Alpha + 20 market feeds, scored by
 FinBERT on this PC), prices/model/company facts every 6 hours. Click any stock for statistics and
 short-term / long-term Buy-Hold-Sell verdicts. Rules: `stockpred/auto_reason.py`, `stockpred/advice.py`.
 

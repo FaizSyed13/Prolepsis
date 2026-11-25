@@ -52,6 +52,7 @@ range coverage ~79.75% vs an 80% target. The site says this openly. Keep it that
 | Walk-forward testing | `stockpred/backtest.py` |
 | Calibration, ranges, latest forecast | `stockpred/probability.py` |
 | News fetch + FinBERT (ONNX, no torch) | `stockpred/live_news.py`, `stockpred/sentiment.py`, `stockpred/auto_reason.py` |
+| Hover help ("?" next to jargon; glossary keyed by label text, auto-added to new labels) | `web/help.js` |
 | Market tiles, futures, market news | `stockpred/market.py` |
 | Company facts, analyst view, earnings dates | `stockpred/fundamentals.py` |
 | Forecast log + track record | `stockpred/reasoning.py` |

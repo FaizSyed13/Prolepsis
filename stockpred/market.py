@@ -4,6 +4,7 @@ Reading only: none of this feeds the forecast model (market-wide features were t
 2026-11-17 and made it worse).
 """
 import re
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
 import pandas as pd
@@ -35,6 +36,27 @@ MARKET_FEEDS = [
     ("https://www.investing.com/rss/news_25.rss", "Investing.com"),
     ("https://seekingalpha.com/market_currents.xml", "Seeking Alpha"),
     ("https://www.federalreserve.gov/feeds/press_all.xml", "Federal Reserve"),
+    ("https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=19854910", "CNBC"),
+    ("https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=15839135", "CNBC"),
+    ("https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=20910258", "CNBC"),
+    ("https://feeds.content.dowjones.io/public/rss/mw_marketpulse", "MarketWatch"),
+    ("https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness", "WSJ"),
+    ("https://feeds.content.dowjones.io/public/rss/RSSWSJD", "WSJ"),
+    ("https://www.investing.com/rss/news_1.rss", "Investing.com"),
+    ("https://www.investing.com/rss/news_14.rss", "Investing.com"),
+    ("https://www.ft.com/markets?format=rss", "Financial Times"),
+    ("https://rss.nytimes.com/services/xml/rss/nyt/Business.xml", "New York Times"),
+    ("https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml", "New York Times"),
+    ("https://feeds.bbci.co.uk/news/business/rss.xml", "BBC"),
+    ("https://www.theguardian.com/business/rss", "The Guardian"),
+    ("https://www.economist.com/finance-and-economics/rss.xml", "The Economist"),
+    ("https://markets.businessinsider.com/rss/news", "Business Insider"),
+    ("https://fortune.com/feed/fortune-feeds/?id=3230629", "Fortune"),
+    ("https://www.benzinga.com/feed", "Benzinga"),
+    ("https://www.fool.com/a/feeds/foolwatch?apikey=foolwatch-feed", "Motley Fool"),
+    ("https://feeds.npr.org/1006/rss.xml", "NPR"),
+    ("https://www.cbsnews.com/latest/rss/moneywatch", "CBS News"),
+    ("https://abcnews.go.com/abcnews/moneyheadlines", "ABC News"),
     ("https://news.google.com/rss/search?q=stock+market+when:1d&hl=en-US&gl=US&ceid=US:en", "Google News"),
 ]
 MARKET = "MARKET"   # ticker used to store market-wide headlines next to the stock ones
@@ -75,14 +97,21 @@ def mentions(title):
 
 def fetch_market_news():
     items, errors = [], []
-    for url, name in MARKET_FEEDS:
+    def one(feed):
+        url, name = feed
         try:
-            got = _parse_rss(_get(url), MARKET, name)
-            for it in got:            # feeds that carry their own source tag (Google) keep it
-                it["source"] = it["source"] if name == "Google News" else name
-            items += got
+            return _parse_rss(_get(url), MARKET, name), None
         except Exception as e:
-            errors.append(f"{name}: {type(e).__name__}")
+            return [], f"{name}: {type(e).__name__}"
+    with ThreadPoolExecutor(8) as ex:
+        results = list(ex.map(one, MARKET_FEEDS))
+    for (url, name), (got, err) in zip(MARKET_FEEDS, results):
+        if err:
+            errors.append(err)
+            continue
+        for it in got:                # feeds that carry their own source tag (Google) keep it
+            it["source"] = it["source"] if name == "Google News" else name
+        items += got
     return items, errors
 
 

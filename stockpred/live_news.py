@@ -1,4 +1,4 @@
-"""Live headlines from free RSS feeds (Google News + Yahoo Finance), stored in SQLite.
+"""Live headlines from free RSS feeds (Google News, Bing News, Yahoo Finance, Seeking Alpha), stored in SQLite.
 
 Google News aggregates outlets such as Reuters, CNBC, Bloomberg, WSJ, MarketWatch and Barron's.
 Headlines are untrusted text: they are only scored and displayed, never executed.
@@ -61,6 +61,8 @@ def _parse_rss(raw, ticker, default_source):
         if not title:
             continue
         src_el = item.find("source")
+        if src_el is None:            # Bing News puts the outlet in a namespaced <News:Source>
+            src_el = next((c for c in item if c.tag.endswith("}Source")), None)
         source = (src_el.text or "").strip() if src_el is not None and src_el.text else default_source
         # Google News appends " - Outlet" to titles; strip it when it matches the source.
         if source and title.endswith(" - " + source):
@@ -74,25 +76,42 @@ def _parse_rss(raw, ticker, default_source):
                 published = (d if d.tzinfo else d.replace(tzinfo=timezone.utc)).astimezone(timezone.utc)
             except Exception:
                 published = datetime.now(timezone.utc)
+        link = (item.findtext("link") or "").strip()
+        if "bing.com/news/apiclick" in link:     # Bing wraps the real article link in a redirect
+            link = urllib.parse.parse_qs(urllib.parse.urlparse(link).query).get("url", [link])[0]
         out.append({
             "ticker": ticker, "title": re.sub(r"\s+", " ", title), "source": source or default_source,
-            "url": (item.findtext("link") or "").strip(), "published": published.isoformat(timespec="seconds"),
+            "url": link, "published": published.isoformat(timespec="seconds"),
         })
     return out
 
 
+# Big wire services, asked for by name through Google News so their stories are not crowded out.
+WIRES = "(site:reuters.com OR site:bloomberg.com OR site:apnews.com OR site:ft.com OR site:barrons.com)"
+
+
 def fetch_ticker(ticker):
     items, errors = [], []
-    q = urllib.parse.quote(f'{QUERIES.get(ticker, ticker)} when:3d')
-    sources = [
-        (f"https://news.google.com/rss/search?q={q}&hl=en-US&gl=US&ceid=US:en", "Google News"),
-        (f"https://feeds.finance.yahoo.com/rss/2.0/headline?s={ticker}&region=US&lang=en-US", "Yahoo Finance"),
+    name = QUERIES.get(ticker, ticker)
+    q = urllib.parse.quote(f"{name} when:3d")
+    wires = urllib.parse.quote(f'"{name.removesuffix(" stock")}" {WIRES} when:3d')
+    sources = [   # (url, label, keep only headlines that name the company)
+        (f"https://news.google.com/rss/search?q={q}&hl=en-US&gl=US&ceid=US:en", "Google News", False),
+        (f"https://news.google.com/rss/search?q={wires}&hl=en-US&gl=US&ceid=US:en", "Google News", True),
+        (f"https://www.bing.com/news/search?q={urllib.parse.quote(name)}&format=rss&mkt=en-us", "Bing News", True),
+        (f"https://feeds.finance.yahoo.com/rss/2.0/headline?s={ticker}&region=US&lang=en-US", "Yahoo Finance", False),
+        (f"https://seekingalpha.com/api/sa/combined/{ticker.replace('-', '.')}.xml", "Seeking Alpha", False),
     ]
-    for url, name in sources:
+    from .market import _NAME_RE     # company-name patterns (imported here: market imports this module)
+    named = _NAME_RE.get(ticker)
+    for url, src, must_name in sources:
         try:
-            items += _parse_rss(_get(url), ticker, name)
+            got = _parse_rss(_get(url), ticker, src)
+            if must_name and named is not None:
+                got = [h for h in got if named.search(h["title"])]
+            items += got
         except Exception as e:
-            errors.append(f"{name}: {type(e).__name__}")
+            errors.append(f"{src}: {type(e).__name__}")
     return items, errors
 
 
