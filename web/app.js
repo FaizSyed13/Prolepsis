@@ -502,7 +502,7 @@
       interval: f[1], timezone: "America/New_York", theme: isDark() ? "dark" : "light", style: "1",
       locale: "en", autosize: true, allow_symbol_change: false, hide_side_toolbar: true,
       hide_top_toolbar: true, save_image: false, calendar: false, support_host: "https://www.tradingview.com",
-      backgroundColor: "#15121c", gridColor: "rgba(37, 31, 47, 0.6)"
+      backgroundColor: "#0f1b2d", gridColor: "rgba(27, 43, 68, 0.6)"
     };
     if (f[2]) cfg.range = f[2];
     var wrap = el("div", "tradingview-widget-container");
@@ -853,10 +853,10 @@
     if (!lwc) {
       lwc = LightweightCharts.createChart($("mk-chart"), {
         autoSize: true,
-        layout: { background: { type: "solid", color: "transparent" }, textColor: "#b9ad9c", fontFamily: "IBM Plex Sans, system-ui, sans-serif" },
-        grid: { vertLines: { visible: false }, horzLines: { color: "rgba(53, 45, 66, 0.45)" } },
+        layout: { background: { type: "solid", color: "transparent" }, textColor: "#aab5c8", fontFamily: "IBM Plex Sans, system-ui, sans-serif" },
+        grid: { vertLines: { visible: false }, horzLines: { color: "rgba(38, 58, 88, 0.45)" } },
         rightPriceScale: { borderVisible: false }, timeScale: { borderVisible: false },
-        crosshair: { mode: 0, vertLine: { color: "#776b86", labelBackgroundColor: "#352d42" }, horzLine: { color: "#776b86", labelBackgroundColor: "#352d42" } },
+        crosshair: { mode: 0, vertLine: { color: "#6b7f9e", labelBackgroundColor: "#263a58" }, horzLine: { color: "#6b7f9e", labelBackgroundColor: "#263a58" } },
         handleScroll: { vertTouchDrag: false }
       });
       lwcSeries = lwc.addAreaSeries({ lineWidth: 2, priceLineVisible: false });
