@@ -1,0 +1,42 @@
+name: Security check (CodeQL)
+
+# Reads the code and looks for risky patterns (for example unsafe handling of
+# outside data). Results show up under the repo's Security tab -> Code scanning.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "reports/**"
+      - "docs/**"
+      - "**.md"
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "17 6 * * 1"   # every Monday, early morning UTC
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [python, javascript-typescript, actions]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"
